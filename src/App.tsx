@@ -1,14 +1,9 @@
 import { memo, useDeferredValue, useState } from "react";
-import { useShips } from "./api/encyclopedia";
+import { resolveMediaUrl, useMediaPath, useShips } from "./api/encyclopedia";
+import { NationFlag } from "./components/NationFlag";
+import { ShipCard } from "./components/ShipCard";
+import { Badge } from "./components/ui/badge";
 import { Input } from "./components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "./components/ui/table";
 import { useDebounceValue } from "./lib/useDebounceValue";
 
 export default function App() {
@@ -36,41 +31,45 @@ export default function App() {
 
 const Ships = memo(function Ships({ search }: { search: string }) {
   const ships = useShips({ search });
+  const mediaPath = useMediaPath();
 
-  if (ships.error) {
+  if (ships.error || mediaPath.error) {
     return <div>error</div>;
   }
 
-  if (ships.isPending) {
+  if (ships.isPending || mediaPath.isPending) {
     return <div>loading</div>;
   }
 
   return (
     <div className="space-y-2">
       <p>{ships.data.length} result(s)</p>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableHeader>Ship</TableHeader>
-            <TableHeader>Tier</TableHeader>
-            <TableHeader>Nation</TableHeader>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {ships.data.map((ship) => (
-            <TableRow key={ship.id}>
-              <TableCell>{ship.localization.mark.en ?? ship.name}</TableCell>
-              <TableCell>{ship.level}</TableCell>
-              <TableCell>{ship.nation}</TableCell>
-            </TableRow>
-          ))}
-          {ships.data.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={3}>No ships found.</TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        {ships.data.map((ship) => {
+          const displayName = ship.localization.shortmark.en ?? ship.name;
+
+          return (
+            <ShipCard
+              key={ship.id}
+              imageSrc={resolveMediaUrl(mediaPath.data, ship.icons.large)}
+              imageAlt={displayName}
+            >
+              <NationFlag
+                nation={ship.nation}
+                className="absolute inset-0 z-[-1] opacity-50 "
+                size="large"
+              />
+              {<Badge className="absolute top-3 left-4">T{ship.level}</Badge>}
+              {displayName && (
+                <Badge className="absolute bottom-3 right-4">
+                  {displayName}
+                </Badge>
+              )}
+            </ShipCard>
+          );
+        })}
+      </div>
+      {ships.data.length === 0 && <p>No ships found.</p>}
     </div>
   );
 });
