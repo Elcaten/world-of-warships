@@ -1,16 +1,15 @@
 import { memo, useDeferredValue, useState } from "react";
-import {
-  resolveMediaUrl,
-  useMediaPath,
-  useShips,
-  type Ship,
-} from "./api/encyclopedia";
-import { NationFlag } from "./components/NationFlag";
-import { ShipCard } from "./components/ShipCard";
+import { useMediaPath, useShips, type Ship } from "./api/encyclopedia";
 import { ShipDetailsDialog } from "./components/ShipDetailsDialog";
-import { Badge } from "./components/ui/badge";
+import { ShipTableRow } from "./components/ShipTableRow";
 import { Input } from "./components/ui/input";
-import { VehicleTypeIcon } from "./components/VehicleTypeIcon";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./components/ui/table";
 import { useDebounceValue } from "./lib/useDebounceValue";
 
 export default function App() {
@@ -29,7 +28,7 @@ export default function App() {
           onChange={(event) => setSearch(event.target.value)}
         />
       </nav>{" "}
-      <main className="min-h-screen space-y-4 bg-slate-100 p-6">
+      <main className="min-h-screen space-y-4 bg-slate-100 dark:bg-slate-900 p-6">
         <Ships search={deferredSearch} />
       </main>
     </>
@@ -52,43 +51,26 @@ const Ships = memo(function Ships({ search }: { search: string }) {
   return (
     <div className="space-y-2">
       <p>{ships.data.length} result(s)</p>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-        {ships.data.map((ship) => {
-          const displayName = ship.localization.shortmark.en ?? ship.name;
-
-          return (
-            <ShipCard
+      <Table striped>
+        <TableHead>
+          <TableRow>
+            <TableHeader scope="col">Ship</TableHeader>
+            <TableHeader scope="col">Nation</TableHeader>
+            <TableHeader scope="col">Type</TableHeader>
+            <TableHeader scope="col">Tier</TableHeader>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {ships.data.map((ship) => (
+            <ShipTableRow
               key={ship.id}
-              imageSrc={resolveMediaUrl(mediaPath.data, ship.icons.large)}
-              imageAlt={displayName}
-            >
-              <NationFlag
-                nation={ship.nation}
-                className="absolute inset-0 z-[-1] opacity-50 "
-                size="large"
-              />
-              {
-                <Badge className="absolute top-3 left-4 flex">
-                  <VehicleTypeIcon vehicleType={ship.vehicleType} />
-                  {ship.level}
-                </Badge>
-              }
-              {displayName && (
-                <Badge className="absolute bottom-3 right-4">
-                  {displayName}
-                </Badge>
-              )}
-              <button
-                type="button"
-                aria-label={`View details for ${displayName}`}
-                aria-haspopup="dialog"
-                className="absolute inset-0 cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-600"
-                onClick={() => setSelectedShip(ship)}
-              />
-            </ShipCard>
-          );
-        })}
-      </div>
+              ship={ship}
+              mediaPath={mediaPath.data}
+              onViewDetails={setSelectedShip}
+            />
+          ))}
+        </TableBody>
+      </Table>
       {ships.data.length === 0 && <p>No ships found.</p>}
       <ShipDetailsDialog
         ship={selectedShip}
