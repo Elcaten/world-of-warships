@@ -17,7 +17,7 @@ export default function App() {
   const deferredSearch = useDeferredValue(debouncedSearch);
 
   return (
-    <main className="min-h-screen space-y-4 bg-white p-6 text-slate-900">
+    <main className="min-h-screen space-y-4 bg-brand-silver p-6 text-gray-50">
       <nav>
         <Input
           type="search"
