@@ -17,8 +17,8 @@ export default function App() {
   const deferredSearch = useDeferredValue(debouncedSearch);
 
   return (
-    <main className="min-h-screen space-y-4 bg-brand-silver p-6 text-gray-50">
-      <nav>
+    <>
+      <nav className="p-6 bg-blue-100">
         <Input
           type="search"
           aria-label="Search ships"
@@ -26,9 +26,11 @@ export default function App() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-      </nav>
-      <Ships search={deferredSearch} />
-    </main>
+      </nav>{" "}
+      <main className="min-h-screen space-y-4 bg-slate-100 p-6">
+        <Ships search={deferredSearch} />
+      </main>
+    </>
   );
 }
 
