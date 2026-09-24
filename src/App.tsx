@@ -1,9 +1,16 @@
 import { memo, useDeferredValue, useState } from "react";
-import { resolveMediaUrl, useMediaPath, useShips } from "./api/encyclopedia";
+import {
+  resolveMediaUrl,
+  useMediaPath,
+  useShips,
+  type Ship,
+} from "./api/encyclopedia";
 import { NationFlag } from "./components/NationFlag";
 import { ShipCard } from "./components/ShipCard";
+import { ShipDetailsDialog } from "./components/ShipDetailsDialog";
 import { Badge } from "./components/ui/badge";
 import { Input } from "./components/ui/input";
+import { VehicleTypeIcon } from "./components/VehicleTypeIcon";
 import { useDebounceValue } from "./lib/useDebounceValue";
 
 export default function App() {
@@ -30,6 +37,7 @@ export default function App() {
 }
 
 const Ships = memo(function Ships({ search }: { search: string }) {
+  const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
   const ships = useShips({ search });
   const mediaPath = useMediaPath();
 
@@ -59,17 +67,34 @@ const Ships = memo(function Ships({ search }: { search: string }) {
                 className="absolute inset-0 z-[-1] opacity-50 "
                 size="large"
               />
-              {<Badge className="absolute top-3 left-4">T{ship.level}</Badge>}
+              {
+                <Badge className="absolute top-3 left-4 flex">
+                  <VehicleTypeIcon vehicleType={ship.vehicleType} />
+                  {ship.level}
+                </Badge>
+              }
               {displayName && (
                 <Badge className="absolute bottom-3 right-4">
                   {displayName}
                 </Badge>
               )}
+              <button
+                type="button"
+                aria-label={`View details for ${displayName}`}
+                aria-haspopup="dialog"
+                className="absolute inset-0 cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-600"
+                onClick={() => setSelectedShip(ship)}
+              />
             </ShipCard>
           );
         })}
       </div>
       {ships.data.length === 0 && <p>No ships found.</p>}
+      <ShipDetailsDialog
+        ship={selectedShip}
+        mediaPath={mediaPath.data}
+        onClose={() => setSelectedShip(null)}
+      />
     </div>
   );
 });

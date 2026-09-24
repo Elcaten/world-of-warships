@@ -1,6 +1,14 @@
 import type { MediaPath, Vehicle, Vehicles } from './schemas'
 
-export type Ship = Vehicle & { id: string }
+export type Ship = Vehicle & { id: string; vehicleType: string }
+
+const vehicleTypeTags = new Set([
+  'AirCarrier',
+  'Battleship',
+  'Cruiser',
+  'Destroyer',
+  'Submarine',
+])
 
 export interface ShipFilters {
   search?: string
@@ -31,7 +39,12 @@ export function selectShips(
         (!filters.levels?.length || filters.levels.includes(ship.level)) &&
         (!filters.types?.length || filters.types.some((type) => ship.tags.includes(type)))
     })
-    .map(([id, ship]) => ({ ...ship, id }))
+    .map(([id, ship]) => ({
+      ...ship,
+      id,
+      // Each ship has exactly one vehicle type tag.
+      vehicleType: ship.tags.find((tag) => vehicleTypeTags.has(tag))!,
+    }))
 }
 
 // Use CDN icon fields (small/medium/large/etc.), not game-local `local_*` paths.
