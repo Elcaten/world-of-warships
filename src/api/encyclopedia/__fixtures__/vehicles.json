@@ -1,0 +1,76 @@
+{
+  "status": "ok",
+  "data": {
+    "3765319664": {
+      "level": 5,
+      "name": "PASD505_Hill",
+      "icons": {
+        "local_contour": "gui/ship_bars/PASD505_h_bg.png",
+        "contour_alive": "vehicle/contour_alive/PASD505_62e29247f3697cc741eb3d401abc845d10551fd33155dd70fe3e569d22ec9b83.png",
+        "medium": "vehicle/medium/PASD505_c55a77233fc224bf6cf978b593a1efe99d2aec62b1c40840755e3888ea89da7c.png",
+        "default": "vehicle/small/PASD505_6e5d7f1db6cc0b3fedfb48455a8babe6454907a79f8d6b6767d19cde739273a6.png",
+        "local_small": "gui/ship_previews/PASD505.png",
+        "contour_dead": "vehicle/contour_dead/PASD505_ddeebdbcd7ef1bca4949d68ed2c26610999602a9582b75df1da7a2e292dfd90a.png",
+        "large": "vehicle/large/PASD505_d69732786e89823aeba08aa9177e9e209ae413bad09a4c54905afe4f2d850dbe.png",
+        "local_contour_dead": "gui/ship_dead_icons/PASD505.png",
+        "local_contour_alive": "gui/ship_icons/PASD505.png",
+        "small": "vehicle/small/PASD505_6e5d7f1db6cc0b3fedfb48455a8babe6454907a79f8d6b6767d19cde739273a6.png",
+        "contour": "vehicle/contour/PASD505_b16401bed000c4ce195a21c07bad3bb9ba5a489d26001263f8832cdd6a9f391c.png"
+      },
+      "tags": [
+        "Destroyer",
+        "special",
+        "uiPremium",
+        "canRent",
+        "sellable"
+      ],
+      "localization": {
+        "shortmark": {
+          "en": "Hill"
+        },
+        "description": {
+          "en": "One of the ship designs meant to combine the features of both a destroyer and a cruiser was the preliminary design project of a destroyer leader with a displacement of 1,525 tons. The ship was supposed to have steam turbines with a gearbox, and her armament was to include five 127 mm guns. The predraft project was offered to the Bath Iron Works company, but the latter didn't show much interest, so the U.S. High Navy Command turned its attention to the 2,200-ton leader project."
+        },
+        "mark": {
+          "en": "Hill"
+        }
+      },
+      "nation": "usa"
+    },
+    "4276041424": {
+      "level": 10,
+      "name": "PJSB018_Yamato_1944",
+      "icons": {
+        "local_contour": "gui/ship_bars/PJSB018_h_bg.png",
+        "contour_alive": "vehicle/contour_alive/PJSB018_5ffcb74de3f51f11647352898c26d094231e7bf3cfc2b49700ddf0f5059c8544.png",
+        "medium": "vehicle/medium/PJSB018_857679f9c34121af5fcdd61ce12aeda73db5fceab711e5f96c6710e9d99c3550.png",
+        "default": "vehicle/small/PJSB018_bb608ae8c89cac27791627deb721463af6cb68edcf370154c3081db0d386d9db.png",
+        "local_small": "gui/ship_previews/PJSB018.png",
+        "contour_dead": "vehicle/contour_dead/PJSB018_5843981bfa67e0b0400929b8413d811c607a9c1d1c19bee06682bc356cb5402d.png",
+        "large": "vehicle/large/PJSB018_a2537f6f5dd5c080d6b8ab041247a37b884fcf801483af87bf544ff0c764d23c.png",
+        "local_contour_dead": "gui/ship_dead_icons/PJSB018.png",
+        "local_contour_alive": "gui/ship_icons/PJSB018.png",
+        "small": "vehicle/small/PJSB018_bb608ae8c89cac27791627deb721463af6cb68edcf370154c3081db0d386d9db.png",
+        "contour": "vehicle/contour/PJSB018_9496ac92794f063456413531bf1f0ffa49a2e1a3b8a537749b34c0c6a0ff8fe3.png"
+      },
+      "tags": [
+        "Battleship",
+        "upgradeable",
+        "sellable",
+        "buyable"
+      ],
+      "localization": {
+        "shortmark": {
+          "en": "Yamato"
+        },
+        "description": {
+          "en": "The preliminary draft design of the battleship developed in Japan in the mid-1930s had a displacement of 49,000–69,500 tons, a speed of 24–31 knots, and a main gun caliber of 410–460 mm in various versions. The final version was Yamato, the largest battleship in the world. Admiral Yamamoto took command of the Japanese forces from her bridge during the Battle of Midway. On April 7, 1945, Yamato was sunk off Kyūshū island by attacking U.S. Navy aircraft during Operation Ten-Go."
+        },
+        "mark": {
+          "en": "Yamato"
+        }
+      },
+      "nation": "japan"
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "status": "ok",
+  "data": [
+    {
+      "name": "japan",
+      "icons": {
+        "large": "nation_flags/large/flag_Japan_dc7a62826070d782f60b959d0b00fa9548d97a3893f08824d2e2dece8df3ce78.png",
+        "default": "nation_flags/small/flag_Japan_e342ec07b9df580383a85abc178ac050901763e92607376b50a093c02b3abed0.png",
+        "local_large": "gui/nation_flags/big/flag_Japan.png",
+        "local_tiny": "gui/nation_flags/tiny/flag_Japan.png",
+        "small": "nation_flags/small/flag_Japan_e342ec07b9df580383a85abc178ac050901763e92607376b50a093c02b3abed0.png",
+        "local_small": "gui/nation_flags/small/flag_Japan.png",
+        "tiny": "nation_flags/tiny/flag_Japan_afff8f2e1e23cdf6b9314f80cca4fb85af40cfbe7812a9ccc707fd24ed207557.png"
+      },
+      "color": 13752795,
+      "tags": [
+        "inTree"
+      ],
+      "localization": {
+        "mark": {
+          "en": "Japan"
+        }
+      },
+      "id": 1
+    },
+    {
+      "name": "usa",
+      "icons": {
+        "large": "nation_flags/large/flag_USA_bfe874dbd91cdd9e7b77e378d7efeb221931b9b25d24e79a138fe4801050966c.png",
+        "default": "nation_flags/small/flag_USA_1b4b2220fa11809cdd5179fa188ef7651382714b66cbbe12d49a0744dff52495.png",
+        "local_large": "gui/nation_flags/big/flag_USA.png",
+        "local_tiny": "gui/nation_flags/tiny/flag_USA.png",
+        "small": "nation_flags/small/flag_USA_1b4b2220fa11809cdd5179fa188ef7651382714b66cbbe12d49a0744dff52495.png",
+        "local_small": "gui/nation_flags/small/flag_USA.png",
+        "tiny": "nation_flags/tiny/flag_USA_a608afcc194232095536ebc93508eb7b4b68cf46bc3600cd28b4afd0ad9a38b3.png"
+      },
+      "color": 5549009,
+      "tags": [
+        "inTree"
+      ],
+      "localization": {
+        "mark": {
+          "en": "U.S.A."
+        }
+      },
+      "id": 2
+    }
+  ]
+}
