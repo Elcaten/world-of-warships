@@ -1,8 +1,8 @@
 import { memo, useDeferredValue, useState } from "react";
 import { useMediaPath, useShips, type Ship } from "./api/encyclopedia";
 import { ShipDetailsDialog } from "./components/ShipDetailsDialog";
+import { ShipFilters } from "./components/ShipFilters";
 import { ShipTableRow } from "./components/ShipTableRow";
-import { Input } from "./components/ui/input";
 import {
   Table,
   TableBody,
@@ -19,7 +19,7 @@ export default function App() {
 
   return (
     <>
-      <nav className="p-6 bg-blue-100">
+      {/*<nav className="p-6 bg-blue-100">
         <Input
           type="search"
           aria-label="Search ships"
@@ -27,8 +27,8 @@ export default function App() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-      </nav>{" "}
-      <main className="min-h-screen space-y-4 bg-slate-100 dark:bg-slate-900 p-6">
+      </nav>{" "}*/}
+      <main className="min-h-screen space-y-4  p-6">
         <Ships search={deferredSearch} />
       </main>
     </>
@@ -37,7 +37,9 @@ export default function App() {
 
 const Ships = memo(function Ships({ search }: { search: string }) {
   const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
-  const ships = useShips({ search });
+  const [types, setTypes] = useState<string[]>();
+  const [nations, setNations] = useState<string[]>();
+  const ships = useShips({ search, types, nations });
   const mediaPath = useMediaPath();
 
   if (ships.error || mediaPath.error) {
@@ -50,6 +52,12 @@ const Ships = memo(function Ships({ search }: { search: string }) {
 
   return (
     <div className="space-y-2">
+      <ShipFilters
+        types={types}
+        nations={nations}
+        onTypesChange={setTypes}
+        onNationsChange={setNations}
+      />
       <p>{ships.data.length} result(s)</p>
       <Table striped>
         <TableHead>

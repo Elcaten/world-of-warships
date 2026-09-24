@@ -18,7 +18,8 @@ export interface ShipFilters {
 }
 
 // Filters are local: these endpoints return full catalogues, not search pages.
-// Empty filter arrays mean all values; different filter categories are ANDed.
+// Omitted filters mean all values; empty nations/types mean none.
+// Different filter categories are ANDed; empty levels still mean all tiers.
 export function selectShips(
   vehicles: Vehicles,
   filters: ShipFilters = {},
@@ -35,9 +36,9 @@ export function selectShips(
       ].some((name) => name?.toLowerCase().includes(search))
 
       return matchesSearch &&
-        (!filters.nations?.length || filters.nations.includes(ship.nation)) &&
+        (!filters.nations || filters.nations.includes(ship.nation)) &&
         (!filters.levels?.length || filters.levels.includes(ship.level)) &&
-        (!filters.types?.length || filters.types.some((type) => ship.tags.includes(type)))
+        (!filters.types || filters.types.some((type) => ship.tags.includes(type)))
     })
     .map(([id, ship]) => ({
       ...ship,

@@ -69,8 +69,9 @@ tags, and extra object fields without hard-coding today's catalogue values.
 These URLs return full catalogues. `useShips` searches and filters the cached
 vehicle record locally, returning an array with each ship's `id` preserved.
 Search matches English display names, technical names, and IDs. Nation, class,
-and tier filters are ANDed; values within each filter are ORed. Empty filters
-include all ships. No hidden, premium, or event ships are implicitly excluded.
+and tier filters are ANDed; values within each filter are ORed. Omitted filters
+include all ships; empty nation or type arrays match none. Empty tier arrays
+include all tiers. No hidden, premium, or event ships are implicitly excluded.
 The catalogue stays fresh and remains cached while inactive for one hour;
 changing filters does not trigger a new request. The full vehicle response is
 about 20 MB uncompressed, so the first load still requires that download.

@@ -115,7 +115,9 @@ describe('ship selectors', () => {
       .toHaveLength(1)
     expect(selectShips(vehicles, { nations: ['japan'], types: ['Destroyer'] }))
       .toHaveLength(0)
-    expect(selectShips(vehicles, { nations: [], levels: [], types: [] })).toHaveLength(2)
+    expect(selectShips(vehicles, { levels: [] })).toHaveLength(2)
+    expect(selectShips(vehicles, { nations: [] })).toHaveLength(0)
+    expect(selectShips(vehicles, { types: [] })).toHaveLength(0)
   })
 
   it('supports IDs and technical names without mutating the catalogue', () => {
