@@ -2,14 +2,7 @@ import { memo, useDeferredValue, useState } from "react";
 import { useMediaPath, useShips, type Ship } from "./api/encyclopedia";
 import { ShipDetailsDialog } from "./components/ShipDetailsDialog";
 import { ShipFilters } from "./components/ShipFilters";
-import { ShipTableRow } from "./components/ShipTableRow";
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "./components/ui/table";
+import { ShipsTable } from "./components/ShipsTable";
 import { useDebounceValue } from "./lib/useDebounceValue";
 
 export default function App() {
@@ -59,26 +52,11 @@ const Ships = memo(function Ships({ search }: { search: string }) {
         onNationsChange={setNations}
       />
       <p>{ships.data.length} result(s)</p>
-      <Table striped>
-        <TableHead>
-          <TableRow>
-            <TableHeader scope="col">Ship</TableHeader>
-            <TableHeader scope="col">Nation</TableHeader>
-            <TableHeader scope="col">Type</TableHeader>
-            <TableHeader scope="col">Tier</TableHeader>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {ships.data.map((ship) => (
-            <ShipTableRow
-              key={ship.id}
-              ship={ship}
-              mediaPath={mediaPath.data}
-              onViewDetails={setSelectedShip}
-            />
-          ))}
-        </TableBody>
-      </Table>
+      <ShipsTable
+        ships={ships.data}
+        mediaPath={mediaPath.data}
+        onViewDetails={setSelectedShip}
+      />
       {ships.data.length === 0 && <p>No ships found.</p>}
       <ShipDetailsDialog
         ship={selectedShip}
