@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { CommandButton } from "./ui/command-button";
 import { Icon } from "./ui/icon";
 
@@ -24,11 +25,11 @@ export function FleetToolbar({
   onReset,
 }: Props) {
   return (
-    <div className="mb-5 flex flex-wrap items-center gap-2 sm:mb-6 sm:gap-2.5 lg:flex-nowrap">
-      <label className="flex min-h-11.5 min-w-45 flex-1 basis-full items-center gap-3 border border-transparent bg-fleet-deep px-3.5 focus-within:border-fleet-cyan sm:basis-[calc(100%-270px)] lg:basis-0">
+    <div className="mb-6 flex flex-wrap items-center gap-2">
+      <label className="flex basis-full items-center gap-3 bg-fleet-deep px-3 focus-within:ring-1 focus-within:ring-fleet-cyan lg:flex-1">
         <Icon name="search" className="shrink-0 text-fleet-highlight" />
         <input
-          className="min-w-0 w-full border-0 bg-transparent py-2.5 text-[15px] outline-none placeholder:text-[#98a8b2] focus-visible:outline-none"
+          className="min-w-0 w-full bg-transparent py-3 text-sm placeholder:text-fleet-muted focus-visible:outline-none"
           type="search"
           aria-label="Search ships"
           placeholder="Search by ship name or designation…"
@@ -36,10 +37,10 @@ export function FleetToolbar({
           onChange={(event) => onSearchChange(event.target.value)}
         />
       </label>
-      <label className="flex min-h-10.5 flex-1 basis-full items-center justify-between gap-2.5 bg-fleet-deep pl-3 font-mono text-xs sm:basis-auto lg:flex-none">
-        <span className="text-[10px] text-fleet-muted uppercase">Sort</span>
+      <label className="flex items-center gap-2 bg-fleet-deep pl-3 font-mono text-xs">
+        <span className="text-fleet-muted uppercase">Sort</span>
         <select
-          className="max-w-50 bg-fleet-deep px-2 py-2.5"
+          className="bg-fleet-deep p-3"
           aria-label="Sort ships"
           value={sort}
           onChange={(event) => onSortChange(event.target.value as FleetSort)}
@@ -50,33 +51,47 @@ export function FleetToolbar({
         </select>
       </label>
       <div
-        className="flex flex-1 gap-0.5 bg-fleet-deep p-1 sm:flex-none"
+        className="flex bg-fleet-deep p-1"
         role="group"
         aria-label="Display mode"
       >
-        <button
-          className="flex flex-1 items-center justify-center gap-2 px-2.5 py-2 font-mono text-[11px] font-medium text-[#aababc] uppercase aria-pressed:bg-[#1c2c34] aria-pressed:text-fleet-highlight sm:flex-none"
-          aria-label="Grid view"
-          aria-pressed={view === "grid"}
-          onClick={() => onViewChange("grid")}
-        >
+        <ViewButton view="grid" selected={view} onChange={onViewChange}>
           <Icon name="grid" className="size-4" />
           <span>Grid</span>
-        </button>
-        <button
-          className="flex flex-1 items-center justify-center gap-2 px-2.5 py-2 font-mono text-[11px] font-medium text-[#aababc] uppercase aria-pressed:bg-[#1c2c34] aria-pressed:text-fleet-highlight sm:flex-none"
-          aria-label="Table view"
-          aria-pressed={view === "table"}
-          onClick={() => onViewChange("table")}
-        >
+        </ViewButton>
+        <ViewButton view="table" selected={view} onChange={onViewChange}>
           <Icon name="table" className="size-4" />
           <span>Table</span>
-        </button>
+        </ViewButton>
       </div>
       <CommandButton onClick={onReset}>
         <Icon name="reset" />
         Reset
       </CommandButton>
     </div>
+  );
+}
+
+function ViewButton({
+  view,
+  selected,
+  onChange,
+  children,
+}: {
+  view: FleetView;
+  selected: FleetView;
+  onChange: (view: FleetView) => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className="flex items-center gap-2 p-2 font-mono text-xs text-fleet-muted uppercase aria-pressed:bg-fleet-line aria-pressed:text-fleet-highlight"
+      aria-label={view === "grid" ? "Grid view" : "Table view"}
+      aria-pressed={view === selected}
+      onClick={() => onChange(view)}
+    >
+      {children}
+    </button>
   );
 }

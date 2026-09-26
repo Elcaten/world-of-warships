@@ -35,7 +35,7 @@ export function ShipTableRow({
             src={resolveMediaUrl(mediaPath, ship.icons.contour_alive)}
             alt=""
             loading="lazy"
-            className=" w-24 object-contain"
+            className="w-24 object-contain"
           />
           {onViewDetails ? (
             <button
@@ -53,7 +53,7 @@ export function ShipTableRow({
         </div>
       </TableCell>
       <TableCell>
-        <span className="inline-flex items-center gap-2.5">
+        <span className="inline-flex items-center gap-2">
           <NationFlag
             nation={ship.nation}
             size="small"
@@ -64,10 +64,10 @@ export function ShipTableRow({
         </span>
       </TableCell>
       <TableCell>
-        <span className="inline-flex items-center gap-2.5">
+        <span className="inline-flex items-center gap-2">
           <VehicleTypeIcon
             vehicleType={ship.vehicleType}
-            className="h-6 w-6 object-contain"
+            className="size-6 object-contain"
             aria-hidden="true"
           />
           {types.data?.[ship.vehicleType]?.localization.mark.en ??
@@ -75,7 +75,7 @@ export function ShipTableRow({
         </span>
       </TableCell>
       <TableCell>
-        <span className="font-heading text-base leading-normal font-semibold">
+        <span className="font-heading text-base font-semibold">
           {tierLabel(ship.level)}
         </span>
       </TableCell>

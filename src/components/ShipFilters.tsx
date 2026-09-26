@@ -32,7 +32,7 @@ export function ShipFilters({
     <section aria-label="Ship filters" className="flex flex-col gap-4">
       <FilterGroup
         label="Class"
-        icon={<Icon name="anchor" className="size-[17px] text-fleet-cyan" />}
+        icon={<Icon name="anchor" className="size-4 text-fleet-cyan" />}
         allLabel="All hulls"
         selected={types}
         onChange={onTypesChange}
@@ -51,7 +51,7 @@ export function ShipFilters({
       />
       <FilterGroup
         label="Nation"
-        icon={<Icon name="flag" className="size-[17px] text-fleet-gold" />}
+        icon={<Icon name="flag" className="size-4 text-fleet-gold" />}
         allLabel="All nations"
         selected={nations}
         onChange={onNationsChange}
@@ -69,7 +69,7 @@ export function ShipFilters({
       />
       <FilterGroup
         label="Ship tier"
-        icon={<Icon name="tier" className="size-[17px] text-fleet-cyan" />}
+        icon={<Icon name="tier" className="size-4 text-fleet-cyan" />}
         compact
         selected={levels}
         onChange={onLevelsChange}

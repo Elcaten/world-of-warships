@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState, type ReactNode } from "react";
 import {
   useMediaPath,
   useNations,
@@ -74,24 +74,23 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_50%_0%,#17283255,transparent_65%),repeating-linear-gradient(135deg,transparent,transparent_4px,#ffffff01_4px,#ffffff01_5px)]">
+    <div className="flex min-h-screen flex-col">
       <AppHeader />
       <main
         id="main-content"
-        className="mx-auto w-[calc(100%-32px)] sm:w-[calc(100%-48px)] lg:w-[min(100%-80px,1536px)] min-h-[calc(100vh-164px)] pt-6 pb-12 sm:pt-7.5"
+        className="mx-auto w-full max-w-384 flex-1 px-4 py-8 sm:px-6 lg:px-10"
       >
         <div className="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <p className="mb-2 font-mono text-[11px] leading-normal font-medium text-fleet-cyan uppercase">
+            <p className="mb-2 font-mono text-xs text-fleet-cyan uppercase">
               World of Warships
             </p>
-            <h1 className="font-heading text-[28px]/[1.2] font-bold sm:text-[32px]">
+            <h1 className="font-heading text-3xl font-bold">
               Fleet roster
             </h1>
           </div>
           {!pending && !failed && (
-            <p className="mb-1 flex items-center gap-2 font-mono text-[11px] leading-normal text-fleet-muted">
-              <span className="size-1.5 bg-fleet-cyan shadow-[0_0_10px_#38d7d240]" />
+            <p className="font-mono text-xs text-fleet-muted">
               {catalogue.data?.length.toLocaleString()} ships in the
               encyclopedia
             </p>
@@ -99,7 +98,7 @@ export default function App() {
         </div>
         <section
           aria-label="Fleet controls"
-          className="border border-fleet-line/40 bg-fleet-panel p-3.5 shadow-[inset_0_1px_#ffffff05] sm:p-5"
+          className="border border-fleet-line bg-fleet-panel p-4"
         >
           <FleetToolbar
             search={search}
@@ -140,13 +139,12 @@ export default function App() {
           )}
         </section>
         {failed ? (
-          <section
-            className="flex min-h-[340px] flex-col items-center justify-center gap-4 px-5 py-10 text-center [&>svg]:size-8 [&>svg]:text-fleet-cyan [&>h2]:font-heading [&>h2]:text-2xl [&>h2]:font-semibold [&>p]:max-w-[400px] [&>p]:text-fleet-muted"
+          <FleetMessage
+            icon="anchor"
+            title="Unable to load the fleet"
+            description="The encyclopedia couldn’t be reached. Try again in a moment."
             role="alert"
           >
-            <Icon name="anchor" />
-            <h2>Unable to load the fleet</h2>
-            <p>The encyclopedia couldn’t be reached. Try again in a moment.</p>
             <CommandButton
               onClick={() => {
                 queries
@@ -156,20 +154,20 @@ export default function App() {
             >
               Try again
             </CommandButton>
-          </section>
+          </FleetMessage>
         ) : pending ? (
           <section aria-label="Loading fleet" aria-busy="true">
             <p
-              className="flex justify-between gap-4 pt-5 pb-4 font-mono text-[11px] leading-normal text-fleet-muted [&_strong]:font-medium [&_strong]:text-fleet-text"
+              className="py-4 font-mono text-xs text-fleet-muted"
               role="status"
             >
               Loading the ship encyclopedia…
             </p>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-4.5 lg:grid-cols-4 lg:gap-6">
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: 8 }, (_, i) => (
                 <div
                   key={i}
-                  className="h-[286px] animate-pulse border border-fleet-line bg-fleet-panel motion-reduce:animate-none"
+                  className="h-80 animate-pulse bg-fleet-panel motion-reduce:animate-none"
                 />
               ))}
             </div>
@@ -177,11 +175,13 @@ export default function App() {
         ) : (
           <>
             <div
-              className="flex justify-between gap-4 pt-5 pb-4 font-mono text-[11px] leading-normal text-fleet-muted [&_strong]:font-medium [&_strong]:text-fleet-text"
+              className="flex justify-between gap-4 py-4 font-mono text-xs text-fleet-muted"
               role="status"
             >
               <span>
-                <strong>{sorted.length.toLocaleString()}</strong>{" "}
+                <strong className="text-fleet-text">
+                  {sorted.length.toLocaleString()}
+                </strong>{" "}
                 {sorted.length === 1 ? "ship" : "ships"} found
               </span>
               <span>
@@ -190,19 +190,17 @@ export default function App() {
               </span>
             </div>
             {sorted.length === 0 ? (
-              <section className="flex min-h-[340px] flex-col items-center justify-center gap-4 px-5 py-10 text-center [&>svg]:size-8 [&>svg]:text-fleet-cyan [&>h2]:font-heading [&>h2]:text-2xl [&>h2]:font-semibold [&>p]:max-w-[400px] [&>p]:text-fleet-muted">
-                <Icon name="search" />
-                <h2>No ships found</h2>
-                <p>
-                  Try another name or adjust your class, nation, and tier
-                  filters.
-                </p>
+              <FleetMessage
+                icon="search"
+                title="No ships found"
+                description="Try another name or adjust your class, nation, and tier filters."
+              >
                 <CommandButton onClick={resetFilters}>
                   Clear filters
                 </CommandButton>
-              </section>
+              </FleetMessage>
             ) : view === "grid" ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-4.5 lg:grid-cols-4 lg:gap-6">
+              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {visibleShips.map((ship) => (
                   <ShipCard
                     key={ship.id}
@@ -222,7 +220,7 @@ export default function App() {
             {pageCount > 1 && (
               <nav
                 aria-label="Fleet pages"
-                className="mt-8 flex items-center justify-center gap-3 font-mono text-[11px] leading-normal text-fleet-muted sm:gap-6 [&_button]:px-2 [&_button]:text-[10px] sm:[&_button]:px-3 sm:[&_button]:text-xs"
+                className="mt-8 flex flex-wrap items-center justify-center gap-3 font-mono text-xs text-fleet-muted"
               >
                 <CommandButton
                   disabled={currentPage === 1}
@@ -251,10 +249,36 @@ export default function App() {
           onClose={() => setSelectedShip(null)}
         />
       </main>
-      <footer className="mx-auto w-[calc(100%-32px)] sm:w-[calc(100%-48px)] lg:w-[min(100%-80px,1536px)] flex flex-col justify-between gap-1.5 border-t border-fleet-line/50 py-6 font-mono text-[10px]/[1.7] text-[#7e949e] sm:flex-row sm:gap-4">
+      <footer className="mx-auto flex w-full max-w-384 flex-wrap justify-between gap-2 border-t border-fleet-line px-4 py-6 font-mono text-xs text-fleet-muted sm:px-6 lg:px-10">
         <span className="uppercase">Warship Encyclopedia</span>
         <span>Ship data & imagery from World of Warships</span>
       </footer>
     </div>
+  );
+}
+
+function FleetMessage({
+  icon,
+  title,
+  description,
+  role,
+  children,
+}: {
+  icon: "anchor" | "search";
+  title: string;
+  description: string;
+  role?: "alert";
+  children: ReactNode;
+}) {
+  return (
+    <section
+      role={role}
+      className="flex flex-col items-center gap-4 py-16 text-center"
+    >
+      <Icon name={icon} className="size-8 text-fleet-cyan" />
+      <h2 className="font-heading text-2xl font-semibold">{title}</h2>
+      <p className="max-w-md text-fleet-muted">{description}</p>
+      {children}
+    </section>
   );
 }

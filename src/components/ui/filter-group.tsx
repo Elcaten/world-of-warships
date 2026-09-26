@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import type { ReactNode } from "react";
 
 type Props<T extends string | number> = {
@@ -20,26 +21,24 @@ export function FilterGroup<T extends string | number>({
   onChange,
 }: Props<T>) {
   return (
-    <fieldset className="relative m-0 min-w-0 border-0 p-0 md:pl-32">
-      <legend className="mb-2.5 flex items-center gap-2 font-mono text-xs font-medium text-fleet-muted uppercase md:absolute md:top-[7px] md:left-0 md:mb-0">
+    <fieldset className="min-w-0">
+      <legend className="mb-2 flex items-center gap-2 font-mono text-xs text-fleet-muted uppercase">
         {icon}
         {label}
       </legend>
-      <div
-        className={`flex flex-wrap gap-1.5 ${compact ? "[&_button]:min-w-8.5 [&_button]:font-heading [&_button]:text-sm [&_button]:font-bold" : ""}`}
-      >
-        <button
-          className="inline-flex min-h-9 items-center justify-center gap-1.5 border border-transparent bg-fleet-deep px-2.5 py-1.25 font-mono text-[11px]/[1.4] font-medium text-fleet-secondary uppercase hover:border-fleet-cyan/45 hover:text-white aria-pressed:border-fleet-cyan aria-pressed:bg-fleet-cyan aria-pressed:text-fleet-on-cyan md:min-h-8 aria-pressed:[&_img]:brightness-35"
-          aria-pressed={!selected?.length}
+      <div className="flex flex-wrap gap-2">
+        <FilterButton
+          compact={compact}
+          selected={!selected?.length}
           onClick={() => onChange(undefined)}
         >
           {allLabel}
-        </button>
+        </FilterButton>
         {options.map((option) => (
-          <button
+          <FilterButton
             key={option.value}
-            className="inline-flex min-h-9 items-center justify-center gap-1.5 border border-transparent bg-fleet-deep px-2.5 py-1.25 font-mono text-[11px]/[1.4] font-medium text-fleet-secondary uppercase hover:border-fleet-cyan/45 hover:text-white aria-pressed:border-fleet-cyan aria-pressed:bg-fleet-cyan aria-pressed:text-fleet-on-cyan md:min-h-8 aria-pressed:[&_img]:brightness-35"
-            aria-pressed={selected?.includes(option.value) ?? false}
+            compact={compact}
+            selected={selected?.includes(option.value) ?? false}
             onClick={() => {
               const next = selected?.includes(option.value)
                 ? selected.filter((value) => value !== option.value)
@@ -47,11 +46,37 @@ export function FilterGroup<T extends string | number>({
               onChange(next.length ? next : undefined);
             }}
           >
-            <span aria-hidden="true">{option.icon}</span>
+            {option.icon && <span aria-hidden="true">{option.icon}</span>}
             {option.label}
-          </button>
+          </FilterButton>
         ))}
       </div>
     </fieldset>
+  );
+}
+
+function FilterButton({
+  compact,
+  selected,
+  onClick,
+  children,
+}: {
+  compact: boolean;
+  selected: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className={clsx(
+        "inline-flex items-center justify-center gap-2 border border-transparent bg-fleet-deep p-2 text-fleet-secondary uppercase hover:border-fleet-cyan aria-pressed:border-fleet-cyan aria-pressed:bg-fleet-line aria-pressed:text-fleet-highlight",
+        compact ? "min-w-9 font-heading text-sm font-bold" : "font-mono text-xs",
+      )}
+    >
+      {children}
+    </button>
   );
 }
