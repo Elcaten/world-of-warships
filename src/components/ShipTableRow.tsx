@@ -1,7 +1,13 @@
-import { resolveMediaUrl, type Ship } from "../api/encyclopedia";
+import {
+  resolveMediaUrl,
+  useNations,
+  useVehicleTypes,
+  type Ship,
+} from "../api/encyclopedia";
 import { NationFlag } from "./NationFlag";
 import { VehicleTypeIcon } from "./VehicleTypeIcon";
 import { TableCell, TableRow } from "./ui/table";
+import { isPremium, shipName, tierLabel } from "../lib/ships";
 
 type ShipTableRowProps = {
   ship: Ship;
@@ -16,7 +22,10 @@ export function ShipTableRow({
   className,
   onViewDetails,
 }: ShipTableRowProps) {
-  const displayName = ship.localization.shortmark.en ?? ship.name;
+  const displayName = shipName(ship);
+  const nations = useNations();
+  const types = useVehicleTypes();
+  const nation = nations.data?.find((nation) => nation.name === ship.nation);
 
   return (
     <TableRow className={className}>
@@ -33,7 +42,7 @@ export function ShipTableRow({
               type="button"
               aria-label={`View details for ${displayName}`}
               aria-haspopup="dialog"
-              className="cursor-pointer font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              className={`text-left font-heading text-base font-semibold uppercase hover:text-fleet-cyan ${isPremium(ship) ? "text-fleet-gold" : ""}`}
               onClick={() => onViewDetails(ship)}
             >
               {displayName}
@@ -44,19 +53,32 @@ export function ShipTableRow({
         </div>
       </TableCell>
       <TableCell>
-        <NationFlag
-          nation={ship.nation}
-          size="small"
-          className="h-8 w-12 object-contain"
-        />
+        <span className="inline-flex items-center gap-2.5">
+          <NationFlag
+            nation={ship.nation}
+            size="small"
+            className="h-8 w-12 object-contain"
+            aria-hidden="true"
+          />
+          {nation?.localization.mark.en ?? ship.nation}
+        </span>
       </TableCell>
       <TableCell>
-        <VehicleTypeIcon
-          vehicleType={ship.vehicleType}
-          className="h-6 w-6 object-contain"
-        />
+        <span className="inline-flex items-center gap-2.5">
+          <VehicleTypeIcon
+            vehicleType={ship.vehicleType}
+            className="h-6 w-6 object-contain"
+            aria-hidden="true"
+          />
+          {types.data?.[ship.vehicleType]?.localization.mark.en ??
+            ship.vehicleType}
+        </span>
       </TableCell>
-      <TableCell>{ship.level}</TableCell>
+      <TableCell>
+        <span className="font-heading text-base leading-normal font-semibold">
+          {tierLabel(ship.level)}
+        </span>
+      </TableCell>
     </TableRow>
   );
 }

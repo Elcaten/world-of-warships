@@ -8,10 +8,17 @@ type ShipsTableProps = {
   onViewDetails?: (ship: Ship) => void;
 };
 
-export function ShipsTable({ ships, mediaPath, onViewDetails }: ShipsTableProps) {
+export function ShipsTable({
+  ships,
+  mediaPath,
+  onViewDetails,
+}: ShipsTableProps) {
   return (
-    <Table striped>
-      <TableHead>
+    <Table
+      striped
+      className="border border-fleet-line bg-fleet-panel px-3 sm:px-5 [&_th]:py-4 [&_tbody_tr:hover]:bg-fleet-cyan/3"
+    >
+      <TableHead className="font-mono text-[11px] font-medium tracking-[0.05em] uppercase">
         <TableRow>
           <TableHeader scope="col">Ship</TableHeader>
           <TableHeader scope="col">Nation</TableHeader>

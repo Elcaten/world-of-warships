@@ -1,1 +1,57 @@
 @import "tailwindcss";
+/* The root is always dark; shared UI primitives can still use dark: variants. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-sm: 34rem;
+  --breakpoint-md: 50rem;
+  --breakpoint-lg: 75rem;
+  --breakpoint-xl: 93.75rem;
+
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-heading: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --color-fleet-cyan: #38d7d2;
+  --color-fleet-highlight: #5ff4ee;
+  --color-fleet-on-cyan: #003735;
+  --color-fleet-gold: #e9c349;
+  --color-fleet-background: #0c141b;
+  --color-fleet-panel: #141e25;
+  --color-fleet-deep: #070f16;
+  --color-fleet-line: #2a3a47;
+  --color-fleet-text: #dbe3ed;
+  --color-fleet-secondary: #bbcac8;
+  --color-fleet-muted: #97aaae;
+}
+
+@layer base {
+  body {
+    @apply min-w-80 bg-fleet-background font-sans text-fleet-text;
+  }
+
+  button,
+  a,
+  input,
+  select {
+    @apply [-webkit-tap-highlight-color:transparent];
+  }
+
+  button {
+    @apply cursor-pointer disabled:cursor-default disabled:opacity-35;
+  }
+
+  button,
+  a,
+  select {
+    @apply transition-colors duration-200 motion-reduce:transition-none;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-4 outline-fleet-highlight;
+  }
+
+  ::selection {
+    @apply bg-fleet-cyan text-fleet-on-cyan;
+  }
+}

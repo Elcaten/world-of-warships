@@ -1,6 +1,6 @@
 # Elcaten World of Warships
 
-An empty React 19 + TypeScript starter powered by Vite.
+A World of Warships encyclopedia built with React 19, TypeScript, and Vite.
 
 ## Getting started
 
@@ -11,18 +11,21 @@ npm ci
 npm run dev
 ```
 
-The app starts with a blank page. Add your UI in `src/App.tsx`.
+Browse the live ship catalogue in a responsive grid or table, search by name or
+designation, combine class/nation/tier filters, and sort by tier or name. Ship
+profiles show official artwork and descriptions. Results are paginated in groups
+of 24.
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start the development server |
-| `npm run build` | Type-check and build into `dist/` |
-| `npm run preview` | Preview the production build |
+| Command             | Purpose                                           |
+| ------------------- | ------------------------------------------------- |
+| `npm run dev`       | Start the development server                      |
+| `npm run build`     | Type-check and build into `dist/`                 |
+| `npm run preview`   | Preview the production build                      |
 | `npm run typecheck` | Check application, tests, and configuration types |
-| `npm test` | Run Vitest in watch mode |
-| `npm run test:run` | Run tests once |
+| `npm test`          | Run Vitest in watch mode                          |
+| `npm run test:run`  | Run tests once                                    |
 
 ## Included
 
@@ -51,12 +54,12 @@ client unwraps `data`, rejects HTTP/API/schema errors, and accepts an
 
 All four live responses were inspected and validated on September 24, 2026:
 
-| Endpoint beneath `https://vortex.worldofwarships.eu/api/encyclopedia/en/` | `data` shape |
-| --- | --- |
-| `vehicles/` | Record keyed by ship ID strings; 1,049 ships |
-| `nations/` | Array of 13 nations, each with `id` and `name` |
-| `vehicle_types_common/` | Record keyed by five class names, such as `Destroyer` |
-| `media_path/` | Absolute CDN base URL: `https://wows-gloss-icons.wgcdn.co/icons/` |
+| Endpoint beneath `https://vortex.worldofwarships.eu/api/encyclopedia/en/` | `data` shape                                                      |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `vehicles/`                                                               | Record keyed by ship ID strings; 1,049 ships                      |
+| `nations/`                                                                | Array of 13 nations, each with `id` and `name`                    |
+| `vehicle_types_common/`                                                   | Record keyed by five class names, such as `Destroyer`             |
+| `media_path/`                                                             | Absolute CDN base URL: `https://wows-gloss-icons.wgcdn.co/icons/` |
 
 Every response uses `{ status: 'ok', data: ... }`. Ships contain `level`,
 technical `name`, `nation`, `tags`, relative `icons`, and `localization`
@@ -77,18 +80,14 @@ changing filters does not trigger a new request. The full vehicle response is
 about 20 MB uncompressed, so the first load still requires that download.
 
 ```tsx
-import {
-  resolveMediaUrl,
-  useMediaPath,
-  useShips,
-} from './api/encyclopedia'
+import { resolveMediaUrl, useMediaPath, useShips } from "./api/encyclopedia";
 
 function ShipCards({ search }: { search: string }) {
-  const ships = useShips({ search })
-  const media = useMediaPath()
+  const ships = useShips({ search });
+  const media = useMediaPath();
 
-  if (ships.isPending || media.isPending) return <p>Loading ships…</p>
-  if (ships.isError || media.isError) return <p>Could not load ships.</p>
+  if (ships.isPending || media.isPending) return <p>Loading ships…</p>;
+  if (ships.isError || media.isError) return <p>Could not load ships.</p>;
 
   return ships.data.map((ship) => (
     <article key={ship.id}>
@@ -96,7 +95,7 @@ function ShipCards({ search }: { search: string }) {
       <h2>{ship.localization.mark.en ?? ship.name}</h2>
       <p>Tier {ship.level}</p>
     </article>
-  ))
+  ));
 }
 ```
 

@@ -1,5 +1,19 @@
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
-import { resolveMediaUrl, type Ship } from "../api/encyclopedia";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
+import {
+  resolveMediaUrl,
+  useNations,
+  useVehicleTypes,
+  type Ship,
+} from "../api/encyclopedia";
+import { isPremium, shipName, tierLabel } from "../lib/ships";
+import { NationFlag } from "./NationFlag";
+import { Icon } from "./ui/icon";
+import { CommandButton } from "./ui/command-button";
 
 type ShipDetailsDialogProps = {
   ship: Ship | null;
@@ -7,41 +21,85 @@ type ShipDetailsDialogProps = {
   onClose: () => void;
 };
 
-export function ShipDetailsDialog({ ship, mediaPath, onClose }: ShipDetailsDialogProps) {
-  const displayName = ship?.localization.shortmark.en ?? ship?.name;
-
+export function ShipDetailsDialog({
+  ship,
+  mediaPath,
+  onClose,
+}: ShipDetailsDialogProps) {
+  const nations = useNations();
+  const types = useVehicleTypes();
+  const nation = nations.data?.find((nation) => nation.name === ship?.nation);
   return (
     <Dialog open={ship !== null} onClose={onClose} className="relative z-50">
-      <DialogBackdrop className="fixed inset-0 bg-black/40" />
-      <div className="fixed inset-0 overflow-y-auto p-6">
-        <DialogPanel className="mx-auto w-full max-w-5xl space-y-6 rounded-lg bg-white p-6 shadow-xl">
-          <DialogTitle as="h1" className="text-2xl font-bold text-slate-900">
-            {displayName}
-          </DialogTitle>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {Object.entries(ship?.icons ?? {}).map(([name, path]) => (
-              <figure key={name} className="min-w-0 space-y-2 rounded-lg border border-slate-200 p-3">
-                <figcaption className="font-mono text-sm font-semibold">{name}</figcaption>
-                {name.startsWith("local_") ? (
-                  <p className="text-sm text-slate-500">Game-local asset; no web preview available.</p>
-                ) : (
-                  <a
-                    href={resolveMediaUrl(mediaPath, path)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex min-h-32 items-center justify-center rounded bg-slate-700 p-3"
-                  >
-                    <img
-                      src={resolveMediaUrl(mediaPath, path)}
-                      alt={`${displayName} — ${name}`}
-                      className="max-h-64 max-w-full object-contain"
-                    />
-                  </a>
+      <DialogBackdrop className="fixed inset-0 bg-[#03090d]/80 backdrop-blur-sm" />
+      <div className="fixed inset-0 flex items-center justify-center overflow-y-auto px-4 py-8">
+        <DialogPanel className="max-h-full w-full max-w-[800px] overflow-y-auto border border-[#3c505c] bg-fleet-panel p-5 shadow-[0_30px_100px_#0009] sm:p-7">
+          {ship && (
+            <>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="mb-[7px] font-mono text-[11px] leading-normal font-medium tracking-[0.12em] text-fleet-cyan uppercase">
+                    Ship profile
+                  </p>
+                  <DialogTitle className="font-heading text-[26px]/[1.2] font-bold uppercase [overflow-wrap:anywhere] sm:text-[32px]">
+                    {shipName(ship)}
+                  </DialogTitle>
+                </div>
+                <CommandButton
+                  className="p-[9px]"
+                  aria-label="Close ship details"
+                  onClick={onClose}
+                >
+                  <Icon name="close" />
+                </CommandButton>
+              </div>
+              <div className="relative -mx-5 my-5 h-50 overflow-hidden bg-[radial-gradient(ellipse_at_center,#25425270,#070f1660)] sm:-mx-7 sm:h-70">
+                <NationFlag
+                  nation={ship.nation}
+                  size="large"
+                  className="absolute top-0 right-0 h-full opacity-9"
+                />
+                <img
+                  className="relative size-full object-contain drop-shadow-[0_15px_10px_#0006]"
+                  src={resolveMediaUrl(mediaPath, ship.icons.large)}
+                  alt={shipName(ship)}
+                />
+              </div>
+              <dl className="flex flex-wrap gap-x-9 gap-y-6 border-b border-fleet-line pb-6 [&_dt]:mb-[7px] [&_dt]:font-mono [&_dt]:text-[10px] [&_dt]:leading-normal [&_dt]:tracking-[0.08em] [&_dt]:text-fleet-muted [&_dt]:uppercase [&_dd]:font-heading [&_dd]:text-[17px] [&_dd]:leading-normal [&_dd]:font-semibold">
+                <div>
+                  <dt>Nation</dt>
+                  <dd>{nation?.localization.mark.en ?? ship.nation}</dd>
+                </div>
+                <div>
+                  <dt>Class</dt>
+                  <dd>
+                    {types.data?.[ship.vehicleType]?.localization.mark.en ??
+                      ship.vehicleType}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Tier</dt>
+                  <dd>{tierLabel(ship.level)}</dd>
+                </div>
+                {isPremium(ship) && (
+                  <div>
+                    <dt>Category</dt>
+                    <dd className="text-fleet-gold">Premium</dd>
+                  </div>
                 )}
-                <p className="break-all font-mono text-xs text-slate-500">{path}</p>
-              </figure>
-            ))}
-          </div>
+              </dl>
+              {ship.localization.description.en && (
+                <section className="mt-6">
+                  <h2 className="mb-3 font-heading text-lg font-semibold">
+                    Overview
+                  </h2>
+                  <p className="text-[15px]/[1.8] whitespace-pre-line text-fleet-secondary">
+                    {ship.localization.description.en}
+                  </p>
+                </section>
+              )}
+            </>
+          )}
         </DialogPanel>
       </div>
     </Dialog>
