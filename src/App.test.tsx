@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
-import { beforeEach, expect, it } from "vitest";
+import { beforeEach, expect, it, vi } from "vitest";
 import App from "./App";
 import { renderWithProviders } from "./test/render";
 import { server } from "./test/mocks/server";
@@ -80,6 +80,39 @@ it("sorts both views and opens a real ship profile with a working close control"
   fireEvent.click(screen.getByRole("button", { name: "Grid view" }));
   expect(screen.queryByRole("table")).not.toBeInTheDocument();
   expect(screen.getAllByText("Premium")).toHaveLength(1);
+});
+
+it("prefetches a ship's large image after a 300ms hover intent", async () => {
+  renderWithProviders(<App />);
+  const card = await screen.findByRole("button", {
+    name: "View details for Yamato",
+  });
+  const largeImageUrl = new URL(
+    vehicles.data["4276041424"].icons.large,
+    media.data,
+  ).href;
+  const prefetchedImage = () =>
+    document.head.querySelector(
+      `link[rel="preload"][as="image"][href="${largeImageUrl}"]`,
+    );
+
+  vi.useFakeTimers();
+  try {
+    fireEvent.mouseEnter(card);
+    vi.advanceTimersByTime(299);
+    expect(prefetchedImage()).not.toBeInTheDocument();
+
+    fireEvent.mouseLeave(card);
+    vi.advanceTimersByTime(1);
+    expect(prefetchedImage()).not.toBeInTheDocument();
+
+    fireEvent.mouseEnter(card);
+    vi.advanceTimersByTime(300);
+    expect(prefetchedImage()).toBeInTheDocument();
+  } finally {
+    vi.useRealTimers();
+    prefetchedImage()?.remove();
+  }
 });
 
 it("retries a failed catalogue request", async () => {

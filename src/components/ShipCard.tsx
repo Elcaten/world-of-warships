@@ -1,5 +1,7 @@
 import clsx from "clsx";
-import { resolveMediaUrl, useNations, type Ship } from "../api/encyclopedia";
+import { useEffect, useRef } from "react";
+import { preload } from "react-dom";
+import { resolveMediaUrl, type Ship } from "../api/encyclopedia";
 import { isPremium, shipName, tierLabel } from "../lib/ships";
 import { NationFlag } from "./NationFlag";
 import { VehicleTypeIcon } from "./VehicleTypeIcon";
@@ -14,38 +16,55 @@ export function ShipCard({
   mediaPath: string;
   onViewDetails: (ship: Ship) => void;
 }) {
-  const nations = useNations();
   const premium = isPremium(ship);
+  const prefetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearPrefetchTimer = () => {
+    if (prefetchTimer.current !== null) {
+      clearTimeout(prefetchTimer.current);
+      prefetchTimer.current = null;
+    }
+  };
+
+  useEffect(() => clearPrefetchTimer, []);
+
+  const prefetchLargeImage = () => {
+    clearPrefetchTimer();
+    prefetchTimer.current = setTimeout(() => {
+      preload(resolveMediaUrl(mediaPath, ship.icons.large), { as: "image" });
+      prefetchTimer.current = null;
+    }, 400);
+  };
 
   return (
     <button
       className={clsx(
         "border-fleet-line bg-fleet-panel group relative isolate flex min-w-0 flex-col overflow-hidden border-2 text-left transition-colors duration-150",
-        premium ? "hover:border-fleet-gold" : "hover:border-fleet-cyan",
+        premium
+          ? "hover:border-fleet-gold text-fleet-gold"
+          : "hover:border-fleet-cyan",
       )}
       aria-label={`View details for ${shipName(ship)}`}
       aria-haspopup="dialog"
       onClick={() => onViewDetails(ship)}
+      onMouseEnter={prefetchLargeImage}
+      onMouseLeave={clearPrefetchTimer}
     >
-      <div className="absolute inset-2 -z-10 opacity-10 duration-1000 group-hover:opacity-25 group-hover:duration-400">
+      <div className="absolute inset-2 -z-10 opacity-10 duration-1000 group-hover:opacity-30 group-hover:duration-400">
         <NationFlag nation={ship.nation} size="large" className="" />
       </div>
 
       <span className="-mb-14 flex items-center justify-between gap-2 px-4 py-3">
-        <span className="font-heading flex items-center gap-2 font-bold">
+        <span className="font-heading flex items-center gap-1 font-bold">
           <VehicleTypeIcon
             vehicleType={ship.vehicleType}
             variant={premium ? "premium" : "default"}
-            className="object-contain"
+            className="size-5 object-contain"
           />
-          <span className={premium ? "text-fleet-gold" : ""}>
-            {tierLabel(ship.level)}
-          </span>
+          <span className={"text-xs"}>{tierLabel(ship.level)}</span>
         </span>
         {premium && (
-          <span className="text-fleet-gold font-mono text-xs uppercase">
-            Premium
-          </span>
+          <span className="font-mono text-xs uppercase">Premium</span>
         )}
       </span>
 
@@ -58,10 +77,7 @@ export function ShipCard({
 
       <span className="bg-fleet-panel/40 -mt-8 flex items-center justify-between gap-2 py-2 pr-3 pl-4">
         <span
-          className={clsx(
-            "font-heading text-xl font-bold wrap-anywhere uppercase",
-            premium && "text-fleet-gold",
-          )}
+          className={"font-heading text-xl font-bold wrap-anywhere uppercase"}
         >
           {shipName(ship)}
         </span>
