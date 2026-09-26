@@ -19,12 +19,14 @@ import { Icon } from "./ui/icon";
 
 type ShipDetailsDialogProps = {
   ship: Ship | null;
+  open: boolean;
   mediaPath: string;
   onClose: () => void;
 };
 
 export function ShipDetailsDialog({
   ship,
+  open,
   mediaPath,
   onClose,
 }: ShipDetailsDialogProps) {
@@ -33,18 +35,21 @@ export function ShipDetailsDialog({
   const nation = nations.data?.find((nation) => nation.name === ship?.nation);
 
   return (
-    <Dialog open={ship !== null} onClose={onClose} className="relative z-50">
-      <DialogBackdrop className="fixed inset-0 bg-fleet-deep/75" />
+    <Dialog open={open} onClose={onClose} className="relative z-50">
+      <DialogBackdrop className="bg-fleet-deep/75 fixed inset-0 backdrop-blur-sm" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <DialogPanel className="max-h-full w-full max-w-3xl overflow-y-auto border border-fleet-line bg-fleet-panel p-6">
+        <DialogPanel
+          transition
+          className="border-fleet-line bg-fleet-panel data-closed:opacity- max-h-full w-full max-w-3xl overflow-y-auto border p-6 duration-150 ease-out data-closed:scale-97 data-closed:opacity-0 data-closed:duration-0"
+        >
           {ship && (
             <>
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="mb-2 font-mono text-xs text-fleet-cyan uppercase">
+                  <p className="text-fleet-cyan mb-2 font-mono text-xs uppercase">
                     Ship profile
                   </p>
-                  <DialogTitle className="font-heading text-3xl font-bold uppercase wrap-anywhere">
+                  <DialogTitle className="font-heading text-3xl font-bold wrap-anywhere uppercase">
                     {shipName(ship)}
                   </DialogTitle>
                 </div>
@@ -56,7 +61,7 @@ export function ShipDetailsDialog({
                   <Icon name="close" />
                 </CommandButton>
               </div>
-              <div className="relative my-6 h-60 overflow-hidden bg-fleet-deep">
+              <div className="bg-fleet-deep relative my-6 h-60 overflow-hidden">
                 <NationFlag
                   nation={ship.nation}
                   size="large"
@@ -68,7 +73,7 @@ export function ShipDetailsDialog({
                   alt={shipName(ship)}
                 />
               </div>
-              <dl className="flex flex-wrap gap-6 border-b border-fleet-line pb-6">
+              <dl className="border-fleet-line flex flex-wrap gap-6 border-b pb-6">
                 <ShipStat label="Nation">
                   {nation?.localization.mark.en ?? ship.nation}
                 </ShipStat>
@@ -109,15 +114,10 @@ function ShipStat({
 }) {
   return (
     <div>
-      <dt className="mb-2 font-mono text-xs text-fleet-muted uppercase">
+      <dt className="text-fleet-muted mb-2 font-mono text-xs uppercase">
         {label}
       </dt>
-      <dd
-        className={clsx(
-          "font-heading text-lg font-semibold",
-          className,
-        )}
-      >
+      <dd className={clsx("font-heading text-lg font-semibold", className)}>
         {children}
       </dd>
     </div>

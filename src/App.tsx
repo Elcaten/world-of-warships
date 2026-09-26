@@ -32,6 +32,7 @@ export default function App() {
   const [view, setView] = useState<FleetView>("grid");
   const [page, setPage] = useState(1);
   const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const catalogue = useShips();
   const ships = useShips({ search: deferredSearch, types, nations, levels });
   const media = useMediaPath();
@@ -64,6 +65,11 @@ export default function App() {
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   );
+
+  function showDetails(ship: Ship) {
+    setSelectedShip(ship);
+    setDetailsOpen(true);
+  }
 
   function resetFilters() {
     setSearch("");
@@ -206,7 +212,7 @@ export default function App() {
                     key={ship.id}
                     ship={ship}
                     mediaPath={media.data!}
-                    onViewDetails={setSelectedShip}
+                    onViewDetails={showDetails}
                   />
                 ))}
               </div>
@@ -214,7 +220,7 @@ export default function App() {
               <ShipsTable
                 ships={visibleShips}
                 mediaPath={media.data!}
-                onViewDetails={setSelectedShip}
+                onViewDetails={showDetails}
               />
             )}
             {pageCount > 1 && (
@@ -245,8 +251,9 @@ export default function App() {
         )}
         <ShipDetailsDialog
           ship={selectedShip}
+          open={detailsOpen}
           mediaPath={media.data ?? ""}
-          onClose={() => setSelectedShip(null)}
+          onClose={() => setDetailsOpen(false)}
         />
       </main>
       <footer className="mx-auto flex w-full max-w-384 flex-wrap justify-between gap-2 border-t border-fleet-line px-4 py-6 font-mono text-xs text-fleet-muted sm:px-6 lg:px-10">
