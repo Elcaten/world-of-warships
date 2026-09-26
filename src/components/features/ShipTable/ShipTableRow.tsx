@@ -3,11 +3,11 @@ import {
   useNations,
   useVehicleTypes,
   type Ship,
-} from "../api/encyclopedia";
-import { NationFlag } from "./NationFlag";
-import { VehicleTypeIcon } from "./VehicleTypeIcon";
-import { TableCell, TableRow } from "./ui/table";
-import { isPremium, shipName, tierLabel } from "../lib/ships";
+} from "@/api/encyclopedia";
+import { NationFlag } from "@/components/domain/NationFlag";
+import { VehicleTypeIcon } from "@/components/domain/VehicleTypeIcon";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { shipName, tierLabel } from "@/lib/ships";
 
 type ShipTableRowProps = {
   ship: Ship;
@@ -42,7 +42,7 @@ export function ShipTableRow({
               type="button"
               aria-label={`View details for ${displayName}`}
               aria-haspopup="dialog"
-              className={`text-left font-heading text-base font-semibold uppercase hover:text-fleet-cyan ${isPremium(ship) ? "text-fleet-gold" : ""}`}
+              className={`font-heading hover:text-fleet-cyan text-left text-base font-semibold uppercase ${ship.isPremium ? "text-fleet-gold" : ""}`}
               onClick={() => onViewDetails(ship)}
             >
               {displayName}

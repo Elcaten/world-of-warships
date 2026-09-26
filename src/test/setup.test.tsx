@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query'
 import { screen } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { expect, test } from 'vitest'
-import { server } from './mocks/server'
-import { renderWithProviders } from './render'
+import { server } from '@/test/mocks/server'
+import { renderWithProviders } from '@/test/render'
 
 // Verify the query provider, DOM matchers, and network mocking work together.
 test('renders data fetched through React Query and MSW', async () => {

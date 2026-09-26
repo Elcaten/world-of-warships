@@ -5,20 +5,20 @@ import {
   useShips,
   useVehicleTypes,
   type Ship,
-} from "./api/encyclopedia";
-import { AppHeader } from "./components/AppHeader";
+} from "@/api/encyclopedia";
+import { ShipCard } from "@/components/domain/ShipCard";
+import { AppHeader } from "@/components/features/AppHeader";
 import {
   FleetToolbar,
   type FleetSort,
   type FleetView,
-} from "./components/FleetToolbar";
-import { ShipCard } from "./components/ShipCard";
-import { ShipDetailsDialog } from "./components/ShipDetailsDialog";
-import { ShipFilters } from "./components/ShipFilters";
-import { ShipsTable } from "./components/ShipsTable";
-import { CommandButton } from "./components/ui/command-button";
-import { Icon } from "./components/ui/icon";
-import { shipName } from "./lib/ships";
+} from "@/components/features/FleetToolbar";
+import { ShipDetailsDialog } from "@/components/features/ShipDetailsDialog";
+import { ShipFilters } from "@/components/features/ShipFilters";
+import { ShipsTable } from "@/components/features/ShipTable/ShipsTable";
+import { CommandButton } from "@/components/ui/command-button";
+import { Icon } from "@/components/ui/icon";
+import { shipName } from "@/lib/ships";
 
 const PAGE_SIZE = 24;
 
@@ -88,15 +88,13 @@ export default function App() {
       >
         <div className="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <p className="mb-2 font-mono text-xs text-fleet-cyan uppercase">
+            <p className="text-fleet-cyan mb-2 font-mono text-xs uppercase">
               World of Warships
             </p>
-            <h1 className="font-heading text-3xl font-bold">
-              Fleet roster
-            </h1>
+            <h1 className="font-heading text-3xl font-bold">Fleet roster</h1>
           </div>
           {!pending && !failed && (
-            <p className="font-mono text-xs text-fleet-muted">
+            <p className="text-fleet-muted font-mono text-xs">
               {catalogue.data?.length.toLocaleString()} ships in the
               encyclopedia
             </p>
@@ -104,7 +102,7 @@ export default function App() {
         </div>
         <section
           aria-label="Fleet controls"
-          className="border border-fleet-line bg-fleet-panel p-4"
+          className="border-fleet-line bg-fleet-panel border p-4"
         >
           <FleetToolbar
             search={search}
@@ -164,7 +162,7 @@ export default function App() {
         ) : pending ? (
           <section aria-label="Loading fleet" aria-busy="true">
             <p
-              className="py-4 font-mono text-xs text-fleet-muted"
+              className="text-fleet-muted py-4 font-mono text-xs"
               role="status"
             >
               Loading the ship encyclopedia…
@@ -173,7 +171,7 @@ export default function App() {
               {Array.from({ length: 8 }, (_, i) => (
                 <div
                   key={i}
-                  className="h-80 animate-pulse bg-fleet-panel motion-reduce:animate-none"
+                  className="bg-fleet-panel h-80 animate-pulse motion-reduce:animate-none"
                 />
               ))}
             </div>
@@ -181,7 +179,7 @@ export default function App() {
         ) : (
           <>
             <div
-              className="flex justify-between gap-4 py-4 font-mono text-xs text-fleet-muted"
+              className="text-fleet-muted flex justify-between gap-4 py-4 font-mono text-xs"
               role="status"
             >
               <span>
@@ -226,7 +224,7 @@ export default function App() {
             {pageCount > 1 && (
               <nav
                 aria-label="Fleet pages"
-                className="mt-8 flex flex-wrap items-center justify-center gap-3 font-mono text-xs text-fleet-muted"
+                className="text-fleet-muted mt-8 flex flex-wrap items-center justify-center gap-3 font-mono text-xs"
               >
                 <CommandButton
                   disabled={currentPage === 1}
@@ -256,7 +254,7 @@ export default function App() {
           onClose={() => setDetailsOpen(false)}
         />
       </main>
-      <footer className="mx-auto flex w-full max-w-384 flex-wrap justify-between gap-2 border-t border-fleet-line px-4 py-6 font-mono text-xs text-fleet-muted sm:px-6 lg:px-10">
+      <footer className="border-fleet-line text-fleet-muted mx-auto flex w-full max-w-384 flex-wrap justify-between gap-2 border-t px-4 py-6 font-mono text-xs sm:px-6 lg:px-10">
         <span className="uppercase">Warship Encyclopedia</span>
         <span>Ship data & imagery from World of Warships</span>
       </footer>
@@ -282,9 +280,9 @@ function FleetMessage({
       role={role}
       className="flex flex-col items-center gap-4 py-16 text-center"
     >
-      <Icon name={icon} className="size-8 text-fleet-cyan" />
+      <Icon name={icon} className="text-fleet-cyan size-8" />
       <h2 className="font-heading text-2xl font-semibold">{title}</h2>
-      <p className="max-w-md text-fleet-muted">{description}</p>
+      <p className="text-fleet-muted max-w-md">{description}</p>
       {children}
     </section>
   );

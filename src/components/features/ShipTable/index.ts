@@ -1,0 +1,1 @@
+export { ShipsTable } from "./ShipsTable";

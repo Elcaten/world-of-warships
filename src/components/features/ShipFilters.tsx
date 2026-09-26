@@ -1,9 +1,9 @@
-import type { Nations, VehicleTypes } from "../api/encyclopedia";
-import { tierLabel } from "../lib/ships";
-import { NationFlag } from "./NationFlag";
-import { VehicleTypeIcon } from "./VehicleTypeIcon";
-import { FilterGroup } from "./ui/filter-group";
-import { Icon } from "./ui/icon";
+import type { Nations, VehicleTypes } from "@/api/encyclopedia";
+import { NationFlag } from "@/components/domain/NationFlag";
+import { VehicleTypeIcon } from "@/components/domain/VehicleTypeIcon";
+import { FilterGroup } from "@/components/ui/filter-group";
+import { Icon } from "@/components/ui/icon";
+import { tierLabel } from "@/lib/ships";
 
 type ShipFiltersProps = {
   types: string[] | undefined;

@@ -1,9 +1,9 @@
 import clsx from "clsx";
-import { resolveMediaUrl, type Ship } from "../api/encyclopedia";
-import { isPremium, shipName, tierLabel } from "../lib/ships";
+import { resolveMediaUrl, type Ship } from "@/api/encyclopedia";
+import { Icon } from "@/components/ui/icon";
+import { shipName, tierLabel } from "@/lib/ships";
 import { NationFlag } from "./NationFlag";
 import { VehicleTypeIcon } from "./VehicleTypeIcon";
-import { Icon } from "./ui/icon";
 
 export function ShipCard({
   ship,
@@ -14,13 +14,11 @@ export function ShipCard({
   mediaPath: string;
   onViewDetails: (ship: Ship) => void;
 }) {
-  const premium = isPremium(ship);
-
   return (
     <button
       className={clsx(
         "border-fleet-line bg-fleet-panel group relative isolate flex min-w-0 flex-col overflow-hidden border-2 text-left transition-colors duration-150",
-        premium
+        ship.isPremium
           ? "hover:border-fleet-gold text-fleet-gold"
           : "hover:border-fleet-cyan",
       )}
@@ -36,12 +34,12 @@ export function ShipCard({
         <span className="font-heading flex items-center gap-1 font-bold">
           <VehicleTypeIcon
             vehicleType={ship.vehicleType}
-            variant={premium ? "premium" : "default"}
+            variant={ship.isPremium ? "premium" : "default"}
             className="size-5 object-contain"
           />
           <span className={"text-xs"}>{tierLabel(ship.level)}</span>
         </span>
-        {premium && (
+        {ship.isPremium && (
           <span className="font-mono text-xs uppercase">Premium</span>
         )}
       </span>

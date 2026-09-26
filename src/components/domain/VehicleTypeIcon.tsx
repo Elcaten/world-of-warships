@@ -3,7 +3,7 @@ import {
   resolveMediaUrl,
   useMediaPath,
   useVehicleTypes,
-} from "../api/encyclopedia";
+} from "@/api/encyclopedia";
 
 type VehicleTypeIconProps = Omit<
   ImgHTMLAttributes<HTMLImageElement>,

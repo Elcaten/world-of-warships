@@ -1,6 +1,10 @@
 import type { MediaPath, Vehicle, Vehicles } from './schemas'
 
-export type Ship = Vehicle & { id: string; vehicleType: string }
+export type Ship = Vehicle & {
+  id: string
+  vehicleType: string
+  isPremium: boolean
+}
 
 const vehicleTypeTags = new Set([
   'AirCarrier',
@@ -45,6 +49,7 @@ export function selectShips(
       id,
       // Each ship has exactly one vehicle type tag.
       vehicleType: ship.tags.find((tag) => vehicleTypeTags.has(tag))!,
+      isPremium: ship.tags.includes('uiPremium'),
     }))
 }
 

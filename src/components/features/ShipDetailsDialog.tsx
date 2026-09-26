@@ -11,11 +11,11 @@ import {
   useNations,
   useVehicleTypes,
   type Ship,
-} from "../api/encyclopedia";
-import { isPremium, shipName, tierLabel } from "../lib/ships";
-import { NationFlag } from "./NationFlag";
-import { CommandButton } from "./ui/command-button";
-import { Icon } from "./ui/icon";
+} from "@/api/encyclopedia";
+import { NationFlag } from "@/components/domain/NationFlag";
+import { CommandButton } from "@/components/ui/command-button";
+import { Icon } from "@/components/ui/icon";
+import { shipName, tierLabel } from "@/lib/ships";
 
 type ShipDetailsDialogProps = {
   ship: Ship | null;
@@ -95,7 +95,7 @@ export function ShipDetailsDialog({
                     ship.vehicleType}
                 </ShipStat>
                 <ShipStat label="Tier">{tierLabel(ship.level)}</ShipStat>
-                {isPremium(ship) && (
+                {ship.isPremium && (
                   <ShipStat label="Category" className="text-fleet-gold">
                     Premium
                   </ShipStat>

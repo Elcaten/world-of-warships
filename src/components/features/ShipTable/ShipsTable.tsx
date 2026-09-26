@@ -1,6 +1,12 @@
-import type { Ship } from "../api/encyclopedia";
+import type { Ship } from "@/api/encyclopedia";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { ShipTableRow } from "./ShipTableRow";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "./ui/table";
 
 type ShipsTableProps = {
   ships: Ship[];

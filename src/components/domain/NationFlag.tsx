@@ -1,5 +1,5 @@
 import type { ImgHTMLAttributes } from "react";
-import { resolveMediaUrl, useMediaPath, useNations } from "../api/encyclopedia";
+import { resolveMediaUrl, useMediaPath, useNations } from "@/api/encyclopedia";
 
 type NationFlagProps = Omit<
   ImgHTMLAttributes<HTMLImageElement>,

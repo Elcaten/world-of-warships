@@ -1,10 +1,10 @@
 import { screen } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { expect, it } from "vitest";
-import nationsFixture from "../api/encyclopedia/__fixtures__/nations.json";
-import mediaFixture from "../api/encyclopedia/__fixtures__/media_path.json";
-import { renderWithProviders } from "../test/render";
-import { server } from "../test/mocks/server";
+import nationsFixture from "@/api/encyclopedia/__fixtures__/nations.json";
+import mediaFixture from "@/api/encyclopedia/__fixtures__/media_path.json";
+import { server } from "@/test/mocks/server";
+import { renderWithProviders } from "@/test/render";
 import { NationFlag } from "./NationFlag";
 
 it("renders the requested flag size using its CDN icon", async () => {

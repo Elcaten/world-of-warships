@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { CommandButton } from "./ui/command-button";
-import { Icon } from "./ui/icon";
+import { CommandButton } from "@/components/ui/command-button";
+import { Icon } from "@/components/ui/icon";
 
 export type FleetSort = "tier-desc" | "tier-asc" | "name";
 export type FleetView = "grid" | "table";
@@ -26,10 +26,10 @@ export function FleetToolbar({
 }: Props) {
   return (
     <div className="mb-6 flex flex-wrap items-center gap-2">
-      <label className="flex basis-full items-center gap-3 bg-fleet-deep px-3 focus-within:ring-1 focus-within:ring-fleet-cyan lg:flex-1">
-        <Icon name="search" className="shrink-0 text-fleet-highlight" />
+      <label className="bg-fleet-deep focus-within:ring-fleet-cyan flex basis-full items-center gap-3 px-3 focus-within:ring-1 lg:flex-1">
+        <Icon name="search" className="text-fleet-highlight shrink-0" />
         <input
-          className="min-w-0 w-full bg-transparent py-3 text-sm placeholder:text-fleet-muted focus-visible:outline-none"
+          className="placeholder:text-fleet-muted w-full min-w-0 bg-transparent py-3 text-sm focus-visible:outline-none"
           type="search"
           aria-label="Search ships"
           placeholder="Search by ship name or designation…"
@@ -37,7 +37,7 @@ export function FleetToolbar({
           onChange={(event) => onSearchChange(event.target.value)}
         />
       </label>
-      <label className="flex items-center gap-2 bg-fleet-deep pl-3 font-mono text-xs">
+      <label className="bg-fleet-deep flex items-center gap-2 pl-3 font-mono text-xs">
         <span className="text-fleet-muted uppercase">Sort</span>
         <select
           className="bg-fleet-deep p-3"
@@ -51,7 +51,7 @@ export function FleetToolbar({
         </select>
       </label>
       <div
-        className="flex bg-fleet-deep p-1"
+        className="bg-fleet-deep flex p-1"
         role="group"
         aria-label="Display mode"
       >
@@ -86,7 +86,7 @@ function ViewButton({
   return (
     <button
       type="button"
-      className="flex items-center gap-2 p-2 font-mono text-xs text-fleet-muted uppercase aria-pressed:bg-fleet-line aria-pressed:text-fleet-highlight"
+      className="text-fleet-muted aria-pressed:bg-fleet-line aria-pressed:text-fleet-highlight flex items-center gap-2 p-2 font-mono text-xs uppercase"
       aria-label={view === "grid" ? "Grid view" : "Table view"}
       aria-pressed={view === selected}
       onClick={() => onChange(view)}

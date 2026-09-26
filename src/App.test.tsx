@@ -1,13 +1,13 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { beforeEach, expect, it } from "vitest";
-import App from "./App";
-import { renderWithProviders } from "./test/render";
-import { server } from "./test/mocks/server";
-import vehicles from "./api/encyclopedia/__fixtures__/vehicles.json";
-import nations from "./api/encyclopedia/__fixtures__/nations.json";
-import types from "./api/encyclopedia/__fixtures__/vehicle_types_common.json";
-import media from "./api/encyclopedia/__fixtures__/media_path.json";
+import App from "@/App";
+import vehicles from "@/api/encyclopedia/__fixtures__/vehicles.json";
+import nations from "@/api/encyclopedia/__fixtures__/nations.json";
+import types from "@/api/encyclopedia/__fixtures__/vehicle_types_common.json";
+import media from "@/api/encyclopedia/__fixtures__/media_path.json";
+import { server } from "@/test/mocks/server";
+import { renderWithProviders } from "@/test/render";
 
 const base = "*/api/encyclopedia/en";
 const cards = () =>
