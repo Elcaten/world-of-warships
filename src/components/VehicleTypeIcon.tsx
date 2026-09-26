@@ -10,10 +10,12 @@ type VehicleTypeIconProps = Omit<
   "src" | "alt"
 > & {
   vehicleType: string;
+  variant?: "default" | "premium";
 };
 
 export function VehicleTypeIcon({
   vehicleType: vehicleTypeName,
+  variant = "default",
   ...imageProps
 }: VehicleTypeIconProps) {
   const vehicleTypes = useVehicleTypes();
@@ -25,7 +27,7 @@ export function VehicleTypeIcon({
   return (
     <img
       {...imageProps}
-      src={resolveMediaUrl(mediaPath.data, vehicleType.icons.default)}
+      src={resolveMediaUrl(mediaPath.data, vehicleType.icons[variant])}
       alt={vehicleType.localization.mark.en ?? vehicleTypeName}
     />
   );

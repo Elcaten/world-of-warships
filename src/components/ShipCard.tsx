@@ -38,9 +38,12 @@ export function ShipCard({
         <span className="flex items-center gap-2 font-heading text-base leading-normal font-bold ">
           <VehicleTypeIcon
             vehicleType={ship.vehicleType}
+            variant={premium ? "premium" : "default"}
             className="h-4.5 w-5 object-contain"
           />
-          {tierLabel(ship.level)}
+          <span className={premium ? "text-fleet-gold" : ""}>
+            {tierLabel(ship.level)}
+          </span>
         </span>
         {premium && (
           <span className="border border-fleet-gold/12 bg-fleet-gold/8 px-1.5 py-0.75 font-mono text-[10px] leading-normal font-medium  text-fleet-gold uppercase">
