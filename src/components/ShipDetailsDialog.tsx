@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import clsx from "clsx";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   resolveMediaUrl,
   useNations,
@@ -33,6 +33,10 @@ export function ShipDetailsDialog({
   const nations = useNations();
   const types = useVehicleTypes();
   const nation = nations.data?.find((nation) => nation.name === ship?.nation);
+
+  const largeImageUrl = ship && resolveMediaUrl(mediaPath, ship.icons.large);
+  const [loadedImageUrl, setLoadedImageUrl] = useState<string | null>(null);
+  const fullImageLoaded = loadedImageUrl === largeImageUrl;
 
   return (
     <Dialog open={open} onClose={onClose} className="relative z-50">
@@ -65,12 +69,21 @@ export function ShipDetailsDialog({
                 <NationFlag
                   nation={ship.nation}
                   size="large"
-                  className="absolute top-0 right-0 h-full opacity-10"
+                  className="absolute top-0 right-0 h-full opacity-20"
                 />
                 <img
-                  className="relative size-full object-contain"
+                  className="absolute inset-0 size-full object-contain"
+                  src={resolveMediaUrl(mediaPath, ship.icons.medium)}
+                  alt=""
+                />
+                <img
+                  className={clsx(
+                    "linear absolute inset-0 size-full object-contain transition-opacity duration-2000",
+                    fullImageLoaded ? "opacity-100" : "opacity-0",
+                  )}
                   src={resolveMediaUrl(mediaPath, ship.icons.large)}
                   alt={shipName(ship)}
+                  onLoad={() => setLoadedImageUrl(largeImageUrl)}
                 />
               </div>
               <dl className="border-fleet-line flex flex-wrap gap-6 border-b pb-6">

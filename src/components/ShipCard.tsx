@@ -1,6 +1,4 @@
 import clsx from "clsx";
-import { useEffect, useRef } from "react";
-import { preload } from "react-dom";
 import { resolveMediaUrl, type Ship } from "../api/encyclopedia";
 import { isPremium, shipName, tierLabel } from "../lib/ships";
 import { NationFlag } from "./NationFlag";
@@ -17,24 +15,6 @@ export function ShipCard({
   onViewDetails: (ship: Ship) => void;
 }) {
   const premium = isPremium(ship);
-  const prefetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const clearPrefetchTimer = () => {
-    if (prefetchTimer.current !== null) {
-      clearTimeout(prefetchTimer.current);
-      prefetchTimer.current = null;
-    }
-  };
-
-  useEffect(() => clearPrefetchTimer, []);
-
-  const prefetchLargeImage = () => {
-    clearPrefetchTimer();
-    prefetchTimer.current = setTimeout(() => {
-      preload(resolveMediaUrl(mediaPath, ship.icons.large), { as: "image" });
-      prefetchTimer.current = null;
-    }, 400);
-  };
 
   return (
     <button
@@ -47,8 +27,6 @@ export function ShipCard({
       aria-label={`View details for ${shipName(ship)}`}
       aria-haspopup="dialog"
       onClick={() => onViewDetails(ship)}
-      onMouseEnter={prefetchLargeImage}
-      onMouseLeave={clearPrefetchTimer}
     >
       <div className="absolute inset-2 -z-10 opacity-10 duration-1000 group-hover:opacity-30 group-hover:duration-400">
         <NationFlag nation={ship.nation} size="large" className="" />
