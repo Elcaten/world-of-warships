@@ -22,7 +22,7 @@ export function AppHeader() {
           </span>
         </a>
         <a
-          className="inline-flex min-h-10 items-center justify-center gap-2 border border-[#3c4948] bg-[#121a21]/60 p-2 font-mono text-xs font-medium text-fleet-secondary uppercase hover:border-fleet-cyan hover:bg-[#263b42] hover:text-fleet-highlight sm:px-3"
+          className="inline-flex min-h-10 items-center justify-center gap-2 border border-[#3c4948] bg-fleet-panel/60 p-2 font-mono text-xs font-medium text-fleet-secondary uppercase hover:border-fleet-cyan hover:bg-fleet-line hover:text-fleet-highlight sm:px-3"
           href="https://github.com/Elcaten/world-of-warships"
           target="_blank"
           rel="noreferrer"

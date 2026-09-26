@@ -12,17 +12,18 @@
   --font-sans: "IBM Plex Sans", sans-serif;
   --font-heading: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
-  --color-fleet-cyan: #38d7d2;
-  --color-fleet-highlight: #5ff4ee;
-  --color-fleet-on-cyan: #003735;
-  --color-fleet-gold: #e9c349;
-  --color-fleet-background: #0c141b;
-  --color-fleet-panel: #141e25;
-  --color-fleet-deep: #070f16;
-  --color-fleet-line: #2a3a47;
-  --color-fleet-text: #dbe3ed;
-  --color-fleet-secondary: #bbcac8;
-  --color-fleet-muted: #97aaae;
+
+  --color-fleet-cyan: hsl(178.1 66.5% 53.1%);
+  --color-fleet-highlight: hsl(177.6 87.1% 66.5%);
+  --color-fleet-on-cyan: hsl(177.8 100% 10.8%);
+  --color-fleet-gold: hsl(46 78% 60%);
+  --color-fleet-background: hsl(208 38.5% 7.6%);
+  --color-fleet-panel: hsl(204.7 29.8% 11.2%);
+  --color-fleet-deep: hsl(208 51.7% 5.7%);
+  --color-fleet-line: hsl(207 26% 22%);
+  --color-fleet-text: hsl(213.3 33.3% 89.4%);
+  --color-fleet-secondary: hsl(172 12.4% 76.3%);
+  --color-fleet-muted: hsl(190.4 12.4% 63.7%);
 }
 
 @layer base {

@@ -29,11 +29,12 @@ export function ShipDetailsDialog({
   const nations = useNations();
   const types = useVehicleTypes();
   const nation = nations.data?.find((nation) => nation.name === ship?.nation);
+
   return (
     <Dialog open={ship !== null} onClose={onClose} className="relative z-50">
-      <DialogBackdrop className="fixed inset-0 bg-[#03090d]/80 backdrop-blur-sm" />
+      <DialogBackdrop className="fixed inset-0 bg-fleet-deep/50 backdrop-blur-sm" />
       <div className="fixed inset-0 flex items-center justify-center overflow-y-auto px-4 py-8">
-        <DialogPanel className="max-h-full w-full max-w-[800px] overflow-y-auto border border-[#3c505c] bg-fleet-panel p-5 shadow-[0_30px_100px_#0009] sm:p-7">
+        <DialogPanel className="max-h-full w-full max-w-200 overflow-y-auto border border-[#3c505c] bg-fleet-panel p-5 shadow-[0_30px_100px_#0009] sm:p-7">
           {ship && (
             <>
               <div className="flex items-center justify-between gap-4">
@@ -41,7 +42,7 @@ export function ShipDetailsDialog({
                   <p className="mb-2 font-mono text-[11px] leading-normal font-medium text-fleet-cyan uppercase">
                     Ship profile
                   </p>
-                  <DialogTitle className="font-heading text-[26px]/[1.2] font-bold uppercase [overflow-wrap:anywhere] sm:text-[32px]">
+                  <DialogTitle className="font-heading text-[26px]/[1.2] font-bold uppercase wrap-anywhere sm:text-[32px]">
                     {shipName(ship)}
                   </DialogTitle>
                 </div>
@@ -90,9 +91,6 @@ export function ShipDetailsDialog({
               </dl>
               {ship.localization.description.en && (
                 <section className="mt-6">
-                  <h2 className="mb-3 font-heading text-lg font-semibold">
-                    Overview
-                  </h2>
                   <p className="text-[15px]/[1.8] whitespace-pre-line text-fleet-secondary">
                     {ship.localization.description.en}
                   </p>
