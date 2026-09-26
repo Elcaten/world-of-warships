@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { CommandButton } from "@/components/ui/command-button";
 import { Icon } from "@/components/ui/icon";
+import type { FleetSort, FleetView } from "@/lib/useFleetQueryState";
 
-export type FleetSort = "tier-desc" | "tier-asc" | "name";
-export type FleetView = "grid" | "table";
+export type { FleetSort, FleetView } from "@/lib/useFleetQueryState";
 
 type Props = {
   search: string;

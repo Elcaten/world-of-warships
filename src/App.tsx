@@ -1,4 +1,10 @@
-import { useDeferredValue, useMemo, useState, type ReactNode } from "react";
+import {
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   useMediaPath,
   useNations,
@@ -8,36 +14,47 @@ import {
 } from "@/api/encyclopedia";
 import { ShipCard } from "@/components/domain/ShipCard";
 import { AppHeader } from "@/components/features/AppHeader";
-import {
-  FleetToolbar,
-  type FleetSort,
-  type FleetView,
-} from "@/components/features/FleetToolbar";
+import { FleetToolbar } from "@/components/features/FleetToolbar";
 import { ShipDetailsDialog } from "@/components/features/ShipDetailsDialog";
 import { ShipFilters } from "@/components/features/ShipFilters";
 import { ShipsTable } from "@/components/features/ShipTable/ShipsTable";
 import { CommandButton } from "@/components/ui/command-button";
 import { Icon } from "@/components/ui/icon";
 import { shipName } from "@/lib/ships";
+import { useFleetQueryState } from "@/lib/useFleetQueryState";
 
 const PAGE_SIZE = 24;
 
 export default function App() {
-  const [search, setSearch] = useState("");
-  const deferredSearch = useDeferredValue(search);
-  const [types, setTypes] = useState<string[]>();
-  const [nations, setNations] = useState<string[]>();
-  const [levels, setLevels] = useState<number[]>();
-  const [sort, setSort] = useState<FleetSort>("tier-desc");
-  const [view, setView] = useState<FleetView>("grid");
-  const [page, setPage] = useState(1);
   const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const catalogue = useShips();
-  const ships = useShips({ search: deferredSearch, types, nations, levels });
   const media = useMediaPath();
   const nationCatalogue = useNations();
   const vehicleTypes = useVehicleTypes();
+  const tiers = useMemo(
+    () =>
+      [...new Set(catalogue.data?.map((ship) => ship.level))].sort(
+        (a, b) => a - b,
+      ),
+    [catalogue.data],
+  );
+  const validTypes = useMemo(
+    () => (vehicleTypes.data ? Object.keys(vehicleTypes.data) : undefined),
+    [vehicleTypes.data],
+  );
+  const validNations = useMemo(
+    () => nationCatalogue.data?.map((nation) => nation.name),
+    [nationCatalogue.data],
+  );
+  const { state, update, reset } = useFleetQueryState({
+    types: validTypes,
+    nations: validNations,
+    levels: catalogue.data ? tiers : undefined,
+  });
+  const { search, types, nations, levels, sort, view, page } = state;
+  const deferredSearch = useDeferredValue(search);
+  const ships = useShips({ search: deferredSearch, types, nations, levels });
   const queries = [ships, media, nationCatalogue, vehicleTypes];
   const failed = queries.some((query) => query.isError);
   const pending = queries.some((query) => query.isPending);
@@ -52,13 +69,6 @@ export default function App() {
       }),
     [ships.data, sort],
   );
-  const tiers = useMemo(
-    () =>
-      [...new Set(catalogue.data?.map((ship) => ship.level))].sort(
-        (a, b) => a - b,
-      ),
-    [catalogue.data],
-  );
   const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
   const visibleShips = sorted.slice(
@@ -66,17 +76,19 @@ export default function App() {
     currentPage * PAGE_SIZE,
   );
 
+  useEffect(() => {
+    if (!pending && !failed && page !== currentPage) {
+      update({ page: currentPage });
+    }
+  }, [currentPage, failed, page, pending, update]);
+
   function showDetails(ship: Ship) {
     setSelectedShip(ship);
     setDetailsOpen(true);
   }
 
   function resetFilters() {
-    setSearch("");
-    setTypes(undefined);
-    setNations(undefined);
-    setLevels(undefined);
-    setPage(1);
+    reset();
   }
 
   return (
@@ -107,16 +119,14 @@ export default function App() {
           <FleetToolbar
             search={search}
             onSearchChange={(value) => {
-              setSearch(value);
-              setPage(1);
+              update({ search: value, page: 1 });
             }}
             sort={sort}
             onSortChange={(value) => {
-              setSort(value);
-              setPage(1);
+              update({ sort: value, page: 1 });
             }}
             view={view}
-            onViewChange={setView}
+            onViewChange={(value) => update({ view: value })}
             onReset={resetFilters}
           />
           {nationCatalogue.data && vehicleTypes.data && (
@@ -128,16 +138,13 @@ export default function App() {
               nationCatalogue={nationCatalogue.data}
               vehicleTypes={vehicleTypes.data}
               onTypesChange={(value) => {
-                setTypes(value);
-                setPage(1);
+                update({ types: value, page: 1 });
               }}
               onNationsChange={(value) => {
-                setNations(value);
-                setPage(1);
+                update({ nations: value, page: 1 });
               }}
               onLevelsChange={(value) => {
-                setLevels(value);
-                setPage(1);
+                update({ levels: value, page: 1 });
               }}
             />
           )}
@@ -228,7 +235,7 @@ export default function App() {
               >
                 <CommandButton
                   disabled={currentPage === 1}
-                  onClick={() => setPage(currentPage - 1)}
+                  onClick={() => update({ page: currentPage - 1 })}
                 >
                   <Icon name="left" />
                   Previous
@@ -238,7 +245,7 @@ export default function App() {
                 </span>
                 <CommandButton
                   disabled={currentPage === pageCount}
-                  onClick={() => setPage(currentPage + 1)}
+                  onClick={() => update({ page: currentPage + 1 })}
                 >
                   Next
                   <Icon name="right" />
