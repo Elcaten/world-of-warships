@@ -12,8 +12,8 @@ import {
 } from "../api/encyclopedia";
 import { isPremium, shipName, tierLabel } from "../lib/ships";
 import { NationFlag } from "./NationFlag";
-import { Icon } from "./ui/icon";
 import { CommandButton } from "./ui/command-button";
+import { Icon } from "./ui/icon";
 
 type ShipDetailsDialogProps = {
   ship: Ship | null;
@@ -38,7 +38,7 @@ export function ShipDetailsDialog({
             <>
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="mb-[7px] font-mono text-[11px] leading-normal font-medium tracking-[0.12em] text-fleet-cyan uppercase">
+                  <p className="mb-2 font-mono text-[11px] leading-normal font-medium text-fleet-cyan uppercase">
                     Ship profile
                   </p>
                   <DialogTitle className="font-heading text-[26px]/[1.2] font-bold uppercase [overflow-wrap:anywhere] sm:text-[32px]">
@@ -46,7 +46,7 @@ export function ShipDetailsDialog({
                   </DialogTitle>
                 </div>
                 <CommandButton
-                  className="p-[9px]"
+                  className="p-2"
                   aria-label="Close ship details"
                   onClick={onClose}
                 >
@@ -65,7 +65,7 @@ export function ShipDetailsDialog({
                   alt={shipName(ship)}
                 />
               </div>
-              <dl className="flex flex-wrap gap-x-9 gap-y-6 border-b border-fleet-line pb-6 [&_dt]:mb-[7px] [&_dt]:font-mono [&_dt]:text-[10px] [&_dt]:leading-normal [&_dt]:tracking-[0.08em] [&_dt]:text-fleet-muted [&_dt]:uppercase [&_dd]:font-heading [&_dd]:text-[17px] [&_dd]:leading-normal [&_dd]:font-semibold">
+              <dl className="flex flex-wrap gap-x-9 gap-y-6 border-b border-fleet-line pb-6 [&_dt]:mb-2 [&_dt]:font-mono [&_dt]:text-[10px] [&_dt]:leading-normal [&_dt]:[&_dt]:text-fleet-muted [&_dt]:uppercase [&_dd]:font-heading [&_dd]:text-[17px] [&_dd]:leading-normal [&_dd]:font-semibold">
                 <div>
                   <dt>Nation</dt>
                   <dd>{nation?.localization.mark.en ?? ship.nation}</dd>

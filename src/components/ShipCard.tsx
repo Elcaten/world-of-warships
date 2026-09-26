@@ -35,7 +35,7 @@ export function ShipCard({
         className="absolute -top-[15px] -right-3 -z-10 h-25 w-[135px] object-contain opacity-9 saturate-60"
       />
       <span className="flex min-h-6 items-center justify-between gap-2">
-        <span className="flex items-center gap-2 font-heading text-base leading-normal font-bold tracking-[0.08em]">
+        <span className="flex items-center gap-2 font-heading text-base leading-normal font-bold ">
           <VehicleTypeIcon
             vehicleType={ship.vehicleType}
             className="h-4.5 w-5 object-contain"
@@ -43,7 +43,7 @@ export function ShipCard({
           {tierLabel(ship.level)}
         </span>
         {premium && (
-          <span className="border border-fleet-gold/12 bg-fleet-gold/8 px-1.5 py-0.75 font-mono text-[10px] leading-normal font-medium tracking-[0.04em] text-fleet-gold uppercase">
+          <span className="border border-fleet-gold/12 bg-fleet-gold/8 px-1.5 py-0.75 font-mono text-[10px] leading-normal font-medium  text-fleet-gold uppercase">
             Premium
           </span>
         )}
@@ -57,16 +57,16 @@ export function ShipCard({
         />
       </span>
       <span className="flex items-end justify-between gap-4 sm:flex-col sm:items-stretch sm:gap-1.25">
-        <span className="max-w-[42%] font-mono text-[10px] leading-normal tracking-[0.06em] text-fleet-muted uppercase sm:max-w-none">
+        <span className="max-w-[42%] font-mono text-[10px] leading-normal  text-fleet-muted uppercase sm:max-w-none">
           {nation?.localization.mark.en ?? ship.nation}
         </span>
         <span
-          className={`text-right font-heading text-xl/[1.25] font-bold tracking-[0.025em] uppercase [overflow-wrap:anywhere] sm:text-left ${premium ? "text-fleet-gold" : "group-hover:text-fleet-cyan"}`}
+          className={`text-right font-heading text-xl/[1.25] font-bold ] uppercase [overflow-wrap:anywhere] sm:text-left ${premium ? "text-fleet-gold" : "group-hover:text-fleet-cyan"}`}
         >
           {shipName(ship)}
         </span>
       </span>
-      <span className="mt-2 flex items-center justify-between font-mono text-[10px] leading-normal tracking-[0.04em] text-[#87b9bc] uppercase">
+      <span className="mt-2 flex items-center justify-between font-mono text-[10px] leading-normal  text-[#87b9bc] uppercase">
         {types.data?.[ship.vehicleType]?.localization.mark.en ??
           ship.vehicleType}
         <Icon name="right" className="size-3.5" />

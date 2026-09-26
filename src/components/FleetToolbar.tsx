@@ -1,5 +1,5 @@
-import { Icon } from "./ui/icon";
 import { CommandButton } from "./ui/command-button";
+import { Icon } from "./ui/icon";
 
 export type FleetSort = "tier-desc" | "tier-asc" | "name";
 export type FleetView = "grid" | "table";
@@ -50,12 +50,12 @@ export function FleetToolbar({
         </select>
       </label>
       <div
-        className="flex flex-1 gap-[3px] bg-fleet-deep p-1 sm:flex-none"
+        className="flex flex-1 gap-0.5 bg-fleet-deep p-1 sm:flex-none"
         role="group"
         aria-label="Display mode"
       >
         <button
-          className="flex flex-1 items-center justify-center gap-[7px] px-2.5 py-[7px] font-mono text-[11px] font-medium tracking-[0.04em] text-[#aababc] uppercase aria-pressed:bg-[#1c2c34] aria-pressed:text-fleet-highlight sm:flex-none"
+          className="flex flex-1 items-center justify-center gap-2 px-2.5 py-2 font-mono text-[11px] font-medium text-[#aababc] uppercase aria-pressed:bg-[#1c2c34] aria-pressed:text-fleet-highlight sm:flex-none"
           aria-label="Grid view"
           aria-pressed={view === "grid"}
           onClick={() => onViewChange("grid")}
@@ -64,7 +64,7 @@ export function FleetToolbar({
           <span>Grid</span>
         </button>
         <button
-          className="flex flex-1 items-center justify-center gap-[7px] px-2.5 py-[7px] font-mono text-[11px] font-medium tracking-[0.04em] text-[#aababc] uppercase aria-pressed:bg-[#1c2c34] aria-pressed:text-fleet-highlight sm:flex-none"
+          className="flex flex-1 items-center justify-center gap-2 px-2.5 py-2 font-mono text-[11px] font-medium text-[#aababc] uppercase aria-pressed:bg-[#1c2c34] aria-pressed:text-fleet-highlight sm:flex-none"
           aria-label="Table view"
           aria-pressed={view === "table"}
           onClick={() => onViewChange("table")}

@@ -7,17 +7,17 @@ import {
   type Ship,
 } from "./api/encyclopedia";
 import { AppHeader } from "./components/AppHeader";
-import { ShipDetailsDialog } from "./components/ShipDetailsDialog";
-import { ShipFilters } from "./components/ShipFilters";
-import { ShipCard } from "./components/ShipCard";
-import { ShipsTable } from "./components/ShipsTable";
 import {
   FleetToolbar,
   type FleetSort,
   type FleetView,
 } from "./components/FleetToolbar";
-import { Icon } from "./components/ui/icon";
+import { ShipCard } from "./components/ShipCard";
+import { ShipDetailsDialog } from "./components/ShipDetailsDialog";
+import { ShipFilters } from "./components/ShipFilters";
+import { ShipsTable } from "./components/ShipsTable";
 import { CommandButton } from "./components/ui/command-button";
+import { Icon } from "./components/ui/icon";
 import { shipName } from "./lib/ships";
 
 const PAGE_SIZE = 24;
@@ -82,15 +82,15 @@ export default function App() {
       >
         <div className="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <p className="mb-[7px] font-mono text-[11px] leading-normal font-medium tracking-[0.12em] text-fleet-cyan uppercase">
+            <p className="mb-2 font-mono text-[11px] leading-normal font-medium text-fleet-cyan uppercase">
               World of Warships
             </p>
-            <h1 className="font-heading text-[28px]/[1.2] font-bold tracking-[0.025em] sm:text-[32px]">
+            <h1 className="font-heading text-[28px]/[1.2] font-bold sm:text-[32px]">
               Fleet roster
             </h1>
           </div>
           {!pending && !failed && (
-            <p className="mb-1 flex items-center gap-[9px] font-mono text-[11px] leading-normal text-fleet-muted">
+            <p className="mb-1 flex items-center gap-2 font-mono text-[11px] leading-normal text-fleet-muted">
               <span className="size-1.5 bg-fleet-cyan shadow-[0_0_10px_#38d7d240]" />
               {catalogue.data?.length.toLocaleString()} ships in the
               encyclopedia
@@ -160,7 +160,7 @@ export default function App() {
         ) : pending ? (
           <section aria-label="Loading fleet" aria-busy="true">
             <p
-              className="flex justify-between gap-4 pt-5 pb-[15px] font-mono text-[11px] leading-normal text-fleet-muted [&_strong]:font-medium [&_strong]:text-fleet-text"
+              className="flex justify-between gap-4 pt-5 pb-4 font-mono text-[11px] leading-normal text-fleet-muted [&_strong]:font-medium [&_strong]:text-fleet-text"
               role="status"
             >
               Loading the ship encyclopedia…
@@ -177,7 +177,7 @@ export default function App() {
         ) : (
           <>
             <div
-              className="flex justify-between gap-4 pt-5 pb-[15px] font-mono text-[11px] leading-normal text-fleet-muted [&_strong]:font-medium [&_strong]:text-fleet-text"
+              className="flex justify-between gap-4 pt-5 pb-4 font-mono text-[11px] leading-normal text-fleet-muted [&_strong]:font-medium [&_strong]:text-fleet-text"
               role="status"
             >
               <span>
@@ -222,7 +222,7 @@ export default function App() {
             {pageCount > 1 && (
               <nav
                 aria-label="Fleet pages"
-                className="mt-8 flex items-center justify-center gap-3 font-mono text-[11px] leading-normal text-fleet-muted sm:gap-6 [&_button]:px-[9px] [&_button]:text-[10px] sm:[&_button]:px-[13px] sm:[&_button]:text-xs"
+                className="mt-8 flex items-center justify-center gap-3 font-mono text-[11px] leading-normal text-fleet-muted sm:gap-6 [&_button]:px-2 [&_button]:text-[10px] sm:[&_button]:px-3 sm:[&_button]:text-xs"
               >
                 <CommandButton
                   disabled={currentPage === 1}
@@ -252,7 +252,7 @@ export default function App() {
         />
       </main>
       <footer className="mx-auto w-[calc(100%-32px)] sm:w-[calc(100%-48px)] lg:w-[min(100%-80px,1536px)] flex flex-col justify-between gap-1.5 border-t border-fleet-line/50 py-6 font-mono text-[10px]/[1.7] text-[#7e949e] sm:flex-row sm:gap-4">
-        <span className="tracking-widest uppercase">Warship Encyclopedia</span>
+        <span className="uppercase">Warship Encyclopedia</span>
         <span>Ship data & imagery from World of Warships</span>
       </footer>
     </div>
