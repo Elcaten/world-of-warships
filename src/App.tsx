@@ -56,7 +56,7 @@ export default function App() {
   const deferredSearch = useDeferredValue(search);
   const ships = useShips({ search: deferredSearch, types, nations, levels });
   const queries = [ships, media, nationCatalogue, vehicleTypes];
-  const failed = queries.some((query) => query.isError);
+  const failed = queries.some((query) => query.isError && query.data === undefined);
   const pending = queries.some((query) => query.isPending);
   const sorted = useMemo(
     () =>

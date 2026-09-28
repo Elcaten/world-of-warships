@@ -75,9 +75,19 @@ Search matches English display names, technical names, and IDs. Nation, class,
 and tier filters are ANDed; values within each filter are ORed. Omitted filters
 include all ships; empty nation or type arrays match none. Empty tier arrays
 include all tiers. No hidden, premium, or event ships are implicitly excluded.
-The catalogue stays fresh and remains cached while inactive for one hour;
-changing filters does not trigger a new request. The full vehicle response is
-about 20 MB uncompressed, so the first load still requires that download.
+The catalogue stays fresh for 24 hours; changing filters does not trigger a new
+request. All four queries are persisted in IndexedDB using `idb-keyval` and
+TanStack Query's `PersistQueryClientProvider`, which restores the cache before
+queries start fetching. The full vehicle response is about 20 MB uncompressed,
+so the first load still requires that download.
+
+After 24 hours, cached data stays visible while a mount, window focus, or network
+reconnection triggers a background refresh. Failed refreshes keep the cached
+catalogue visible. Saved data is retained until replaced (`maxAge` and `gcTime`
+are `Infinity`), although clearing site data or browser storage eviction can
+remove it. If IndexedDB is unavailable or full, normal fetching and in-memory
+caching continue. Explicit invalidation still refreshes fresh data. This uses
+[TanStack Query's documented IndexedDB persistence and hydration pattern](https://tanstack.com/query/latest/docs/framework/react/plugins/persistQueryClient).
 
 ```tsx
 import { resolveMediaUrl, useMediaPath, useShips } from "./api/encyclopedia";

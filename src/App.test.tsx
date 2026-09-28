@@ -1,4 +1,10 @@
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { beforeEach, expect, it } from "vitest";
 import App from "@/App";
@@ -8,6 +14,7 @@ import types from "@/api/encyclopedia/__fixtures__/vehicle_types_common.json";
 import media from "@/api/encyclopedia/__fixtures__/media_path.json";
 import { server } from "@/test/mocks/server";
 import { renderWithProviders } from "@/test/render";
+import { encyclopediaKeys } from "@/api/encyclopedia/queries";
 
 const base = "*/api/encyclopedia/en";
 const cards = () =>
@@ -293,6 +300,33 @@ it("retries a failed catalogue request", async () => {
     await screen.findByRole("button", { name: "View details for Yamato" }),
   ).toBeInTheDocument();
   expect(attempts).toBe(2);
+});
+
+it("keeps the fleet visible when a background refresh fails", async () => {
+  const { queryClient } = renderWithProviders(<App />);
+  await screen.findByRole("button", { name: "View details for Yamato" });
+  server.use(
+    http.get(
+      `${base}/vehicles/`,
+      () => new HttpResponse(null, { status: 503 }),
+    ),
+  );
+
+  await act(async () => {
+    await queryClient.invalidateQueries({
+      queryKey: encyclopediaKeys.vehicles(),
+    });
+  });
+
+  expect(queryClient.getQueryState(encyclopediaKeys.vehicles())?.status).toBe(
+    "error",
+  );
+  expect(
+    screen.getByRole("button", { name: "View details for Yamato" }),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByText("Unable to load the fleet"),
+  ).not.toBeInTheDocument();
 });
 
 it("paginates the catalogue and resets to the first page when filtering", async () => {

@@ -17,8 +17,10 @@
   "dependencies": {
     "@headlessui/react": "^2.2.10",
     "@tanstack/react-query": "^5.103.2",
+    "@tanstack/react-query-persist-client": "^5.103.2",
     "@tanstack/react-virtual": "^3.14.13",
     "clsx": "^2.1.1",
+    "idb-keyval": "^6.3.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "zod": "^4.6.5"
