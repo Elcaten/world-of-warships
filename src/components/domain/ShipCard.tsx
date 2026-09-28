@@ -2,6 +2,7 @@ import { resolveMediaUrl, type Ship } from "@/api/encyclopedia";
 import { Icon } from "@/components/ui/icon";
 import { shipName, tierLabel } from "@/lib/ships";
 import clsx from "clsx";
+import { useState } from "react";
 import { NationFlag } from "./NationFlag";
 import { VehicleTypeIcon } from "./VehicleTypeIcon";
 
@@ -14,6 +15,9 @@ export function ShipCard({
   mediaPath: string;
   onViewDetails: (ship: Ship) => void;
 }) {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [fadeInDuration] = useState(Math.round(Math.random() * 300) + 300);
+
   return (
     <button
       className={clsx(
@@ -46,11 +50,14 @@ export function ShipCard({
 
       <div className="-z-1 h-44 w-full origin-bottom transition-transform duration-500 ease-in group-hover:scale-102 group-hover:duration-150 group-hover:ease-out motion-reduce:transition-none">
         <img
-          className="object-contain"
+          className={clsx(
+            "w-ful h-full object-contain transition-opacity ease-out motion-reduce:transition-none",
+            isImageLoaded ? "opacity-100" : "opacity-0",
+          )}
+          style={{ transitionDuration: `${fadeInDuration}ms` }}
           src={resolveMediaUrl(mediaPath, ship.icons.medium)}
           alt=""
-          loading="lazy"
-          onLoad={() => set}
+          onLoad={() => setIsImageLoaded(true)}
         />
       </div>
 
@@ -59,7 +66,7 @@ export function ShipCard({
           className="font-heading min-w-0 truncate text-xl font-bold uppercase"
           title={shipName(ship)}
         >
-          {shipName(ship)}
+          {shipName(ship)} {fadeInDuration}
         </span>
         <Icon name="right" className="size-4 shrink-0" />
       </span>

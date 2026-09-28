@@ -25,6 +25,7 @@ export function ShipsGrid({
           onViewDetails={onViewDetails}
         />
       )}
+      increaseViewportBy={{ top: 800, bottom: 1200 }}
     />
   );
 }

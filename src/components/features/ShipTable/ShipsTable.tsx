@@ -1,8 +1,9 @@
-import { useMemo } from "react";
-import { TableVirtuoso, type TableComponents } from "react-virtuoso";
 import type { Ship } from "@/api/encyclopedia";
 import { Table, TableBody, TableHeader, TableRow } from "@/components/ui/table";
+import { useMemo } from "react";
+import { TableVirtuoso, type TableComponents } from "react-virtuoso";
 import { ShipTableCells } from "./ShipTableCells";
+import { fallbackContours } from "./fallbackContours";
 
 // A normal first row lets the headings scroll away with the table.
 type FleetRow = Ship | null;
@@ -46,15 +47,19 @@ export function ShipsTable({
   const rows = useMemo(() => [null, ...ships], [ships]);
 
   return (
-    <div className="border-fleet-line bg-fleet-panel overflow-x-auto border">
+    <div className="border-fleet-line bg-fleet-panel overflow-x-auto overflow-y-hidden border">
       <TableVirtuoso
         useWindowScroll
+        increaseViewportBy={{ top: 800, bottom: 1200 }}
         data={rows}
         components={tableComponents}
         computeItemKey={(_, ship) => (ship ? `ship-${ship.id}` : "headings")}
-        itemContent={(_, ship) =>
-          ship ? (
+        itemContent={(index, ship) => {
+          return ship ? (
             <ShipTableCells
+              fallbackContour={
+                fallbackContours[index % fallbackContours.length]
+              }
               ship={ship}
               mediaPath={mediaPath}
               onViewDetails={onViewDetails}
@@ -66,8 +71,8 @@ export function ShipsTable({
               <TableHeader scope="col">Type</TableHeader>
               <TableHeader scope="col">Tier</TableHeader>
             </>
-          )
-        }
+          );
+        }}
       />
     </div>
   );
