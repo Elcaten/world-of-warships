@@ -1,7 +1,7 @@
 import type { Nations, VehicleTypes } from "@/api/encyclopedia";
 import { NationFlag } from "@/components/domain/NationFlag";
 import { VehicleTypeIcon } from "@/components/domain/VehicleTypeIcon";
-import { FilterGroup } from "@/components/ui/filter-group";
+import { FilterGroup, FilterGroupSkeleton } from "@/components/ui/filter-group";
 import { Icon } from "@/components/ui/icon";
 import { tierLabel } from "@/lib/ships";
 
@@ -16,6 +16,34 @@ type ShipFiltersProps = {
   onNationsChange: (nations: string[] | undefined) => void;
   onLevelsChange: (levels: number[] | undefined) => void;
 };
+
+export function ShipFiltersSkeleton() {
+  return (
+    <section
+      aria-label="Ship filters"
+      aria-busy="true"
+      className="flex flex-col gap-4"
+    >
+      <p className="sr-only">Loading ship filters…</p>
+      <FilterGroupSkeleton
+        label="Class"
+        icon={<Icon name="anchor" className="text-fleet-cyan size-4" />}
+        count={6}
+      />
+      <FilterGroupSkeleton
+        label="Nation"
+        icon={<Icon name="flag" className="text-fleet-gold size-4" />}
+        count={14}
+      />
+      <FilterGroupSkeleton
+        label="Ship tier"
+        icon={<Icon name="tier" className="text-fleet-cyan size-4" />}
+        compact
+        count={12}
+      />
+    </section>
+  );
+}
 
 export function ShipFilters({
   types,

@@ -1,62 +1,106 @@
 import {
   useMediaPath,
-  useNationNames,
   useNations,
-  useShipCount,
   useShips,
-  useShipTiers,
-  useVehicleTypeIds,
   useVehicleTypes,
   type Ship,
 } from "@/api/encyclopedia";
 import { AppHeader } from "@/components/features/AppHeader";
 import { FleetToolbar } from "@/components/features/FleetToolbar";
 import { ShipDetailsDialog } from "@/components/features/ShipDetailsDialog";
-import { ShipFilters } from "@/components/features/ShipFilters";
+import {
+  ShipFilters,
+  ShipFiltersSkeleton,
+} from "@/components/features/ShipFilters";
 import { ShipsGrid } from "@/components/features/ShipsGrid";
 import { ShipsTable } from "@/components/features/ShipTable/ShipsTable";
 import { CommandButton } from "@/components/ui/command-button";
-import { sortShips } from "@/lib/ships";
+import { shipName } from "@/lib/ships";
 import { useFleetQueryState } from "@/lib/useFleetQueryState";
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { FleetError } from "./FleetError";
 import { FleetMessage } from "./FleetMessage";
 import { FleetPending } from "./FleetPending";
 
 export default function App() {
-  const shipCount = useShipCount();
+  const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const catalogue = useShips();
   const media = useMediaPath();
   const nationCatalogue = useNations();
   const vehicleTypes = useVehicleTypes();
-  const tiers = useShipTiers();
-  const vehicleTypeIds = useVehicleTypeIds();
-  const nationNames = useNationNames();
-
+  const tiers = useMemo(
+    () =>
+      [...new Set(catalogue.data?.map((ship) => ship.level))].sort(
+        (a, b) => a - b,
+      ),
+    [catalogue.data],
+  );
+  const validTypes = useMemo(
+    () => (vehicleTypes.data ? Object.keys(vehicleTypes.data) : undefined),
+    [vehicleTypes.data],
+  );
+  const validNations = useMemo(
+    () => nationCatalogue.data?.map((nation) => nation.name),
+    [nationCatalogue.data],
+  );
   const { state, update, reset } = useFleetQueryState({
-    types: vehicleTypeIds.data,
-    nations: nationNames.data,
-    levels: tiers.data,
+    types: validTypes,
+    nations: validNations,
+    levels: catalogue.data ? tiers : undefined,
   });
   const { search, types, nations, levels, sort, view } = state;
   const deferredSearch = useDeferredValue(search);
   const ships = useShips({ search: deferredSearch, types, nations, levels });
-
-  const sorted = useMemo(
-    () => sortShips(ships.data ?? [], sort),
-    [ships.data, sort],
-  );
-
   const queries = [ships, media, nationCatalogue, vehicleTypes];
-  const pending = queries.some((query) => query.isPending);
   const failed = queries.some(
     (query) => query.isError && query.data === undefined,
   );
+  const pending = queries.some((query) => query.isPending);
+  const filtersPending =
+    catalogue.isPending || nationCatalogue.isPending || vehicleTypes.isPending;
+  const sorted = useMemo(
+    () =>
+      [...(ships.data ?? [])].sort((a, b) => {
+        const byName = shipName(a).localeCompare(shipName(b));
+        return sort === "name"
+          ? byName
+          : (sort === "tier-desc" ? b.level - a.level : a.level - b.level) ||
+              byName;
+      }),
+    [ships.data, sort],
+  );
+  // Compare query values, not result/array identity, so refreshes preserve scroll.
+  const resultKey = JSON.stringify([
+    deferredSearch,
+    types,
+    nations,
+    levels,
+    sort,
+    view,
+  ]);
+  const previousResultKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (pending || failed) {
+      previousResultKey.current = null;
+      return;
+    }
+    if (
+      previousResultKey.current !== null &&
+      previousResultKey.current !== resultKey
+    ) {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+    previousResultKey.current = resultKey;
+  }, [resultKey, pending, failed]);
 
-  const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
-  const [detailsOpen, setDetailsOpen] = useState(false);
   function showDetails(ship: Ship) {
     setSelectedShip(ship);
     setDetailsOpen(true);
+  }
+
+  function resetFilters() {
+    reset();
   }
 
   return (
@@ -75,7 +119,7 @@ export default function App() {
           </div>
           {!pending && !failed && (
             <p className="text-fleet-muted font-mono text-xs">
-              {shipCount.data?.toLocaleString()} ships in the
+              {catalogue.data?.length.toLocaleString()} ships in the
               encyclopedia
             </p>
           )}
@@ -95,14 +139,14 @@ export default function App() {
             }}
             view={view}
             onViewChange={(value) => update({ view: value })}
-            onReset={reset}
+            onReset={resetFilters}
           />
-          {nationCatalogue.data && vehicleTypes.data && (
+          {catalogue.data && nationCatalogue.data && vehicleTypes.data ? (
             <ShipFilters
               types={types}
               nations={nations}
               levels={levels}
-              tiers={tiers.data ?? []}
+              tiers={tiers}
               nationCatalogue={nationCatalogue.data}
               vehicleTypes={vehicleTypes.data}
               onTypesChange={(value) => {
@@ -115,7 +159,9 @@ export default function App() {
                 update({ levels: value });
               }}
             />
-          )}
+          ) : !failed && filtersPending ? (
+            <ShipFiltersSkeleton />
+          ) : null}
         </section>
         {failed ? (
           <FleetError
@@ -146,7 +192,7 @@ export default function App() {
                 title="No ships found"
                 description="Try another name or adjust your class, nation, and tier filters."
               >
-                <CommandButton onClick={reset}>
+                <CommandButton onClick={resetFilters}>
                   Clear filters
                 </CommandButton>
               </FleetMessage>

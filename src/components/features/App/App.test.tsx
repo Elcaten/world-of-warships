@@ -32,6 +32,52 @@ beforeEach(() => {
   );
 });
 
+it("keeps filters noninteractive until the ship catalogue supplies the tiers", async () => {
+  let releaseCatalogue!: () => void;
+  const catalogueReady = new Promise<void>((resolve) => {
+    releaseCatalogue = resolve;
+  });
+  server.use(
+    http.get(`${base}/vehicles/`, async () => {
+      await catalogueReady;
+      return HttpResponse.json(vehicles);
+    }),
+  );
+  const { queryClient } = renderWithProviders(<App />);
+
+  try {
+    const filters = screen.getByRole("region", { name: "Ship filters" });
+    expect(filters).toHaveAttribute("aria-busy", "true");
+    expect(within(filters).queryByRole("button")).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(
+        queryClient.getQueryState(encyclopediaKeys.nations())?.status,
+      ).toBe("success");
+      expect(
+        queryClient.getQueryState(encyclopediaKeys.vehicleTypes())?.status,
+      ).toBe("success");
+    });
+
+    expect(
+      screen.getByRole("region", { name: "Ship filters" }),
+    ).toHaveAttribute("aria-busy", "true");
+    expect(
+      within(screen.getByRole("group", { name: "Ship tier" })).queryByRole(
+        "button",
+      ),
+    ).not.toBeInTheDocument();
+  } finally {
+    releaseCatalogue();
+  }
+
+  await screen.findByRole("button", { name: "X" });
+  expect(
+    screen.getByRole("region", { name: "Ship filters" }),
+  ).not.toHaveAttribute("aria-busy", "true");
+  expect(screen.getByRole("button", { name: "All hulls" })).toBeEnabled();
+});
+
 it("restores table filters from the query string", async () => {
   mockFleet(25);
   window.history.replaceState(
@@ -273,25 +319,36 @@ it("shows a ship's medium image behind its large profile image", async () => {
   );
 });
 
-it("retries a failed catalogue request", async () => {
-  let attempts = 0;
-  server.use(
-    http.get(`${base}/vehicles/`, () =>
-      ++attempts === 1
-        ? new HttpResponse(null, { status: 503 })
-        : HttpResponse.json(vehicles),
-    ),
-  );
-  renderWithProviders(<App />);
-  expect(await screen.findByRole("alert")).toHaveTextContent(
-    "Unable to load the fleet",
-  );
-  fireEvent.click(screen.getByRole("button", { name: "Try again" }));
-  expect(
-    await screen.findByRole("button", { name: "View details for Yamato" }),
-  ).toBeInTheDocument();
-  expect(attempts).toBe(2);
-});
+it.each([
+  ["vehicles", vehicles],
+  ["nations", nations],
+  ["vehicle_types_common", types],
+] as const)(
+  "clears filter skeletons and retries a failed %s request",
+  async (endpoint, fixture) => {
+    let attempts = 0;
+    server.use(
+      http.get(`${base}/${endpoint}/`, () =>
+        ++attempts === 1
+          ? new HttpResponse(null, { status: 503 })
+          : HttpResponse.json(fixture),
+      ),
+    );
+    renderWithProviders(<App />);
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Unable to load the fleet",
+    );
+    expect(
+      screen.queryByRole("region", { name: "Ship filters" }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(
+      await screen.findByRole("button", { name: "View details for Yamato" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "X" })).toBeEnabled();
+    expect(attempts).toBe(2);
+  },
+);
 
 it.each(["grid", "table"])(
   "keeps the fleet visible when a background refresh fails in %s view",
@@ -322,6 +379,10 @@ it.each(["grid", "table"])(
     expect(
       screen.queryByText("Unable to load the fleet"),
     ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("region", { name: "Ship filters" }),
+    ).not.toHaveAttribute("aria-busy", "true");
+    expect(screen.getByRole("button", { name: "X" })).toBeEnabled();
     expect(window.scrollTo).not.toHaveBeenCalled();
   },
 );
