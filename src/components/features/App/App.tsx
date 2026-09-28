@@ -1,12 +1,4 @@
 import {
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
-import {
   useMediaPath,
   useNations,
   useShips,
@@ -20,9 +12,12 @@ import { ShipFilters } from "@/components/features/ShipFilters";
 import { ShipsGrid } from "@/components/features/ShipsGrid";
 import { ShipsTable } from "@/components/features/ShipTable/ShipsTable";
 import { CommandButton } from "@/components/ui/command-button";
-import { Icon } from "@/components/ui/icon";
 import { shipName } from "@/lib/ships";
 import { useFleetQueryState } from "@/lib/useFleetQueryState";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { FleetError } from "./FleetError";
+import { FleetMessage } from "./FleetMessage";
+import { FleetPending } from "./FleetPending";
 
 export default function App() {
   const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
@@ -162,39 +157,15 @@ export default function App() {
           )}
         </section>
         {failed ? (
-          <FleetMessage
-            icon="anchor"
-            title="Unable to load the fleet"
-            description="The encyclopedia couldn’t be reached. Try again in a moment."
-            role="alert"
-          >
-            <CommandButton
-              onClick={() => {
-                queries
-                  .filter((query) => query.isError)
-                  .forEach((query) => void query.refetch());
-              }}
-            >
-              Try again
-            </CommandButton>
-          </FleetMessage>
+          <FleetError
+            onRetry={() => {
+              queries
+                .filter((query) => query.isError)
+                .forEach((query) => void query.refetch());
+            }}
+          />
         ) : pending ? (
-          <section aria-label="Loading fleet" aria-busy="true">
-            <p
-              className="text-fleet-muted py-4 font-mono text-xs"
-              role="status"
-            >
-              Loading the ship encyclopedia…
-            </p>
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {Array.from({ length: 8 }, (_, i) => (
-                <div
-                  key={i}
-                  className="bg-fleet-panel h-80 animate-pulse motion-reduce:animate-none"
-                />
-              ))}
-            </div>
-          </section>
+          <FleetPending view={view} />
         ) : (
           <>
             <div
@@ -245,31 +216,5 @@ export default function App() {
         <span>Ship data & imagery from World of Warships</span>
       </footer>
     </div>
-  );
-}
-
-function FleetMessage({
-  icon,
-  title,
-  description,
-  role,
-  children,
-}: {
-  icon: "anchor" | "search";
-  title: string;
-  description: string;
-  role?: "alert";
-  children: ReactNode;
-}) {
-  return (
-    <section
-      role={role}
-      className="flex flex-col items-center gap-4 py-16 text-center"
-    >
-      <Icon name={icon} className="text-fleet-cyan size-8" />
-      <h2 className="font-heading text-2xl font-semibold">{title}</h2>
-      <p className="text-fleet-muted max-w-md">{description}</p>
-      {children}
-    </section>
   );
 }

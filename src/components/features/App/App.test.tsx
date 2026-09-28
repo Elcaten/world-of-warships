@@ -1,3 +1,11 @@
+import media from "@/api/encyclopedia/__fixtures__/media_path.json";
+import nations from "@/api/encyclopedia/__fixtures__/nations.json";
+import types from "@/api/encyclopedia/__fixtures__/vehicle_types_common.json";
+import vehicles from "@/api/encyclopedia/__fixtures__/vehicles.json";
+import { encyclopediaKeys } from "@/api/encyclopedia/queries";
+import App from "@/components/features/App/App";
+import { server } from "@/test/mocks/server";
+import { renderWithProviders } from "@/test/render";
 import {
   act,
   fireEvent,
@@ -6,16 +14,8 @@ import {
   within,
 } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
-import { beforeEach, expect, it, vi } from "vitest";
 import { VirtuosoGridMockContext, VirtuosoMockContext } from "react-virtuoso";
-import App from "@/App";
-import vehicles from "@/api/encyclopedia/__fixtures__/vehicles.json";
-import nations from "@/api/encyclopedia/__fixtures__/nations.json";
-import types from "@/api/encyclopedia/__fixtures__/vehicle_types_common.json";
-import media from "@/api/encyclopedia/__fixtures__/media_path.json";
-import { server } from "@/test/mocks/server";
-import { renderWithProviders } from "@/test/render";
-import { encyclopediaKeys } from "@/api/encyclopedia/queries";
+import { beforeEach, expect, it, vi } from "vitest";
 
 const base = "*/api/encyclopedia/en";
 const cards = () =>
