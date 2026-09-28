@@ -6,7 +6,8 @@ import {
   within,
 } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
-import { beforeEach, expect, it } from "vitest";
+import { beforeEach, expect, it, vi } from "vitest";
+import { VirtuosoGridMockContext, VirtuosoMockContext } from "react-virtuoso";
 import App from "@/App";
 import vehicles from "@/api/encyclopedia/__fixtures__/vehicles.json";
 import nations from "@/api/encyclopedia/__fixtures__/nations.json";
@@ -21,6 +22,7 @@ const cards = () =>
   screen.getAllByRole("button", { name: /^View details for/ });
 
 beforeEach(() => {
+  vi.spyOn(window, "scrollTo").mockImplementation(() => {});
   window.history.replaceState(null, "", "/");
   server.use(
     http.get(`${base}/vehicles/`, () => HttpResponse.json(vehicles)),
@@ -30,37 +32,17 @@ beforeEach(() => {
   );
 });
 
-it("restores the complete fleet view from the query string", async () => {
-  const sample = vehicles.data["4276041424"];
-  server.use(
-    http.get(`${base}/vehicles/`, () =>
-      HttpResponse.json({
-        status: "ok",
-        data: Object.fromEntries(
-          Array.from({ length: 25 }, (_, index) => [
-            String(index),
-            {
-              ...sample,
-              name: `Ship ${index}`,
-              localization: {
-                ...sample.localization,
-                shortmark: { en: `Ship ${String(index).padStart(2, "0")}` },
-              },
-            },
-          ]),
-        ),
-      }),
-    ),
-  );
+it("restores table filters from the query string", async () => {
+  mockFleet(25);
   window.history.replaceState(
     null,
     "",
-    "/?q=Ship&type=Battleship&nation=japan&tier=10&sort=name&view=table&page=2",
+    "/?q=Ship&type=Battleship&nation=japan&tier=10&sort=name&view=table",
   );
 
   renderWithProviders(<App />);
 
-  await screen.findByRole("button", { name: "View details for Ship 24" });
+  await screen.findByRole("button", { name: "View details for Ship 00" });
   expect(screen.getByRole("searchbox")).toHaveValue("Ship");
   expect(screen.getByRole("combobox", { name: "Sort ships" })).toHaveValue(
     "name",
@@ -85,7 +67,9 @@ it("restores the complete fleet view from the query string", async () => {
       { name: "X" },
     ),
   ).toHaveAttribute("aria-pressed", "true");
-  expect(screen.getByText("Page 2 of 2")).toBeInTheDocument();
+  expect(
+    screen.queryByRole("navigation", { name: "Fleet pages" }),
+  ).not.toBeInTheDocument();
 });
 
 it("syncs controls to the URL and reset removes only managed parameters", async () => {
@@ -165,7 +149,7 @@ it("normalizes invalid query values and follows popstate navigation", async () =
   window.history.replaceState(
     null,
     "",
-    "/?campaign=fall&type=Unknown&type=Battleship&nation=atlantis&nation=japan&tier=no&tier=10&tier=99&sort=wrong&view=wrong&page=-3",
+    "/?campaign=fall&type=Unknown&type=Battleship&nation=atlantis&nation=japan&tier=no&tier=10&tier=99&sort=wrong&view=wrong",
   );
   renderWithProviders(<App />);
   await screen.findByRole("button", { name: "View details for Yamato" });
@@ -177,9 +161,9 @@ it("normalizes invalid query values and follows popstate navigation", async () =
     expect(params.getAll("tier")).toEqual(["10"]);
     expect(params.has("sort")).toBe(false);
     expect(params.has("view")).toBe(false);
-    expect(params.has("page")).toBe(false);
     expect(params.get("campaign")).toBe("fall");
   });
+  expect(window.scrollTo).not.toHaveBeenCalled();
 
   window.history.pushState(null, "", "/?q=Hill&sort=name&view=table");
   window.dispatchEvent(new PopStateEvent("popstate"));
@@ -195,35 +179,42 @@ it("normalizes invalid query values and follows popstate navigation", async () =
   expect(cards()[0]).toHaveAccessibleName("View details for Hill");
 });
 
-it("combines class, nation, tier, and search filters and clears an empty result", async () => {
-  renderWithProviders(<App />);
-  await screen.findByRole("button", { name: "View details for Yamato" });
-  fireEvent.click(
-    within(screen.getByRole("group", { name: "Class" })).getByRole("button", {
-      name: /Battleship/,
-    }),
-  );
-  fireEvent.click(
-    within(screen.getByRole("group", { name: "Nation" })).getByRole("button", {
-      name: /Japan/,
-    }),
-  );
-  fireEvent.click(
-    within(screen.getByRole("group", { name: "Ship tier" })).getByRole(
-      "button",
-      { name: "X" },
-    ),
-  );
-  expect(cards()).toHaveLength(1);
-  expect(cards()[0]).toHaveAccessibleName("View details for Yamato");
-  fireEvent.change(screen.getByRole("searchbox"), {
-    target: { value: "Hill" },
-  });
-  expect(await screen.findByText("No ships found")).toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
-  await waitFor(() => expect(cards()).toHaveLength(2));
-  expect(screen.getByRole("searchbox")).toHaveValue("");
-});
+it.each(["grid", "table"])(
+  "combines filters and clears an empty result in %s view",
+  async (view) => {
+    window.history.replaceState(null, "", `/?view=${view}`);
+    renderWithProviders(<App />);
+    await screen.findByRole("button", { name: "View details for Yamato" });
+    fireEvent.click(
+      within(screen.getByRole("group", { name: "Class" })).getByRole("button", {
+        name: /Battleship/,
+      }),
+    );
+    fireEvent.click(
+      within(screen.getByRole("group", { name: "Nation" })).getByRole(
+        "button",
+        {
+          name: /Japan/,
+        },
+      ),
+    );
+    fireEvent.click(
+      within(screen.getByRole("group", { name: "Ship tier" })).getByRole(
+        "button",
+        { name: "X" },
+      ),
+    );
+    expect(cards()).toHaveLength(1);
+    expect(cards()[0]).toHaveAccessibleName("View details for Yamato");
+    fireEvent.change(screen.getByRole("searchbox"), {
+      target: { value: "Hill" },
+    });
+    expect(await screen.findByText("No ships found")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
+    await waitFor(() => expect(cards()).toHaveLength(2));
+    expect(screen.getByRole("searchbox")).toHaveValue("");
+  },
+);
 
 it("sorts both views and opens a real ship profile with a working close control", async () => {
   renderWithProviders(<App />);
@@ -302,41 +293,47 @@ it("retries a failed catalogue request", async () => {
   expect(attempts).toBe(2);
 });
 
-it("keeps the fleet visible when a background refresh fails", async () => {
-  const { queryClient } = renderWithProviders(<App />);
-  await screen.findByRole("button", { name: "View details for Yamato" });
-  server.use(
-    http.get(
-      `${base}/vehicles/`,
-      () => new HttpResponse(null, { status: 503 }),
-    ),
-  );
+it.each(["grid", "table"])(
+  "keeps the fleet visible when a background refresh fails in %s view",
+  async (view) => {
+    window.history.replaceState(null, "", `/?view=${view}`);
+    const { queryClient } = renderWithProviders(<App />);
+    await screen.findByRole("button", { name: "View details for Yamato" });
+    expect(window.scrollTo).not.toHaveBeenCalled();
+    server.use(
+      http.get(
+        `${base}/vehicles/`,
+        () => new HttpResponse(null, { status: 503 }),
+      ),
+    );
 
-  await act(async () => {
-    await queryClient.invalidateQueries({
-      queryKey: encyclopediaKeys.vehicles(),
+    await act(async () => {
+      await queryClient.invalidateQueries({
+        queryKey: encyclopediaKeys.vehicles(),
+      });
     });
-  });
 
-  expect(queryClient.getQueryState(encyclopediaKeys.vehicles())?.status).toBe(
-    "error",
-  );
-  expect(
-    screen.getByRole("button", { name: "View details for Yamato" }),
-  ).toBeInTheDocument();
-  expect(
-    screen.queryByText("Unable to load the fleet"),
-  ).not.toBeInTheDocument();
-});
+    expect(queryClient.getQueryState(encyclopediaKeys.vehicles())?.status).toBe(
+      "error",
+    );
+    expect(
+      screen.getByRole("button", { name: "View details for Yamato" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Unable to load the fleet"),
+    ).not.toBeInTheDocument();
+    expect(window.scrollTo).not.toHaveBeenCalled();
+  },
+);
 
-it("paginates the catalogue and resets to the first page when filtering", async () => {
+function mockFleet(count: number) {
   const sample = vehicles.data["4276041424"];
   server.use(
     http.get(`${base}/vehicles/`, () =>
       HttpResponse.json({
         status: "ok",
         data: Object.fromEntries(
-          Array.from({ length: 25 }, (_, index) => [
+          Array.from({ length: count }, (_, index) => [
             String(index),
             {
               ...sample,
@@ -351,19 +348,149 @@ it("paginates the catalogue and resets to the first page when filtering", async 
       }),
     ),
   );
-  renderWithProviders(<App />);
-  await screen.findByRole("button", { name: "View details for Ship 00" });
-  expect(cards()).toHaveLength(24);
-  fireEvent.click(screen.getByRole("button", { name: "Next" }));
-  expect(cards()).toHaveLength(1);
-  expect(cards()[0]).toHaveAccessibleName("View details for Ship 24");
+}
+
+it("renders the complete table beyond the old page size with semantic headings and cells", async () => {
+  mockFleet(25);
+  window.history.replaceState(null, "", "/?view=table");
+  renderWithProviders(
+    <VirtuosoMockContext.Provider
+      value={{ viewportHeight: 2000, itemHeight: 64 }}
+    >
+      <App />
+    </VirtuosoMockContext.Provider>,
+  );
+  await screen.findByRole("button", { name: "View details for Ship 24" });
+  const table = within(screen.getByRole("table"));
+  expect(
+    table.getAllByRole("columnheader").map((header) => header.textContent),
+  ).toEqual(["Ship", "Nation", "Type", "Tier"]);
+  expect(
+    table
+      .getAllByRole("columnheader")
+      .every((header) => header.getAttribute("scope") === "col"),
+  ).toBe(true);
+  expect(cards()).toHaveLength(25);
+  expect(cards()[0]).toHaveAccessibleName("View details for Ship 00");
+  expect(cards()[24]).toHaveAccessibleName("View details for Ship 24");
+  expect(table.getAllByRole("row")).toHaveLength(26);
+  expect(table.getAllByRole("cell")).toHaveLength(100);
+  expect(screen.getByRole("status")).toHaveTextContent(/^25 ships found$/);
   fireEvent.change(screen.getByRole("searchbox"), {
     target: { value: "Ship 00" },
   });
-  await waitFor(() =>
-    expect(cards()[0]).toHaveAccessibleName("View details for Ship 00"),
-  );
+  await waitFor(() => expect(cards()).toHaveLength(1));
+  expect(cards()[0]).toHaveAccessibleName("View details for Ship 00");
   expect(
     screen.queryByRole("navigation", { name: "Fleet pages" }),
   ).not.toBeInTheDocument();
 });
+
+it("shows grid results beyond the old page size and preserves unrelated URL settings", async () => {
+  mockFleet(25);
+  window.history.replaceState(null, "", "/?campaign=fall#fleet");
+  renderWithProviders(
+    <VirtuosoGridMockContext.Provider
+      value={{
+        viewportHeight: 2000,
+        viewportWidth: 1200,
+        itemHeight: 224,
+        itemWidth: 300,
+      }}
+    >
+      <App />
+    </VirtuosoGridMockContext.Provider>,
+  );
+
+  await screen.findByRole("button", { name: "View details for Ship 24" });
+  expect(cards()).toHaveLength(25);
+  expect(screen.getByRole("status")).toHaveTextContent("25 ships found");
+  expect(screen.getByRole("status")).not.toHaveTextContent("of 25");
+  expect(
+    screen.queryByRole("navigation", { name: "Fleet pages" }),
+  ).not.toBeInTheDocument();
+  expect(window.location.search).toBe("?campaign=fall");
+  expect(window.location.hash).toBe("#fleet");
+
+  fireEvent.click(screen.getByRole("button", { name: "Table view" }));
+  await screen.findByRole("button", { name: "View details for Ship 00" });
+  expect(screen.getByRole("table")).toBeInTheDocument();
+  expect(screen.getByRole("status")).toHaveTextContent(/^25 ships found$/);
+  expect(
+    screen.queryByRole("navigation", { name: "Fleet pages" }),
+  ).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Grid view" }));
+  await screen.findByRole("button", { name: "View details for Ship 00" });
+  expect(screen.queryByRole("table")).not.toBeInTheDocument();
+  expect(cards()).toHaveLength(25);
+});
+
+it.each(["grid", "table"])(
+  "mounts only a viewport of ships for a large catalogue in %s view",
+  async (view) => {
+    mockFleet(250);
+    window.history.replaceState(null, "", `/?view=${view}`);
+    renderWithProviders(<App />);
+    await screen.findByRole("button", { name: "View details for Ship 00" });
+    expect(screen.getByRole("status")).toHaveTextContent("250 ships found");
+    expect(cards().length).toBeLessThan(25);
+    expect(
+      screen.queryByRole("navigation", { name: "Fleet pages" }),
+    ).not.toBeInTheDocument();
+  },
+);
+
+it.each(["grid", "table"])(
+  "resets scrolling for controls but preserves it through details and refreshes in %s view",
+  async (view) => {
+    window.history.replaceState(null, "", `/?view=${view}`);
+    const { queryClient } = renderWithProviders(<App />);
+    const yamato = await screen.findByRole("button", {
+      name: "View details for Yamato",
+    });
+    expect(window.scrollTo).not.toHaveBeenCalled();
+
+    fireEvent.click(yamato);
+    const dialog = await screen.findByRole("dialog", { name: "Yamato" });
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Close ship details" }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+    await act(async () => {
+      await queryClient.invalidateQueries({
+        queryKey: encyclopediaKeys.vehicles(),
+      });
+    });
+    expect(window.scrollTo).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Sort ships" }), {
+      target: { value: "name" },
+    });
+    expect(window.scrollTo).toHaveBeenLastCalledWith({
+      top: 0,
+      behavior: "instant",
+    });
+    vi.mocked(window.scrollTo).mockClear();
+    fireEvent.change(screen.getByRole("searchbox"), {
+      target: { value: "Hill" },
+    });
+    await waitFor(() => expect(cards()).toHaveLength(1));
+    expect(window.scrollTo).toHaveBeenCalledOnce();
+    vi.mocked(window.scrollTo).mockClear();
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: view === "grid" ? "Table view" : "Grid view",
+      }),
+    );
+    expect(window.scrollTo).toHaveBeenCalledOnce();
+    vi.mocked(window.scrollTo).mockClear();
+    fireEvent.click(
+      within(screen.getByRole("group", { name: "Class" })).getByRole("button", {
+        name: /Destroyer/,
+      }),
+    );
+    expect(window.scrollTo).toHaveBeenCalledOnce();
+  },
+);

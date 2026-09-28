@@ -2,6 +2,7 @@ import {
   useDeferredValue,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -12,18 +13,16 @@ import {
   useVehicleTypes,
   type Ship,
 } from "@/api/encyclopedia";
-import { ShipCard } from "@/components/domain/ShipCard";
 import { AppHeader } from "@/components/features/AppHeader";
 import { FleetToolbar } from "@/components/features/FleetToolbar";
 import { ShipDetailsDialog } from "@/components/features/ShipDetailsDialog";
 import { ShipFilters } from "@/components/features/ShipFilters";
+import { ShipsGrid } from "@/components/features/ShipsGrid";
 import { ShipsTable } from "@/components/features/ShipTable/ShipsTable";
 import { CommandButton } from "@/components/ui/command-button";
 import { Icon } from "@/components/ui/icon";
 import { shipName } from "@/lib/ships";
 import { useFleetQueryState } from "@/lib/useFleetQueryState";
-
-const PAGE_SIZE = 24;
 
 export default function App() {
   const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
@@ -52,11 +51,13 @@ export default function App() {
     nations: validNations,
     levels: catalogue.data ? tiers : undefined,
   });
-  const { search, types, nations, levels, sort, view, page } = state;
+  const { search, types, nations, levels, sort, view } = state;
   const deferredSearch = useDeferredValue(search);
   const ships = useShips({ search: deferredSearch, types, nations, levels });
   const queries = [ships, media, nationCatalogue, vehicleTypes];
-  const failed = queries.some((query) => query.isError && query.data === undefined);
+  const failed = queries.some(
+    (query) => query.isError && query.data === undefined,
+  );
   const pending = queries.some((query) => query.isPending);
   const sorted = useMemo(
     () =>
@@ -69,18 +70,29 @@ export default function App() {
       }),
     [ships.data, sort],
   );
-  const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-  const currentPage = Math.min(page, pageCount);
-  const visibleShips = sorted.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE,
-  );
-
+  // Compare query values, not result/array identity, so refreshes preserve scroll.
+  const resultKey = JSON.stringify([
+    deferredSearch,
+    types,
+    nations,
+    levels,
+    sort,
+    view,
+  ]);
+  const previousResultKey = useRef<string | null>(null);
   useEffect(() => {
-    if (!pending && !failed && page !== currentPage) {
-      update({ page: currentPage });
+    if (pending || failed) {
+      previousResultKey.current = null;
+      return;
     }
-  }, [currentPage, failed, page, pending, update]);
+    if (
+      previousResultKey.current !== null &&
+      previousResultKey.current !== resultKey
+    ) {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+    previousResultKey.current = resultKey;
+  }, [resultKey, pending, failed]);
 
   function showDetails(ship: Ship) {
     setSelectedShip(ship);
@@ -119,11 +131,11 @@ export default function App() {
           <FleetToolbar
             search={search}
             onSearchChange={(value) => {
-              update({ search: value, page: 1 });
+              update({ search: value });
             }}
             sort={sort}
             onSortChange={(value) => {
-              update({ sort: value, page: 1 });
+              update({ sort: value });
             }}
             view={view}
             onViewChange={(value) => update({ view: value })}
@@ -138,13 +150,13 @@ export default function App() {
               nationCatalogue={nationCatalogue.data}
               vehicleTypes={vehicleTypes.data}
               onTypesChange={(value) => {
-                update({ types: value, page: 1 });
+                update({ types: value });
               }}
               onNationsChange={(value) => {
-                update({ nations: value, page: 1 });
+                update({ nations: value });
               }}
               onLevelsChange={(value) => {
-                update({ levels: value, page: 1 });
+                update({ levels: value });
               }}
             />
           )}
@@ -186,7 +198,7 @@ export default function App() {
         ) : (
           <>
             <div
-              className="text-fleet-muted flex justify-between gap-4 py-4 font-mono text-xs"
+              className="text-fleet-muted py-4 font-mono text-xs"
               role="status"
             >
               <span>
@@ -194,10 +206,6 @@ export default function App() {
                   {sorted.length.toLocaleString()}
                 </strong>{" "}
                 {sorted.length === 1 ? "ship" : "ships"} found
-              </span>
-              <span>
-                {sorted.length > 0 &&
-                  `${(currentPage - 1) * PAGE_SIZE + 1}–${Math.min(currentPage * PAGE_SIZE, sorted.length)} of ${sorted.length.toLocaleString()}`}
               </span>
             </div>
             {sorted.length === 0 ? (
@@ -211,46 +219,17 @@ export default function App() {
                 </CommandButton>
               </FleetMessage>
             ) : view === "grid" ? (
-              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {visibleShips.map((ship) => (
-                  <ShipCard
-                    key={ship.id}
-                    ship={ship}
-                    mediaPath={media.data!}
-                    onViewDetails={showDetails}
-                  />
-                ))}
-              </div>
-            ) : (
-              <ShipsTable
-                ships={visibleShips}
+              <ShipsGrid
+                ships={sorted}
                 mediaPath={media.data!}
                 onViewDetails={showDetails}
               />
-            )}
-            {pageCount > 1 && (
-              <nav
-                aria-label="Fleet pages"
-                className="text-fleet-muted mt-8 flex flex-wrap items-center justify-center gap-3 font-mono text-xs"
-              >
-                <CommandButton
-                  disabled={currentPage === 1}
-                  onClick={() => update({ page: currentPage - 1 })}
-                >
-                  <Icon name="left" />
-                  Previous
-                </CommandButton>
-                <span>
-                  Page {currentPage} of {pageCount}
-                </span>
-                <CommandButton
-                  disabled={currentPage === pageCount}
-                  onClick={() => update({ page: currentPage + 1 })}
-                >
-                  Next
-                  <Icon name="right" />
-                </CommandButton>
-              </nav>
+            ) : (
+              <ShipsTable
+                ships={sorted}
+                mediaPath={media.data!}
+                onViewDetails={showDetails}
+              />
             )}
           </>
         )}

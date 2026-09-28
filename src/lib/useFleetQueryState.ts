@@ -10,7 +10,6 @@ export type FleetQueryState = {
   levels: number[] | undefined;
   sort: FleetSort;
   view: FleetView;
-  page: number;
 };
 
 type FleetQueryStatePatch = Partial<FleetQueryState>;
@@ -28,7 +27,7 @@ const managedParams = [
   "tier",
   "sort",
   "view",
-  "page",
+  "page", // Strip pagination from legacy links.
 ] as const;
 
 const defaultState: FleetQueryState = {
@@ -38,7 +37,6 @@ const defaultState: FleetQueryState = {
   levels: undefined,
   sort: "tier-desc",
   view: "grid",
-  page: 1,
 };
 
 const fleetSorts = new Set<FleetSort>(["tier-desc", "tier-asc", "name"]);
@@ -93,7 +91,6 @@ function readQueryState(): FleetQueryState {
   const params = new URLSearchParams(window.location.search);
   const sort = params.get("sort");
   const view = params.get("view");
-  const page = Number(params.get("page"));
 
   return {
     search: params.get("q") ?? defaultState.search,
@@ -106,7 +103,6 @@ function readQueryState(): FleetQueryState {
     view: fleetViews.has(view as FleetView)
       ? (view as FleetView)
       : defaultState.view,
-    page: Number.isInteger(page) && page > 0 ? page : defaultState.page,
   };
 }
 
@@ -165,7 +161,6 @@ function replaceQueryState(state: FleetQueryState) {
   state.levels?.forEach((value) => params.append("tier", String(value)));
   if (state.sort !== defaultState.sort) params.set("sort", state.sort);
   if (state.view !== defaultState.view) params.set("view", state.view);
-  if (state.page !== defaultState.page) params.set("page", String(state.page));
 
   const search = params.toString();
   const nextUrl = `${window.location.pathname}${search ? `?${search}` : ""}${window.location.hash}`;
@@ -182,8 +177,7 @@ function queryStatesEqual(a: FleetQueryState, b: FleetQueryState) {
     arraysEqual(a.nations, b.nations) &&
     arraysEqual(a.levels, b.levels) &&
     a.sort === b.sort &&
-    a.view === b.view &&
-    a.page === b.page
+    a.view === b.view
   );
 }
 

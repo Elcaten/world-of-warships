@@ -13,8 +13,8 @@ npm run dev
 
 Browse the live ship catalogue in a responsive grid or table, search by name or
 designation, combine class/nation/tier filters, and sort by tier or name. Ship
-profiles show official artwork and descriptions. Results are paginated in groups
-of 24.
+profiles show official artwork and descriptions. Both card and table views use
+virtual scrolling with the page. Table headings scroll away with the rows.
 
 ## Commands
 
@@ -32,7 +32,7 @@ of 24.
 - React 19 with strict TypeScript and React Strict Mode.
 - Tailwind CSS via `@tailwindcss/vite`; global styles live in `src/index.css`.
 - TanStack Query with a root provider and a client in `src/query-client.ts`.
-- TanStack Virtual installed and ready to import when adding virtualized lists.
+- React Virtuoso renders the responsive card grid and table as you scroll.
 - Vitest with jsdom, React Testing Library, and jest-dom matchers.
 - MSW configured for tests, with unhandled requests treated as errors. Add shared
   handlers in `src/test/mocks/handlers.ts` or per-test handlers with `server.use()`.

@@ -1,7 +1,7 @@
-import clsx from "clsx";
 import { resolveMediaUrl, type Ship } from "@/api/encyclopedia";
 import { Icon } from "@/components/ui/icon";
 import { shipName, tierLabel } from "@/lib/ships";
+import clsx from "clsx";
 import { NationFlag } from "./NationFlag";
 import { VehicleTypeIcon } from "./VehicleTypeIcon";
 
@@ -17,7 +17,7 @@ export function ShipCard({
   return (
     <button
       className={clsx(
-        "border-fleet-line bg-fleet-panel group relative isolate flex min-w-0 flex-col overflow-hidden border-2 text-left transition-colors duration-150",
+        "border-fleet-line bg-fleet-panel group relative isolate flex w-full min-w-0 flex-col overflow-hidden border-2 text-left transition-colors duration-150",
         ship.isPremium
           ? "hover:border-fleet-gold text-fleet-gold"
           : "hover:border-fleet-cyan",
@@ -30,7 +30,7 @@ export function ShipCard({
         <NationFlag nation={ship.nation} size="large" className="" />
       </div>
 
-      <span className="-mb-14 flex items-center justify-between gap-2 px-4 py-3">
+      <span className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 px-4 py-3">
         <span className="font-heading flex items-center gap-1 font-bold">
           <VehicleTypeIcon
             vehicleType={ship.vehicleType}
@@ -44,16 +44,20 @@ export function ShipCard({
         )}
       </span>
 
-      <img
-        className="-z-1 h-44 w-full origin-bottom object-contain transition-transform duration-500 ease-in group-hover:scale-102 group-hover:duration-150 group-hover:ease-out motion-reduce:transition-none"
-        src={resolveMediaUrl(mediaPath, ship.icons.medium)}
-        alt=""
-        loading="lazy"
-      />
+      <div className="-z-1 h-44 w-full origin-bottom transition-transform duration-500 ease-in group-hover:scale-102 group-hover:duration-150 group-hover:ease-out motion-reduce:transition-none">
+        <img
+          className="object-contain"
+          src={resolveMediaUrl(mediaPath, ship.icons.medium)}
+          alt=""
+          loading="lazy"
+          onLoad={() => set}
+        />
+      </div>
 
-      <span className="bg-fleet-panel/40 -mt-8 flex items-center justify-between gap-2 py-2 pr-3 pl-4">
+      <span className="bg-fleet-panel/40 flex w-full items-center justify-between gap-2 py-2 pr-3 pl-4">
         <span
-          className={"font-heading text-xl font-bold wrap-anywhere uppercase"}
+          className="font-heading min-w-0 truncate text-xl font-bold uppercase"
+          title={shipName(ship)}
         >
           {shipName(ship)}
         </span>
