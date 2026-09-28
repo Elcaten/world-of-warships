@@ -28,18 +28,17 @@ export function ShipFiltersSkeleton() {
       <FilterGroupSkeleton
         label="Class"
         icon={<Icon name="anchor" className="text-fleet-cyan size-4" />}
-        count={6}
+        count={4}
       />
       <FilterGroupSkeleton
         label="Nation"
         icon={<Icon name="flag" className="text-fleet-gold size-4" />}
-        count={14}
+        count={10}
       />
       <FilterGroupSkeleton
         label="Ship tier"
         icon={<Icon name="tier" className="text-fleet-cyan size-4" />}
-        compact
-        count={12}
+        count={3}
       />
     </section>
   );
@@ -98,7 +97,6 @@ export function ShipFilters({
       <FilterGroup
         label="Ship tier"
         icon={<Icon name="tier" className="text-fleet-cyan size-4" />}
-        compact
         selected={levels}
         onChange={onLevelsChange}
         options={tiers.map((value) => ({ value, label: tierLabel(value) }))}

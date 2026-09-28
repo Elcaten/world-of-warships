@@ -8,7 +8,6 @@ type FilterGroupLayoutProps = {
 
 type Props<T extends string | number> = FilterGroupLayoutProps & {
   allLabel?: string;
-  compact?: boolean;
   options: { value: T; label: string; icon?: ReactNode }[];
   selected: T[] | undefined;
   onChange: (value: T[] | undefined) => void;
@@ -34,8 +33,7 @@ export function FilterGroupSkeleton({
   label,
   icon,
   count,
-  compact = false,
-}: FilterGroupLayoutProps & { count: number; compact?: boolean }) {
+}: FilterGroupLayoutProps & { count: number }) {
   const widths = ["w-24", "w-28", "w-32"];
 
   return (
@@ -44,10 +42,10 @@ export function FilterGroupSkeleton({
         <span
           key={index}
           aria-hidden="true"
-          className={clsx(
-            "bg-fleet-line shrink-0 motion-safe:animate-pulse",
-            compact ? "h-9.5 w-9" : ["h-8.5", widths[index % widths.length]],
-          )}
+          className={clsx("bg-fleet-line shrink-0 motion-safe:animate-pulse", [
+            "h-8.5",
+            widths[index % widths.length],
+          ])}
         />
       ))}
     </FilterGroupFrame>
@@ -58,7 +56,6 @@ export function FilterGroup<T extends string | number>({
   label,
   icon,
   allLabel = "All",
-  compact = false,
   options,
   selected,
   onChange,
@@ -66,7 +63,6 @@ export function FilterGroup<T extends string | number>({
   return (
     <FilterGroupFrame label={label} icon={icon}>
       <FilterButton
-        compact={compact}
         selected={!selected?.length}
         onClick={() => onChange(undefined)}
       >
@@ -75,7 +71,6 @@ export function FilterGroup<T extends string | number>({
       {options.map((option) => (
         <FilterButton
           key={option.value}
-          compact={compact}
           selected={selected?.includes(option.value) ?? false}
           onClick={() => {
             const next = selected?.includes(option.value)
@@ -93,12 +88,10 @@ export function FilterGroup<T extends string | number>({
 }
 
 function FilterButton({
-  compact,
   selected,
   onClick,
   children,
 }: {
-  compact: boolean;
   selected: boolean;
   onClick: () => void;
   children: ReactNode;
@@ -108,12 +101,9 @@ function FilterButton({
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={clsx(
-        "bg-fleet-deep text-fleet-secondary hover:border-fleet-cyan aria-pressed:border-fleet-cyan aria-pressed:bg-fleet-line aria-pressed:text-fleet-highlight inline-flex items-center justify-center gap-2 border border-transparent p-2 uppercase",
-        compact
-          ? "font-heading min-w-9 text-sm font-bold"
-          : "font-mono text-xs",
-      )}
+      className={
+        "bg-fleet-deep text-fleet-secondary hover:border-fleet-cyan aria-pressed:border-fleet-cyan aria-pressed:bg-fleet-line aria-pressed:text-fleet-highlight inline-flex min-w-10 items-center justify-center gap-2 border border-transparent p-2 text-xs uppercase"
+      }
     >
       {children}
     </button>

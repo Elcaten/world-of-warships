@@ -9,14 +9,14 @@ export function AppHeader() {
       >
         Skip to fleet
       </a>
-      <div className="mx-auto flex max-w-384 items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-10">
+      <div className="mx-auto flex max-w-384 items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
         <a
-          className="font-heading flex items-center gap-3 font-bold uppercase sm:text-xl"
+          className="font-heading flex items-center gap-3 font-medium uppercase sm:text-xl"
           href="./"
           aria-label="Warship Encyclopedia home"
         >
           <Logo.Wow className="size-8 shrink-0" />
-          <span className="flex flex-col sm:block">
+          <span>
             Warship <span className="text-fleet-highlight">Encyclopedia</span>
           </span>
         </a>

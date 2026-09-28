@@ -106,24 +106,7 @@ export default function App() {
   return (
     <div className="flex min-h-screen flex-col">
       <AppHeader />
-      <main
-        id="main-content"
-        className="mx-auto w-full max-w-384 flex-1 px-4 py-8 sm:px-6 lg:px-10"
-      >
-        <div className="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
-          <div>
-            <p className="text-fleet-cyan mb-2 font-mono text-xs uppercase">
-              World of Warships
-            </p>
-            <h1 className="font-heading text-3xl font-bold">Fleet roster</h1>
-          </div>
-          {!pending && !failed && (
-            <p className="text-fleet-muted font-mono text-xs">
-              {catalogue.data?.length.toLocaleString()} ships in the
-              encyclopedia
-            </p>
-          )}
-        </div>
+      <main className="mx-auto w-full max-w-384 flex-1 px-4 py-8 sm:px-6 lg:px-10">
         <section
           aria-label="Fleet controls"
           className="border-fleet-line bg-fleet-panel border p-4"

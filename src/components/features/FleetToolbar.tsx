@@ -1,7 +1,7 @@
-import type { ReactNode } from "react";
 import { CommandButton } from "@/components/ui/command-button";
 import { Icon } from "@/components/ui/icon";
 import type { FleetSort, FleetView } from "@/lib/useFleetQueryState";
+import type { ReactNode } from "react";
 
 export type { FleetSort, FleetView } from "@/lib/useFleetQueryState";
 
@@ -26,7 +26,7 @@ export function FleetToolbar({
 }: Props) {
   return (
     <div className="mb-6 flex flex-wrap items-center gap-2">
-      <label className="bg-fleet-deep focus-within:ring-fleet-cyan flex basis-full items-center gap-3 px-3 focus-within:ring-1 lg:flex-1">
+      <label className="bg-fleet-deep focus-within:ring-fleet-cyan flex basis-full items-center gap-3 px-3 focus-within:ring-1 md:flex-1">
         <Icon name="search" className="text-fleet-highlight shrink-0" />
         <input
           className="placeholder:text-fleet-muted w-full min-w-0 bg-transparent py-3 text-sm focus-visible:outline-none"
