@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { arraysEqual } from "./arraysEqual";
 
 export type FleetSort = "tier-desc" | "tier-asc" | "name";
 export type FleetView = "grid" | "table";
@@ -58,15 +59,6 @@ export function useFleetQueryState(validFilters: ValidFleetFilters = {}) {
   useEffect(() => {
     replaceQueryState(normalizedState);
   }, [normalizedState]);
-
-  useEffect(() => {
-    function handlePopState() {
-      setState(readQueryState());
-    }
-
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
 
   const update = useCallback(
     (
@@ -178,15 +170,5 @@ function queryStatesEqual(a: FleetQueryState, b: FleetQueryState) {
     arraysEqual(a.levels, b.levels) &&
     a.sort === b.sort &&
     a.view === b.view
-  );
-}
-
-function arraysEqual<T>(a: T[] | undefined, b: T[] | undefined) {
-  return (
-    a === b ||
-    (a !== undefined &&
-      b !== undefined &&
-      a.length === b.length &&
-      a.every((value, index) => value === b[index]))
   );
 }

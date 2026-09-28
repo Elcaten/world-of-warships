@@ -15,6 +15,7 @@ import {
   encyclopediaKeys,
   resolveMediaUrl,
   selectShips,
+  useShipCount,
   useShips,
   useVehicles,
   vehiclesResponseSchema,
@@ -147,8 +148,10 @@ it('shares the vehicle cache across consumers and filters without refetching', a
   function ShipList({ search }: { search: string }) {
     const ships = useShips({ search })
     const vehicles = useVehicles()
+    const shipCount = useShipCount()
     return <>
       <p>Catalogue: {Object.keys(vehicles.data ?? {}).length}</p>
+      <p>Total ships: {shipCount.data}</p>
       {ships.data?.map((ship) => <p key={ship.id}>{ship.localization.mark.en}</p>)}
     </>
   }
@@ -156,9 +159,11 @@ it('shares the vehicle cache across consumers and filters without refetching', a
   const { rerender, queryClient } = renderWithProviders(<ShipList search="Hill" />)
   expect(await screen.findByText('Hill')).toBeInTheDocument()
   expect(screen.getByText('Catalogue: 2')).toBeInTheDocument()
+  expect(screen.getByText('Total ships: 2')).toBeInTheDocument()
   rerender(<ShipList search="Yamato" />)
   expect(await screen.findByText('Yamato')).toBeInTheDocument()
   expect(screen.queryByText('Hill')).not.toBeInTheDocument()
+  expect(screen.getByText('Total ships: 2')).toBeInTheDocument()
   expect(requests).toBe(1)
   expect(queryClient.getQueryData(encyclopediaKeys.vehicles())).toEqual(vehiclesFixture.data)
   queryClient.clear()

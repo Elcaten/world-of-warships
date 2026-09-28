@@ -74,6 +74,7 @@ it("restores table filters from the query string", async () => {
 
 it("syncs controls to the URL and reset removes only managed parameters", async () => {
   window.history.replaceState(null, "", "/catalogue?campaign=fall#fleet");
+  const historyLength = window.history.length;
   renderWithProviders(<App />);
   await screen.findByRole("button", { name: "View details for Yamato" });
 
@@ -143,9 +144,10 @@ it("syncs controls to the URL and reset removes only managed parameters", async 
     "aria-pressed",
     "true",
   );
+  expect(window.history.length).toBe(historyLength);
 });
 
-it("normalizes invalid query values and follows popstate navigation", async () => {
+it("normalizes invalid query values on mount", async () => {
   window.history.replaceState(
     null,
     "",
@@ -165,18 +167,15 @@ it("normalizes invalid query values and follows popstate navigation", async () =
   });
   expect(window.scrollTo).not.toHaveBeenCalled();
 
-  window.history.pushState(null, "", "/?q=Hill&sort=name&view=table");
-  window.dispatchEvent(new PopStateEvent("popstate"));
-
-  await waitFor(() => {
-    expect(screen.getByRole("searchbox")).toHaveValue("Hill");
-    expect(screen.getByRole("combobox", { name: "Sort ships" })).toHaveValue(
-      "name",
-    );
-    expect(screen.getByRole("table")).toBeInTheDocument();
-  });
-  await waitFor(() => expect(cards()).toHaveLength(1));
-  expect(cards()[0]).toHaveAccessibleName("View details for Hill");
+  expect(screen.getByRole("combobox", { name: "Sort ships" })).toHaveValue(
+    "tier-desc",
+  );
+  expect(screen.getByRole("button", { name: "Grid view" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  expect(cards()).toHaveLength(1);
+  expect(cards()[0]).toHaveAccessibleName("View details for Yamato");
 });
 
 it.each(["grid", "table"])(
@@ -206,6 +205,7 @@ it.each(["grid", "table"])(
     );
     expect(cards()).toHaveLength(1);
     expect(cards()[0]).toHaveAccessibleName("View details for Yamato");
+    expect(screen.getByText("2 ships in the encyclopedia")).toBeInTheDocument();
     fireEvent.change(screen.getByRole("searchbox"), {
       target: { value: "Hill" },
     });
@@ -426,14 +426,33 @@ it("shows grid results beyond the old page size and preserves unrelated URL sett
 });
 
 it.each(["grid", "table"])(
-  "mounts only a viewport of ships for a large catalogue in %s view",
+  "keeps the mounted viewport and buffer bounded as the catalogue grows in %s view",
   async (view) => {
     mockFleet(250);
     window.history.replaceState(null, "", `/?view=${view}`);
-    renderWithProviders(<App />);
+    const { queryClient } = renderWithProviders(<App />);
     await screen.findByRole("button", { name: "View details for Ship 00" });
     expect(screen.getByRole("status")).toHaveTextContent("250 ships found");
-    expect(cards().length).toBeLessThan(25);
+    const mountedCount = cards().length;
+    // Includes the extra rows rendered outside the viewport for smooth scrolling.
+    expect(mountedCount).toBeLessThan(250);
+    expect(
+      screen.queryByRole("button", { name: "View details for Ship 249" }),
+    ).not.toBeInTheDocument();
+
+    mockFleet(1000);
+    await act(async () => {
+      await queryClient.invalidateQueries({
+        queryKey: encyclopediaKeys.vehicles(),
+      });
+    });
+    await waitFor(() =>
+      expect(screen.getByRole("status")).toHaveTextContent("1,000 ships found"),
+    );
+    expect(cards()).toHaveLength(mountedCount);
+    expect(
+      screen.queryByRole("button", { name: "View details for Ship 999" }),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("navigation", { name: "Fleet pages" }),
     ).not.toBeInTheDocument();
@@ -441,7 +460,7 @@ it.each(["grid", "table"])(
 );
 
 it.each(["grid", "table"])(
-  "resets scrolling for controls but preserves it through details and refreshes in %s view",
+  "does not force scrolling for controls, details, or refreshes in %s view",
   async (view) => {
     window.history.replaceState(null, "", `/?view=${view}`);
     const { queryClient } = renderWithProviders(<App />);
@@ -468,29 +487,35 @@ it.each(["grid", "table"])(
     fireEvent.change(screen.getByRole("combobox", { name: "Sort ships" }), {
       target: { value: "name" },
     });
-    expect(window.scrollTo).toHaveBeenLastCalledWith({
-      top: 0,
-      behavior: "instant",
-    });
-    vi.mocked(window.scrollTo).mockClear();
+    expect(cards()[0]).toHaveAccessibleName("View details for Hill");
+    expect(window.scrollTo).not.toHaveBeenCalled();
     fireEvent.change(screen.getByRole("searchbox"), {
       target: { value: "Hill" },
     });
     await waitFor(() => expect(cards()).toHaveLength(1));
-    expect(window.scrollTo).toHaveBeenCalledOnce();
-    vi.mocked(window.scrollTo).mockClear();
+    expect(cards()[0]).toHaveAccessibleName("View details for Hill");
+    expect(window.scrollTo).not.toHaveBeenCalled();
     fireEvent.click(
       screen.getByRole("button", {
         name: view === "grid" ? "Table view" : "Grid view",
       }),
     );
-    expect(window.scrollTo).toHaveBeenCalledOnce();
-    vi.mocked(window.scrollTo).mockClear();
+    expect(
+      screen.getByRole("button", {
+        name: view === "grid" ? "Table view" : "Grid view",
+      }),
+    ).toHaveAttribute("aria-pressed", "true");
+    expect(window.scrollTo).not.toHaveBeenCalled();
     fireEvent.click(
       within(screen.getByRole("group", { name: "Class" })).getByRole("button", {
         name: /Destroyer/,
       }),
     );
-    expect(window.scrollTo).toHaveBeenCalledOnce();
+    expect(
+      within(screen.getByRole("group", { name: "Class" })).getByRole("button", {
+        name: /Destroyer/,
+      }),
+    ).toHaveAttribute("aria-pressed", "true");
+    expect(window.scrollTo).not.toHaveBeenCalled();
   },
 );

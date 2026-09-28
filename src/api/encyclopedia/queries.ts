@@ -1,7 +1,14 @@
 import { useCallback } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { encyclopediaBaseUrl, encyclopediaClient } from "./client";
-import { selectShips, type ShipFilters } from "./selectors";
+import {
+  selectNationNames,
+  selectShipCount,
+  selectShips,
+  selectShipTiers,
+  selectVehicleTypeIds,
+  type ShipFilters,
+} from "./selectors";
 import type { Vehicles } from "./schemas";
 
 export const encyclopediaKeys = {
@@ -51,6 +58,18 @@ export const useVehicles = () => useQuery(vehiclesQueryOptions());
 export const useNations = () => useQuery(nationsQueryOptions());
 export const useVehicleTypes = () => useQuery(vehicleTypesQueryOptions());
 export const useMediaPath = () => useQuery(mediaPathQueryOptions());
+
+export const useShipCount = () =>
+  useQuery({ ...vehiclesQueryOptions(), select: selectShipCount });
+
+export const useShipTiers = () =>
+  useQuery({ ...vehiclesQueryOptions(), select: selectShipTiers });
+
+export const useNationNames = () =>
+  useQuery({ ...nationsQueryOptions(), select: selectNationNames });
+
+export const useVehicleTypeIds = () =>
+  useQuery({ ...vehicleTypesQueryOptions(), select: selectVehicleTypeIds });
 
 export function useShips(filters: ShipFilters = {}) {
   const { search, nations, types, levels } = filters;
