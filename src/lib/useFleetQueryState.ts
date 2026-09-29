@@ -74,7 +74,13 @@ export function useFleetQueryState(validFilters: ValidFleetFilters = {}) {
     [],
   );
 
-  const reset = useCallback(() => setState(defaultState), []);
+  const reset = useCallback(() => {
+    const view = readQueryState().view;
+    return setState({
+      ...defaultState,
+      view,
+    });
+  }, []);
 
   return { state: normalizedState, update, reset };
 }
