@@ -52,7 +52,7 @@ export function TableHeader({
     <th
       {...props}
       className={clsx(
-        "border-fleet-line text-fleet-muted border-b p-4 font-mono text-xs font-medium uppercase",
+        "text-fleet-muted font-heading px-4 py-2 text-base font-medium uppercase inset-shadow-[0_-1px_0_0_var(--color-fleet-line)] sm:p-4",
         className,
       )}
     />
@@ -63,5 +63,10 @@ export function TableCell({
   className,
   ...props
 }: ComponentPropsWithRef<"td">) {
-  return <td {...props} className={clsx("p-4", className)} />;
+  return (
+    <td
+      {...props}
+      className={clsx("px-4 py-2 text-center sm:p-4", className)}
+    />
+  );
 }

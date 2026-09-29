@@ -6,10 +6,10 @@
 
 @theme {
   --breakpoint-*: initial;
-  --breakpoint-sm: 34rem;
-  --breakpoint-md: 50rem;
-  --breakpoint-lg: 75rem;
-  --breakpoint-xl: 93.75rem;
+  --breakpoint-sm: calc(544 / 16 * 1rem);
+  --breakpoint-md: calc(800 / 16 * 1rem);
+  --breakpoint-lg: calc(1200 / 16 * 1rem);
+  --breakpoint-xl: calc(1500 / 16 * 1rem);
 
   --font-sans: "IBM Plex Sans", sans-serif;
   --font-heading: "Space Grotesk", sans-serif;

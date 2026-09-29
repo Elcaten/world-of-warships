@@ -13,7 +13,7 @@ type ShipTableCellsProps = {
   nation?: Nation;
   vehicleType?: VehicleType;
   mediaPath: string;
-  onViewDetails?: (ship: Ship) => void;
+  onViewDetails: (ship: Ship) => void;
 };
 
 export const ShipTableCells = memo(function ShipTableCells({
@@ -31,7 +31,7 @@ export const ShipTableCells = memo(function ShipTableCells({
       <TableCell>
         <div className="flex items-center gap-3">
           {/* Keep text wrapping and row height stable while the image loads. */}
-          <div className="relative h-8 w-24 shrink-0">
+          <div className="relative hidden h-8 w-24 shrink-0 sm:block">
             <div
               className={`absolute bottom-2 h-1 w-full bg-slate-200 ${isImageLoaded ? "invisible" : ""}`}
             />
@@ -42,53 +42,53 @@ export const ShipTableCells = memo(function ShipTableCells({
               onLoad={() => setIsImageLoaded(true)}
             />
           </div>
-          {onViewDetails ? (
-            <button
-              type="button"
-              aria-label={`View details for ${displayName}`}
-              aria-haspopup="dialog"
-              className={`font-heading hover:text-fleet-cyan min-w-0 text-left text-base font-semibold wrap-anywhere uppercase ${ship.isPremium ? "text-fleet-gold" : ""}`}
-              onClick={() => onViewDetails(ship)}
-            >
-              {displayName}
-            </button>
-          ) : (
-            <span className="min-w-0 font-medium wrap-anywhere">
-              {displayName}
-            </span>
-          )}
+          <button
+            type="button"
+            aria-label={`View details for ${displayName}`}
+            aria-haspopup="dialog"
+            className={`font-heading hover:text-fleet-cyan min-w-0 truncate text-left text-base font-semibold uppercase ${ship.isPremium ? "text-fleet-gold" : ""}`}
+            onClick={() => onViewDetails(ship)}
+          >
+            {displayName}
+          </button>
         </div>
       </TableCell>
+
       <TableCell>
-        <span className="inline-flex items-center gap-2">
+        <span className="flex items-center justify-start gap-4">
           {nation && (
             <img
-              src={resolveMediaUrl(mediaPath, nation.icons.small)}
+              src={resolveMediaUrl(mediaPath, nation.icons.tiny)}
               alt={`${nation.localization.mark.en ?? nation.name} flag`}
-              className="h-8 w-12 shrink-0 object-contain"
+              className="h-8 w-12 shrink-0 object-contain sm:hidden md:block"
               aria-hidden="true"
             />
           )}
-          {nation?.localization.mark.en ?? ship.nation}
+          <span className="hidden whitespace-nowrap sm:inline">
+            {nation?.localization.mark.en ?? ship.nation}
+          </span>
         </span>
       </TableCell>
+
       <TableCell>
-        <span className="inline-flex items-center gap-2">
-          {vehicleType && (
+        {vehicleType && (
+          <div className="flex items-center justify-end">
             <img
               src={resolveMediaUrl(mediaPath, vehicleType.icons.default)}
               alt={vehicleType.localization.mark.en ?? ship.vehicleType}
-              className="size-6 shrink-0 object-contain"
+              className="size-6 object-contain"
               aria-hidden="true"
             />
-          )}
-          {vehicleType?.localization.mark.en ?? ship.vehicleType}
-        </span>
+          </div>
+        )}
       </TableCell>
+
       <TableCell>
-        <span className="font-heading text-base font-semibold">
-          {tierLabel(ship.level)}
-        </span>
+        <div className="flex items-center justify-start">
+          <span className="font-heading text-base font-semibold">
+            {tierLabel(ship.level)}
+          </span>
+        </div>
       </TableCell>
     </>
   );

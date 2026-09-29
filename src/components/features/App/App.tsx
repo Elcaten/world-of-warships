@@ -116,7 +116,7 @@ export default function App() {
       <main className="mx-auto w-full max-w-384 flex-1 px-4 py-8 sm:px-6 lg:px-10">
         <section
           aria-label="Fleet controls"
-          className="border-fleet-line bg-fleet-panel border p-4"
+          className="border-fleet-line bg-fleet-panel mx-auto max-w-4xl border p-4"
         >
           <FleetToolbar
             search={search}
@@ -166,7 +166,7 @@ export default function App() {
         ) : (
           <>
             <div
-              className="text-fleet-muted py-4 font-mono text-xs"
+              className="text-fleet-muted mx-auto max-w-4xl py-4 font-mono text-xs"
               role="status"
             >
               <span>
@@ -187,6 +187,7 @@ export default function App() {
                 </CommandButton>
               </FleetMessage>
             ) : view === "grid" ? (
+              // <div className="mx-auto max-w-4xl">
               <ShipsGrid
                 ships={sorted}
                 mediaPath={media.data!}
@@ -195,13 +196,16 @@ export default function App() {
                 onViewDetails={showDetails}
               />
             ) : (
-              <ShipsTable
-                ships={sorted}
-                mediaPath={media.data!}
-                nations={nationCatalogue.data!}
-                vehicleTypes={vehicleTypes.data!}
-                onViewDetails={showDetails}
-              />
+              // </div>
+              <div className="border-fleet-line bg-fleet-panel -mx-4 max-w-4xl overflow-x-auto overflow-y-hidden sm:mx-auto sm:border">
+                <ShipsTable
+                  ships={sorted}
+                  mediaPath={media.data!}
+                  nations={nationCatalogue.data!}
+                  vehicleTypes={vehicleTypes.data!}
+                  onViewDetails={showDetails}
+                />
+              </div>
             )}
           </>
         )}

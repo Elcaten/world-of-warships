@@ -9,12 +9,12 @@ type FleetRow = Ship | null;
 
 const tableComponents: TableComponents<FleetRow> = {
   Table: ({ context: _context, children, ...props }) => (
-    <Table {...props} className="min-w-3xl table-fixed border-separate">
+    <Table {...props} className="table-fixed">
       <colgroup>
-        <col className="w-[45%]" />
-        <col className="w-[25%]" />
-        <col className="w-[22%]" />
-        <col className="w-[8%]" />
+        <col className="w-[50%] md:w-[55%]" />
+        <col className="w-[20%] md:w-[25%]" />
+        <col className="w-[15%] md:w-[10%]" />
+        <col className="w-[15%] md:w-[10%]" />
       </colgroup>
       {children}
     </Table>
@@ -37,7 +37,7 @@ type ShipsTableProps = {
   mediaPath: string;
   nations: Nations;
   vehicleTypes: VehicleTypes;
-  onViewDetails?: (ship: Ship) => void;
+  onViewDetails: (ship: Ship) => void;
 };
 
 export function ShipsTable({
@@ -66,7 +66,9 @@ export function ShipsTable({
         <>
           <TableHeader scope="col">Ship</TableHeader>
           <TableHeader scope="col">Nation</TableHeader>
-          <TableHeader scope="col">Type</TableHeader>
+          <TableHeader scope="col" className="text-end">
+            Type
+          </TableHeader>
           <TableHeader scope="col">Tier</TableHeader>
         </>
       ),
@@ -74,15 +76,14 @@ export function ShipsTable({
   );
 
   return (
-    <div className="border-fleet-line bg-fleet-panel overflow-x-auto overflow-y-hidden border">
-      <TableVirtuoso
-        useWindowScroll
-        increaseViewportBy={{ top: 800, bottom: 800 }}
-        data={rows}
-        components={tableComponents}
-        computeItemKey={(_, ship) => (ship ? `ship-${ship.id}` : "headings")}
-        itemContent={itemContent}
-      />
-    </div>
+    <TableVirtuoso
+      useWindowScroll
+      increaseViewportBy={{ top: 800, bottom: 800 }}
+      skipAnimationFrameInResizeObserver
+      data={rows}
+      components={tableComponents}
+      computeItemKey={(_, ship) => (ship ? `ship-${ship.id}` : "headings")}
+      itemContent={itemContent}
+    />
   );
 }
