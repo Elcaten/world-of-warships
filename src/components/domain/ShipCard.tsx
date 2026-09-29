@@ -1,17 +1,24 @@
-import { resolveMediaUrl, type Ship } from "@/api/encyclopedia";
+import {
+  resolveMediaUrl,
+  type Nation,
+  type Ship,
+  type VehicleType,
+} from "@/api/encyclopedia";
 import { Icon } from "@/components/ui/icon";
 import { shipName, tierLabel } from "@/lib/ships";
 import clsx from "clsx";
-import { useState } from "react";
-import { NationFlag } from "./NationFlag";
-import { VehicleTypeIcon } from "./VehicleTypeIcon";
+import { memo, useState } from "react";
 
-export function ShipCard({
+export const ShipCard = memo(function ShipCard({
   ship,
+  nation,
+  vehicleType,
   mediaPath,
   onViewDetails,
 }: {
   ship: Ship;
+  nation?: Nation;
+  vehicleType?: VehicleType;
   mediaPath: string;
   onViewDetails: (ship: Ship) => void;
 }) {
@@ -31,16 +38,26 @@ export function ShipCard({
       onClick={() => onViewDetails(ship)}
     >
       <div className="absolute inset-2 -z-10 opacity-10 duration-1000 group-hover:opacity-30 group-hover:duration-400">
-        <NationFlag nation={ship.nation} size="large" className="" />
+        {nation && (
+          <img
+            src={resolveMediaUrl(mediaPath, nation.icons.large)}
+            alt={`${nation.localization.mark.en ?? nation.name} flag`}
+          />
+        )}
       </div>
 
       <span className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 px-4 py-3">
         <span className="font-heading flex items-center gap-1 font-bold">
-          <VehicleTypeIcon
-            vehicleType={ship.vehicleType}
-            variant={ship.isPremium ? "premium" : "default"}
-            className="size-5 object-contain"
-          />
+          {vehicleType && (
+            <img
+              src={resolveMediaUrl(
+                mediaPath,
+                vehicleType.icons[ship.isPremium ? "premium" : "default"],
+              )}
+              alt={vehicleType.localization.mark.en ?? ship.vehicleType}
+              className="size-5 object-contain"
+            />
+          )}
           <span className={"text-xs"}>{tierLabel(ship.level)}</span>
         </span>
         {ship.isPremium && (
@@ -51,7 +68,7 @@ export function ShipCard({
       <div className="-z-1 h-44 w-full origin-bottom transition-transform duration-500 ease-in group-hover:scale-102 group-hover:duration-150 group-hover:ease-out motion-reduce:transition-none">
         <img
           className={clsx(
-            "w-ful h-full object-contain transition-opacity ease-out motion-reduce:transition-none",
+            "h-full w-full object-contain transition-opacity ease-out motion-reduce:transition-none",
             isImageLoaded ? "opacity-100" : "opacity-0",
           )}
           style={{ transitionDuration: `${fadeInDuration}ms` }}
@@ -66,10 +83,10 @@ export function ShipCard({
           className="font-heading min-w-0 truncate text-xl font-bold uppercase"
           title={shipName(ship)}
         >
-          {shipName(ship)} {fadeInDuration}
+          {shipName(ship)}
         </span>
         <Icon name="right" className="size-4 shrink-0" />
       </span>
     </button>
   );
-}
+});

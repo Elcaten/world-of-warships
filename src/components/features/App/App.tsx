@@ -190,6 +190,8 @@ export default function App() {
               <ShipsGrid
                 ships={sorted}
                 mediaPath={media.data!}
+                nations={nationCatalogue.data!}
+                vehicleTypes={vehicleTypes.data!}
                 onViewDetails={showDetails}
               />
             ) : (

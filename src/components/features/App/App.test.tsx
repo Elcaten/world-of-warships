@@ -251,7 +251,7 @@ it.each(["grid", "table"])(
     );
     expect(cards()).toHaveLength(1);
     expect(cards()[0]).toHaveAccessibleName("View details for Yamato");
-    expect(screen.getByText("2 ships in the encyclopedia")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(/^1 ship found$/);
     fireEvent.change(screen.getByRole("searchbox"), {
       target: { value: "Hill" },
     });
@@ -317,6 +317,45 @@ it("shows a ship's medium image behind its large profile image", async () => {
     "src",
     largeImageUrl,
   );
+});
+
+it("renders card artwork and the premium class icon from the shared catalogues", async () => {
+  renderWithProviders(<App />);
+  await screen.findByRole("button", { name: "View details for Yamato" });
+
+  for (const [id, type, variant] of [
+    ["3765319664", "Destroyer", "premium"],
+    ["4276041424", "Battleship", "default"],
+  ] as const) {
+    const ship = vehicles.data[id];
+    const name = ship.localization.shortmark.en;
+    const card = screen.getByRole("button", {
+      name: `View details for ${name}`,
+    });
+    const nation = nations.data.find((nation) => nation.name === ship.nation)!;
+    const vehicleType = types.data[type];
+    expect(within(card).getByTitle(name).textContent).toBe(name);
+    expect(
+      within(card).getByRole("img", {
+        name: `${nation.localization.mark.en} flag`,
+      }),
+    ).toHaveAttribute("src", new URL(nation.icons.large, media.data).href);
+    expect(
+      within(card).getByRole("img", {
+        name: vehicleType.localization.mark.en,
+      }),
+    ).toHaveAttribute(
+      "src",
+      new URL(vehicleType.icons[variant], media.data).href,
+    );
+    const artwork = card.querySelector('img[alt=""]');
+    expect(artwork).toHaveAttribute(
+      "src",
+      new URL(ship.icons.medium, media.data).href,
+    );
+    fireEvent.load(artwork!);
+    expect(artwork).toHaveClass("opacity-100");
+  }
 });
 
 it.each([
@@ -443,10 +482,7 @@ it("renders the complete table beyond the old page size with semantic headings a
   expect(contourImages).toHaveLength(1);
   expect(contourImages[0]).toHaveAttribute(
     "src",
-    new URL(
-      vehicles.data["4276041424"].icons.contour_alive,
-      media.data,
-    ).href,
+    new URL(vehicles.data["4276041424"].icons.contour_alive, media.data).href,
   );
   expect(firstRowCells[1]).toHaveTextContent("Japan");
   expect(firstRowCells[1].querySelector("img")).toHaveAttribute(
@@ -552,6 +588,20 @@ it.each(["grid", "table"])(
       expect(screen.getByRole("status")).toHaveTextContent("1,000 ships found"),
     );
     expect(cards()).toHaveLength(mountedCount);
+    // App, the dialog, and filter icons subscribe; mounting ships adds none.
+    expect(
+      [
+        encyclopediaKeys.nations(),
+        encyclopediaKeys.vehicleTypes(),
+        encyclopediaKeys.mediaPath(),
+      ].map((queryKey) =>
+        queryClient.getQueryCache().find({ queryKey })?.getObserversCount(),
+      ),
+    ).toEqual([
+      nations.data.length + 2,
+      Object.keys(types.data).length + 2,
+      nations.data.length + Object.keys(types.data).length + 1,
+    ]);
     expect(
       screen.queryByRole("button", { name: "View details for Ship 999" }),
     ).not.toBeInTheDocument();
@@ -562,7 +612,7 @@ it.each(["grid", "table"])(
 );
 
 it.each(["grid", "table"])(
-  "does not force scrolling for controls, details, or refreshes in %s view",
+  "resets scroll only when results change, preserving it for details and refreshes in %s view",
   async (view) => {
     window.history.replaceState(null, "", `/?view=${view}`);
     const { queryClient } = renderWithProviders(<App />);
@@ -590,13 +640,16 @@ it.each(["grid", "table"])(
       target: { value: "name" },
     });
     expect(cards()[0]).toHaveAccessibleName("View details for Hill");
-    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(window.scrollTo).toHaveBeenCalledExactlyOnceWith({
+      top: 0,
+      behavior: "instant",
+    });
     fireEvent.change(screen.getByRole("searchbox"), {
       target: { value: "Hill" },
     });
     await waitFor(() => expect(cards()).toHaveLength(1));
     expect(cards()[0]).toHaveAccessibleName("View details for Hill");
-    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(window.scrollTo).toHaveBeenCalledTimes(2);
     fireEvent.click(
       screen.getByRole("button", {
         name: view === "grid" ? "Table view" : "Grid view",
@@ -607,7 +660,7 @@ it.each(["grid", "table"])(
         name: view === "grid" ? "Table view" : "Grid view",
       }),
     ).toHaveAttribute("aria-pressed", "true");
-    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(window.scrollTo).toHaveBeenCalledTimes(3);
     fireEvent.click(
       within(screen.getByRole("group", { name: "Class" })).getByRole("button", {
         name: /Destroyer/,
@@ -618,6 +671,6 @@ it.each(["grid", "table"])(
         name: /Destroyer/,
       }),
     ).toHaveAttribute("aria-pressed", "true");
-    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(window.scrollTo).toHaveBeenCalledTimes(4);
   },
 );
