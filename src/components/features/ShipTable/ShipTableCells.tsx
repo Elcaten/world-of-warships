@@ -1,33 +1,29 @@
 import {
   resolveMediaUrl,
-  useNations,
-  useVehicleTypes,
+  type Nation,
   type Ship,
+  type VehicleType,
 } from "@/api/encyclopedia";
-import { NationFlag } from "@/components/domain/NationFlag";
-import { VehicleTypeIcon } from "@/components/domain/VehicleTypeIcon";
 import { TableCell } from "@/components/ui/table";
 import { shipName, tierLabel } from "@/lib/ships";
-import clsx from "clsx";
-import { useState } from "react";
+import { memo, useState } from "react";
 
 type ShipTableCellsProps = {
   ship: Ship;
+  nation?: Nation;
+  vehicleType?: VehicleType;
   mediaPath: string;
   onViewDetails?: (ship: Ship) => void;
-  fallbackContour: string;
 };
 
-export function ShipTableCells({
+export const ShipTableCells = memo(function ShipTableCells({
   ship,
+  nation,
+  vehicleType,
   mediaPath,
   onViewDetails,
-  fallbackContour,
 }: ShipTableCellsProps) {
   const displayName = shipName(ship);
-  const nations = useNations();
-  const types = useVehicleTypes();
-  const nation = nations.data?.find((nation) => nation.name === ship.nation);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   return (
@@ -36,21 +32,13 @@ export function ShipTableCells({
         <div className="flex items-center gap-3">
           {/* Keep text wrapping and row height stable while the image loads. */}
           <div className="relative h-8 w-24 shrink-0">
-            <img
-              src={fallbackContour}
-              alt=""
-              className={clsx(
-                "absolute inset-0 size-full object-contain transition-opacity duration-500",
-                isImageLoaded ? "opacity-0" : "opacity-[initial]",
-              )}
+            <div
+              className={`absolute bottom-2 h-1 w-full bg-slate-200 ${isImageLoaded ? "invisible" : ""}`}
             />
             <img
               src={resolveMediaUrl(mediaPath, ship.icons.contour_alive)}
               alt=""
-              className={clsx(
-                "absolute inset-0 size-full object-contain",
-                !isImageLoaded && "invisible",
-              )}
+              className={`absolute inset-0 size-full object-contain ${isImageLoaded ? "" : "invisible"}`}
               onLoad={() => setIsImageLoaded(true)}
             />
           </div>
@@ -73,24 +61,28 @@ export function ShipTableCells({
       </TableCell>
       <TableCell>
         <span className="inline-flex items-center gap-2">
-          <NationFlag
-            nation={ship.nation}
-            size="small"
-            className="h-8 w-12 shrink-0 object-contain"
-            aria-hidden="true"
-          />
+          {nation && (
+            <img
+              src={resolveMediaUrl(mediaPath, nation.icons.small)}
+              alt={`${nation.localization.mark.en ?? nation.name} flag`}
+              className="h-8 w-12 shrink-0 object-contain"
+              aria-hidden="true"
+            />
+          )}
           {nation?.localization.mark.en ?? ship.nation}
         </span>
       </TableCell>
       <TableCell>
         <span className="inline-flex items-center gap-2">
-          <VehicleTypeIcon
-            vehicleType={ship.vehicleType}
-            className="size-6 shrink-0 object-contain"
-            aria-hidden="true"
-          />
-          {types.data?.[ship.vehicleType]?.localization.mark.en ??
-            ship.vehicleType}
+          {vehicleType && (
+            <img
+              src={resolveMediaUrl(mediaPath, vehicleType.icons.default)}
+              alt={vehicleType.localization.mark.en ?? ship.vehicleType}
+              className="size-6 shrink-0 object-contain"
+              aria-hidden="true"
+            />
+          )}
+          {vehicleType?.localization.mark.en ?? ship.vehicleType}
         </span>
       </TableCell>
       <TableCell>
@@ -100,4 +92,4 @@ export function ShipTableCells({
       </TableCell>
     </>
   );
-}
+});

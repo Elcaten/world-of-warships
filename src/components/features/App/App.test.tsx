@@ -414,7 +414,7 @@ function mockFleet(count: number) {
 it("renders the complete table beyond the old page size with semantic headings and cells", async () => {
   mockFleet(25);
   window.history.replaceState(null, "", "/?view=table");
-  renderWithProviders(
+  const { queryClient } = renderWithProviders(
     <VirtuosoMockContext.Provider
       value={{ viewportHeight: 2000, itemHeight: 64 }}
     >
@@ -436,6 +436,47 @@ it("renders the complete table beyond the old page size with semantic headings a
   expect(cards()[24]).toHaveAccessibleName("View details for Ship 24");
   expect(table.getAllByRole("row")).toHaveLength(26);
   expect(table.getAllByRole("cell")).toHaveLength(100);
+  const firstRowCells = within(table.getAllByRole("row")[1]).getAllByRole(
+    "cell",
+  );
+  const contourImages = firstRowCells[0].querySelectorAll("img");
+  expect(contourImages).toHaveLength(1);
+  expect(contourImages[0]).toHaveAttribute(
+    "src",
+    new URL(
+      vehicles.data["4276041424"].icons.contour_alive,
+      media.data,
+    ).href,
+  );
+  expect(firstRowCells[1]).toHaveTextContent("Japan");
+  expect(firstRowCells[1].querySelector("img")).toHaveAttribute(
+    "src",
+    new URL(nations.data[0].icons.small, media.data).href,
+  );
+  expect(firstRowCells[2]).toHaveTextContent("Battleship");
+  expect(firstRowCells[2].querySelector("img")).toHaveAttribute(
+    "src",
+    new URL(types.data.Battleship.icons.default, media.data).href,
+  );
+  // App, the details dialog, and filter icons subscribe; table rows add none.
+  expect(
+    queryClient
+      .getQueryCache()
+      .find({ queryKey: encyclopediaKeys.nations() })
+      ?.getObserversCount(),
+  ).toBe(nations.data.length + 2);
+  expect(
+    queryClient
+      .getQueryCache()
+      .find({ queryKey: encyclopediaKeys.vehicleTypes() })
+      ?.getObserversCount(),
+  ).toBe(Object.keys(types.data).length + 2);
+  expect(
+    queryClient
+      .getQueryCache()
+      .find({ queryKey: encyclopediaKeys.mediaPath() })
+      ?.getObserversCount(),
+  ).toBe(nations.data.length + Object.keys(types.data).length + 1);
   expect(screen.getByRole("status")).toHaveTextContent(/^25 ships found$/);
   fireEvent.change(screen.getByRole("searchbox"), {
     target: { value: "Ship 00" },

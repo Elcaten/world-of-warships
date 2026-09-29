@@ -17,7 +17,14 @@ import { ShipsTable } from "@/components/features/ShipTable/ShipsTable";
 import { CommandButton } from "@/components/ui/command-button";
 import { shipName } from "@/lib/ships";
 import { useFleetQueryState } from "@/lib/useFleetQueryState";
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { FleetError } from "./FleetError";
 import { FleetMessage } from "./FleetMessage";
 import { FleetPending } from "./FleetPending";
@@ -94,10 +101,10 @@ export default function App() {
     previousResultKey.current = resultKey;
   }, [resultKey, pending, failed]);
 
-  function showDetails(ship: Ship) {
+  const showDetails = useCallback((ship: Ship) => {
     setSelectedShip(ship);
     setDetailsOpen(true);
-  }
+  }, []);
 
   function resetFilters() {
     reset();
@@ -189,6 +196,8 @@ export default function App() {
               <ShipsTable
                 ships={sorted}
                 mediaPath={media.data!}
+                nations={nationCatalogue.data!}
+                vehicleTypes={vehicleTypes.data!}
                 onViewDetails={showDetails}
               />
             )}
