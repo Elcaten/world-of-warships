@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Diagnostic build transforms must not add utilities to the shipped CSS. */
+@source not "../scripts";
 /* The root is always dark; shared UI primitives can still use dark: variants. */
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -28,7 +30,7 @@
 
 @layer base {
   body {
-    @apply min-w-80 bg-fleet-background font-sans text-fleet-text;
+    @apply bg-fleet-background text-fleet-text min-w-80 font-sans;
   }
 
   button,
@@ -49,7 +51,7 @@
   }
 
   :focus-visible {
-    @apply outline-2 outline-offset-4 outline-fleet-highlight;
+    @apply outline-fleet-highlight outline-2 outline-offset-4;
   }
 
   ::selection {

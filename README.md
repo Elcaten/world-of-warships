@@ -18,14 +18,79 @@ virtual scrolling with the page. Table headings scroll away with the rows.
 
 ## Commands
 
-| Command             | Purpose                                           |
-| ------------------- | ------------------------------------------------- |
-| `npm run dev`       | Start the development server                      |
-| `npm run build`     | Type-check and build into `dist/`                 |
-| `npm run preview`   | Preview the production build                      |
-| `npm run typecheck` | Check application, tests, and configuration types |
-| `npm test`          | Run Vitest in watch mode                          |
-| `npm run test:run`  | Run tests once                                    |
+| Command               | Purpose                                           |
+| --------------------- | ------------------------------------------------- |
+| `npm run dev`         | Start the development server                      |
+| `npm run build`       | Type-check and build into `dist/`                 |
+| `npm run preview`     | Preview the production build                      |
+| `npm run typecheck`   | Check application, tests, and configuration types |
+| `npm test`            | Run Vitest in watch mode                          |
+| `npm run test:run`    | Run tests once                                    |
+| `npm run perf:scroll` | Record repeatable production scroll benchmarks    |
+
+## Scroll performance benchmark
+
+Install the test browser once, then run the comparison:
+
+```sh
+npx playwright install chromium
+npm run perf:scroll
+```
+
+The benchmark builds the current working tree in production mode and compares
+normal rows with scroll-seek skeleton rows, three times each. It caches the real
+catalogue, fonts, and image bytes locally, warms the browser image cache, then
+uses Chrome's input API to scroll down twice and back up twice at a fixed speed.
+Each sample uses a fresh browser context. All table image URLs are preloaded
+equally, and scroll-seek is disabled during warmup so normal rows are measured.
+Run order rotates between repetitions. Every gesture's endpoint is checked;
+`validScrollPath: false` makes the command fail and excludes that run from a fair
+timing comparison, while retaining its diagnostic files.
+It does not edit application source or replace `dist/`.
+
+Results are saved under `.scroll-benchmark/<timestamp>/` (ignored by Git):
+
+- `environment.json`: browser/GPU details, options, API and source hashes.
+- `results.json`: timings, blank-frame intervals, and scroll positions.
+- `<run>-<variant>/trace.json.gz`: import into Chrome DevTools Performance.
+- `<run>-<variant>/filmstrip.html`: screenshots, with fully blank frames outlined.
+- `<run>-<variant>/summary.json`: CPU, compositor activation delays, cache hits,
+  screenshot gaps, scroll-path validation, and errors.
+
+Useful comparisons:
+
+```sh
+npm run perf:scroll -- --variants=baseline,seek,light,static-images,no-clip,large-buffer,sync-measure --runs=3
+npm run perf:scroll -- --speed=30000 --cpu=4 --runs=3
+npm run perf:scroll -- --headed --browser="/Applications/Helium.app/Contents/MacOS/Helium"
+npm run perf:scroll -- --variants=baseline,seek --probe --runs=1
+```
+
+Variants are temporary build transforms in `scripts/scroll-benchmark/variants.mjs`:
+`light` substitutes simpler text rows; `static-images` removes image-load state;
+`no-clip` removes the outer overflow wrapper's clipping; `large-buffer` renders
+2,400 px ahead/behind; `sync-measure` skips RAF in the ResizeObserver. The `no-clip`
+variant is a diagnostic, not a proposed mobile layout change. A transform fails
+if the source no longer matches its expected structure.
+
+Use `--cold` to skip browser image warmup while still replaying cached local
+assets. `--probe` saves `dom-probe.json` with RAF times and viewport row coverage;
+its DOM reads can affect layout, so compare its results separately. `--help`
+lists options. `--browser-arg=--some-chromium-flag` passes an additional flag to
+the isolated browser without changing personal browser settings. To take a
+fresh upstream snapshot, move `.scroll-benchmark/cache`
+aside before running.
+
+Blank detection is specific to this dark table: it checks screenshot pixels for
+the absence of text/icons/skeletons, excluding the scrollbar. It detects fully
+empty frames, not partially empty viewports. Inspect the filmstrip to verify
+results. Chrome can cap screenshot recording; `screenshotLastMs` reports coverage.
+Tracing and screenshots add overhead; compare repeated runs with the same browser,
+viewport, input speed, cache mode, and CPU setting. Headless results can differ
+from the desktop compositor; use `--headed` to cross-check visual issues.
+
+See the [September 29 investigation](docs/scroll-performance-2026-09-29.md)
+for measured results and the compositor-delay diagnosis.
 
 ## Included
 

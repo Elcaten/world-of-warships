@@ -1,6 +1,7 @@
 node_modules/
 dist/
 coverage/
+.scroll-benchmark/
 *.local
 *.tsbuildinfo
 .DS_Store
