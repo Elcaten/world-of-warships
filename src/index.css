@@ -40,6 +40,11 @@
     @apply [-webkit-tap-highlight-color:transparent];
   }
 
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
   button {
     @apply cursor-pointer disabled:cursor-default disabled:opacity-35;
   }
