@@ -1,0 +1,7 @@
+node_modules
+dist
+.git
+coverage
+.scroll-benchmark
+*.local
+.DS_Store
