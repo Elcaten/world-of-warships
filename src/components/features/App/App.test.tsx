@@ -90,8 +90,8 @@ it("restores table filters from the query string", async () => {
 
   await screen.findByRole("button", { name: "View details for Ship 00" });
   expect(screen.getByRole("searchbox")).toHaveValue("Ship");
-  expect(screen.getByRole("combobox", { name: "Sort ships" })).toHaveValue(
-    "name",
+  expect(screen.getByRole("button", { name: "Sort ships" })).toHaveTextContent(
+    "Name: A to Z",
   );
   expect(screen.getByRole("button", { name: "Table view" })).toHaveAttribute(
     "aria-pressed",
@@ -159,9 +159,8 @@ it("syncs controls to the URL and reset removes only managed parameters", async 
       { name: "X" },
     ),
   );
-  fireEvent.change(screen.getByRole("combobox", { name: "Sort ships" }), {
-    target: { value: "name" },
-  });
+  fireEvent.click(screen.getByRole("button", { name: "Sort ships" }));
+  fireEvent.click(await screen.findByRole("option", { name: "Name: A to Z" }));
   fireEvent.click(screen.getByRole("button", { name: "Table view" }));
 
   await waitFor(() => {
@@ -183,8 +182,8 @@ it("syncs controls to the URL and reset removes only managed parameters", async 
     expect([...params.entries()]).toEqual([["campaign", "fall"]]);
   });
   expect(screen.getByRole("searchbox")).toHaveValue("");
-  expect(screen.getByRole("combobox", { name: "Sort ships" })).toHaveValue(
-    "tier-desc",
+  expect(screen.getByRole("button", { name: "Sort ships" })).toHaveTextContent(
+    "Tier: high to low",
   );
   expect(screen.getByRole("button", { name: "Grid view" })).toHaveAttribute(
     "aria-pressed",
@@ -213,8 +212,8 @@ it("normalizes invalid query values on mount", async () => {
   });
   expect(window.scrollTo).not.toHaveBeenCalled();
 
-  expect(screen.getByRole("combobox", { name: "Sort ships" })).toHaveValue(
-    "tier-desc",
+  expect(screen.getByRole("button", { name: "Sort ships" })).toHaveTextContent(
+    "Tier: high to low",
   );
   expect(screen.getByRole("button", { name: "Grid view" })).toHaveAttribute(
     "aria-pressed",
@@ -266,9 +265,8 @@ it("sorts both views and opens a real ship profile with a working close control"
   renderWithProviders(<App />);
   await screen.findByRole("button", { name: "View details for Yamato" });
   expect(cards()[0]).toHaveAccessibleName("View details for Yamato");
-  fireEvent.change(screen.getByRole("combobox", { name: "Sort ships" }), {
-    target: { value: "name" },
-  });
+  fireEvent.click(screen.getByRole("button", { name: "Sort ships" }));
+  fireEvent.click(await screen.findByRole("option", { name: "Name: A to Z" }));
   expect(cards()[0]).toHaveAccessibleName("View details for Hill");
   fireEvent.click(screen.getByRole("button", { name: "Table view" }));
   expect(screen.getByRole("table")).toBeInTheDocument();
@@ -636,9 +634,8 @@ it.each(["grid", "table"])(
     });
     expect(window.scrollTo).not.toHaveBeenCalled();
 
-    fireEvent.change(screen.getByRole("combobox", { name: "Sort ships" }), {
-      target: { value: "name" },
-    });
+    fireEvent.click(screen.getByRole("button", { name: "Sort ships" }));
+    fireEvent.click(await screen.findByRole("option", { name: "Name: A to Z" }));
     expect(cards()[0]).toHaveAccessibleName("View details for Hill");
     expect(window.scrollTo).toHaveBeenCalledExactlyOnceWith({
       top: 0,

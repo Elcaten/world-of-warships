@@ -1,5 +1,6 @@
 import { CommandButton } from "@/components/ui/command-button";
 import { Icon } from "@/components/ui/icon";
+import { Listbox, ListboxOption } from "@/components/ui/listbox";
 import type { FleetSort, FleetView } from "@/lib/useFleetQueryState";
 import type { ReactNode } from "react";
 
@@ -37,19 +38,14 @@ export function FleetToolbar({
           onChange={(event) => onSearchChange(event.target.value)}
         />
       </label>
-      <label className="bg-fleet-deep flex items-center gap-2 pl-3 font-mono text-xs">
+      <div className="bg-fleet-deep flex items-center gap-2 pl-3 font-mono text-xs">
         <span className="text-fleet-muted uppercase">Sort</span>
-        <select
-          className="bg-fleet-deep p-3"
-          aria-label="Sort ships"
-          value={sort}
-          onChange={(event) => onSortChange(event.target.value as FleetSort)}
-        >
-          <option value="tier-desc">Tier: high to low</option>
-          <option value="tier-asc">Tier: low to high</option>
-          <option value="name">Name: A to Z</option>
-        </select>
-      </label>
+        <Listbox aria-label="Sort ships" value={sort} onChange={onSortChange}>
+          <ListboxOption value="tier-desc">Tier: high to low</ListboxOption>
+          <ListboxOption value="tier-asc">Tier: low to high</ListboxOption>
+          <ListboxOption value="name">Name: A to Z</ListboxOption>
+        </Listbox>
+      </div>
       <div
         className="bg-fleet-deep flex p-1"
         role="group"

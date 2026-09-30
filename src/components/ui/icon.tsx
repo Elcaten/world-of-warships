@@ -10,6 +10,8 @@ const paths = {
   close: "M6 6l12 12M18 6 6 18",
   left: "M15 5l-7 7 7 7",
   right: "M9 5l7 7-7 7",
+  down: "M5 9l7 7 7-7",
+  check: "M5 12l4 4L19 6",
   flag: "M5 22V3l7 2 7-2v11l-7 2-7-2",
   tier: "M8 3h8v8l-4 4-4-4zM12 15v6M8 21h8M12 3v8",
   source: "M8 8l-4 4 4 4M16 8l4 4-4 4M14 4l-4 16",
