@@ -610,7 +610,7 @@ it.each(["grid", "table"])(
 );
 
 it.each(["grid", "table"])(
-  "resets scroll only when results change, preserving it for details and refreshes in %s view",
+  "preserves scroll while interacting with results and controls in %s view",
   async (view) => {
     window.history.replaceState(null, "", `/?view=${view}`);
     const { queryClient } = renderWithProviders(<App />);
@@ -635,18 +635,17 @@ it.each(["grid", "table"])(
     expect(window.scrollTo).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: "Sort ships" }));
-    fireEvent.click(await screen.findByRole("option", { name: "Name: A to Z" }));
+    fireEvent.click(
+      await screen.findByRole("option", { name: "Name: A to Z" }),
+    );
     expect(cards()[0]).toHaveAccessibleName("View details for Hill");
-    expect(window.scrollTo).toHaveBeenCalledExactlyOnceWith({
-      top: 0,
-      behavior: "instant",
-    });
+    expect(window.scrollTo).not.toHaveBeenCalled();
     fireEvent.change(screen.getByRole("searchbox"), {
       target: { value: "Hill" },
     });
     await waitFor(() => expect(cards()).toHaveLength(1));
     expect(cards()[0]).toHaveAccessibleName("View details for Hill");
-    expect(window.scrollTo).toHaveBeenCalledTimes(2);
+    expect(window.scrollTo).not.toHaveBeenCalled();
     fireEvent.click(
       screen.getByRole("button", {
         name: view === "grid" ? "Table view" : "Grid view",
@@ -657,7 +656,7 @@ it.each(["grid", "table"])(
         name: view === "grid" ? "Table view" : "Grid view",
       }),
     ).toHaveAttribute("aria-pressed", "true");
-    expect(window.scrollTo).toHaveBeenCalledTimes(3);
+    expect(window.scrollTo).not.toHaveBeenCalled();
     fireEvent.click(
       within(screen.getByRole("group", { name: "Class" })).getByRole("button", {
         name: /Destroyer/,
@@ -668,6 +667,6 @@ it.each(["grid", "table"])(
         name: /Destroyer/,
       }),
     ).toHaveAttribute("aria-pressed", "true");
-    expect(window.scrollTo).toHaveBeenCalledTimes(4);
+    expect(window.scrollTo).not.toHaveBeenCalled();
   },
 );

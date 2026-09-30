@@ -52,7 +52,12 @@ export function FleetToolbar({
       </form>
       <div className="bg-fleet-deep flex items-center gap-2 pl-3 font-mono text-xs">
         <span className="text-fleet-muted uppercase">Sort</span>
-        <Listbox aria-label="Sort ships" value={sort} onChange={onSortChange}>
+        <Listbox
+          aria-label="Sort ships"
+          value={sort}
+          onChange={onSortChange}
+          className="text-base"
+        >
           <ListboxOption value="tier-desc">Tier: high to low</ListboxOption>
           <ListboxOption value="tier-asc">Tier: low to high</ListboxOption>
           <ListboxOption value="name">Name: A to Z</ListboxOption>

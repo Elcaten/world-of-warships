@@ -17,14 +17,7 @@ import { ShipsTable } from "@/components/features/ShipTable/ShipsTable";
 import { CommandButton } from "@/components/ui/command-button";
 import { shipName } from "@/lib/ships";
 import { useFleetQueryState } from "@/lib/useFleetQueryState";
-import {
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { FleetError } from "./FleetError";
 import { FleetMessage } from "./FleetMessage";
 import { FleetPending } from "./FleetPending";
@@ -77,30 +70,6 @@ export default function App() {
       }),
     [ships.data, sort],
   );
-  // Compare query values, not result/array identity, so refreshes preserve scroll.
-  const resultKey = JSON.stringify([
-    deferredSearch,
-    types,
-    nations,
-    levels,
-    sort,
-    view,
-  ]);
-  const previousResultKey = useRef<string | null>(null);
-  useEffect(() => {
-    if (pending || failed) {
-      previousResultKey.current = null;
-      return;
-    }
-    if (
-      previousResultKey.current !== null &&
-      previousResultKey.current !== resultKey
-    ) {
-      window.scrollTo({ top: 0, behavior: "instant" });
-    }
-    previousResultKey.current = resultKey;
-  }, [resultKey, pending, failed]);
-
   const showDetails = useCallback((ship: Ship) => {
     setSelectedShip(ship);
     setDetailsOpen(true);
