@@ -1,134 +1,75 @@
 # Elcaten World of Warships
 
-A World of Warships encyclopedia built with React 19, TypeScript, and Vite.
+A World of Warships ship encyclopedia built with React, TypeScript, and Vite for
+the frontend home task. A complete, responsive page with styling inspired by the
+game and live data from the Vortex API.
 
-## Getting started
+[Live demo](https://world-of-warships.elcaten.net)
 
-Use Node.js 24 or newer (`nvm use` selects Node 24), then run:
+## Implemented
+
+- Virtualized grid and table views, with ship artwork and detail dialogs.
+- Search, nation/class/tier filters, and sorting by name or tier.
+- Search, filters, sort order, and view preserved in the URL.
+- Loading and empty states, API response validation, and retryable errors.
+- Tests covering API handling, filtering, UI interactions, and cache persistence.
+
+## Run with Docker Compose
+
+Requires Docker with Compose. From the repository root:
+
+```sh
+docker compose up --build
+```
+
+Open [localhost:8080](http://localhost:8080). The container serves the production
+build through Nginx and proxies requests to Vortex.
+
+## Local development
+
+Requires Node.js 24+.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Browse the live ship catalogue in a responsive grid or table, search by name or
-designation, combine class/nation/tier filters, and sort by tier or name. Ship
-profiles show official artwork and descriptions. Both card and table views use
-virtual scrolling with the page. Table headings scroll away with the rows.
+Checks:
 
-## Commands
-
-| Command               | Purpose                                           |
-| --------------------- | ------------------------------------------------- |
-| `npm run dev`         | Start the development server                      |
-| `npm run build`       | Type-check and build into `dist/`                 |
-| `npm run preview`     | Preview the production build                      |
-| `npm run typecheck`   | Check application, tests, and configuration types |
-| `npm test`            | Run Vitest in watch mode                          |
-| `npm run test:run`    | Run tests once                                    |
-
-## Included
-
-- React 19 with strict TypeScript and React Strict Mode.
-- Tailwind CSS via `@tailwindcss/vite`; global styles live in `src/index.css`.
-- TanStack Query with a root provider and a client in `src/query-client.ts`.
-- React Virtuoso renders the responsive card grid and table as you scroll.
-- Vitest with jsdom, React Testing Library, and jest-dom matchers.
-- MSW configured for tests, with unhandled requests treated as errors. Add shared
-  handlers in `src/test/mocks/handlers.ts` or per-test handlers with `server.use()`.
-- `renderWithProviders` in `src/test/render.tsx` creates an isolated query client
-  for each render and disables retries in tests.
-
-The setup test exercises React Query, Testing Library, and MSW together. MSW is
-only enabled in tests; the development app makes normal network requests.
-
-Configuration references: [Tailwind with Vite](https://tailwindcss.com/docs/installation/using-vite),
-[Vitest](https://vitest.dev/guide/), and [MSW for Node.js](https://mswjs.io/docs/integrations/node/).
-
-## Encyclopedia API
-
-The API layer lives in `src/api/encyclopedia`. Zod schemas validate every
-response and provide the TypeScript types through `z.infer`. The native-fetch
-client unwraps `data`, rejects HTTP/API/schema errors, and accepts an
-`AbortSignal`. Query options pass React Query's cancellation signal to fetch.
-
-All four live responses were inspected and validated on September 24, 2026:
-
-| Endpoint beneath `https://vortex.worldofwarships.eu/api/encyclopedia/en/` | `data` shape                                                      |
-| ------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `vehicles/`                                                               | Record keyed by ship ID strings; 1,049 ships                      |
-| `nations/`                                                                | Array of 13 nations, each with `id` and `name`                    |
-| `vehicle_types_common/`                                                   | Record keyed by five class names, such as `Destroyer`             |
-| `media_path/`                                                             | Absolute CDN base URL: `https://wows-gloss-icons.wgcdn.co/icons/` |
-
-Every response uses `{ status: 'ok', data: ... }`. Ships contain `level`,
-technical `name`, `nation`, `tags`, relative `icons`, and `localization`
-dictionaries. Display names are in `localization.mark.en`; descriptions are in
-`localization.description.en`. Class names occur in `tags`, not a `type` field.
-Join a ship's `nation` to a nation's `name`. Type `shortmark` dictionaries can
-be empty. Tier 11 exists. The schemas allow new dictionary keys, languages,
-tags, and extra object fields without hard-coding today's catalogue values.
-
-These URLs return full catalogues. `useShips` searches and filters the cached
-vehicle record locally, returning an array with each ship's `id` preserved.
-Search matches English display names, technical names, and IDs. Nation, class,
-and tier filters are ANDed; values within each filter are ORed. Omitted filters
-include all ships; empty nation or type arrays match none. Empty tier arrays
-include all tiers. No hidden, premium, or event ships are implicitly excluded.
-The catalogue stays fresh for 24 hours; changing filters does not trigger a new
-request. All four queries are persisted in IndexedDB using `idb-keyval` and
-TanStack Query's `PersistQueryClientProvider`, which restores the cache before
-queries start fetching. The full vehicle response is about 20 MB uncompressed,
-so the first load still requires that download.
-
-After 24 hours, cached data stays visible while a mount, window focus, or network
-reconnection triggers a background refresh. Failed refreshes keep the cached
-catalogue visible. Saved data is retained until replaced (`maxAge` and `gcTime`
-are `Infinity`), although clearing site data or browser storage eviction can
-remove it. If IndexedDB is unavailable or full, normal fetching and in-memory
-caching continue. Explicit invalidation still refreshes fresh data. This uses
-[TanStack Query's documented IndexedDB persistence and hydration pattern](https://tanstack.com/query/latest/docs/framework/react/plugins/persistQueryClient).
-
-```tsx
-import { resolveMediaUrl, useMediaPath, useShips } from "./api/encyclopedia";
-
-function ShipCards({ search }: { search: string }) {
-  const ships = useShips({ search });
-  const media = useMediaPath();
-
-  if (ships.isPending || media.isPending) return <p>Loading ships…</p>;
-  if (ships.isError || media.isError) return <p>Could not load ships.</p>;
-
-  return ships.data.map((ship) => (
-    <article key={ship.id}>
-      <img src={resolveMediaUrl(media.data, ship.icons.medium)} alt="" />
-      <h2>{ship.localization.mark.en ?? ship.name}</h2>
-      <p>Tier {ship.level}</p>
-    </article>
-  ));
-}
+```sh
+npm run test:run
+npm run build
 ```
 
-For filters, use `useNations()` and `useVehicleTypes()`. For example,
-`useShips({ nations: ['japan'], types: ['Battleship'], levels: [10] })`.
-`useVehicles()` exposes the validated ID-keyed record. All four endpoints also
-export `*QueryOptions()` factories for `useQuery`, `useQueries`, prefetching,
-and imperative fetching. Invalidate the catalogue with
-`queryClient.invalidateQueries({ queryKey: encyclopediaKeys.all })`.
-Use `small`, `medium`, `large`, or other CDN icon paths with `resolveMediaUrl`;
-the `local_*` icon paths refer to game assets.
+## Assumptions and tradeoffs
 
-### Browser access and deployment
+I interpreted the brief as a single-page catalogue, prioritizing browsing,
+filtering, sorting, and reliable loading.
 
-The upstream API did not return `Access-Control-Allow-Origin` when tested with
-a localhost Origin header. Requests therefore default to the same-origin path
-`/api/encyclopedia/en/`, which Vite proxies to the upstream host for development
-and local preview. **Production hosting must proxy `/api/encyclopedia/` to
-`https://vortex.worldofwarships.eu/api/encyclopedia/`, preserving the path.**
-Alternatively, set `VITE_ENCYCLOPEDIA_BASE_URL` at build time to a CORS-enabled
-backend base URL including `/en/`. Pointing a browser directly at the upstream
-host does not bypass CORS. This variable is public client configuration.
+- SSR and application routing are unnecessary for this scope.
+- Responsive layouts prioritize usable screen space and comfortable spacing.
+- Within the time budget, scroll restoration and a compact sticky filter panel
+  that appears when the main controls scroll out of view were deferred beyond
+  the MVP.
 
-Tests use small, English-only excerpts of the inspected responses in
-`src/api/encyclopedia/__fixtures__`, covering response validation, failure paths,
-cancellation, local filters, media URLs, and shared React Query caching.
+## Technology choices
+
+The API layer validates responses, query hooks manage data, and UI components
+handle presentation.
+
+- **Tailwind CSS + Headless UI:** make the UI easy to style and extend,
+  with accessible interaction primitives provided by Headless UI.
+- **TanStack Query:** simplifies query cache management.
+- **React Virtuoso:** virtualizes both grid and table views with straightforward
+  configuration, making it a good fit for this catalogue.
+
+## Data and caching
+
+Filtering and sorting run in the browser. API responses are persisted in IndexedDB
+and considered fresh for 24 hours, improving subsequent visits under the assumption
+that encyclopedia updates are infrequent. After that, cached data remains visible
+during background refresh and if the refresh fails.
+
+The first visit still downloads the full catalogue. A possible extension is a
+backend that caches upstream data and handles filtering, sorting, and pagination,
+reducing the initial download. The existing Nginx proxy only forwards API requests.
