@@ -46,14 +46,9 @@ export function ShipDetailsDialog({
           {ship && (
             <>
               <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-fleet-cyan mb-2 font-mono text-xs uppercase">
-                    Ship profile
-                  </p>
-                  <DialogTitle className="font-heading text-3xl font-bold wrap-anywhere uppercase">
-                    {shipName(ship)}
-                  </DialogTitle>
-                </div>
+                <DialogTitle className="font-heading text-3xl font-bold wrap-anywhere uppercase">
+                  {shipName(ship)}
+                </DialogTitle>
                 <CommandButton
                   className="shrink-0"
                   aria-label="Close ship details"
