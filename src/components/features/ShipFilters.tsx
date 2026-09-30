@@ -67,7 +67,7 @@ export function ShipFilters({
           .sort(([, a], [, b]) => a.sort_order - b.sort_order)
           .map(([value, type]) => ({
             value,
-            label: type.localization.mark.en ?? value,
+            label: type.localization.shortmark.en ?? value,
             icon: (
               <VehicleTypeIcon
                 vehicleType={value}

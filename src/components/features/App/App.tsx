@@ -116,7 +116,7 @@ export default function App() {
       <main className="mx-auto w-full max-w-384 flex-1 px-4 py-8 sm:px-6 lg:px-10">
         <section
           aria-label="Fleet controls"
-          className="border-fleet-line bg-fleet-panel mx-auto max-w-4xl border p-4"
+          className="border-fleet-line bg-fleet-panel -mx-4 max-w-4xl p-4 sm:mx-auto sm:border"
         >
           <FleetToolbar
             search={search}
