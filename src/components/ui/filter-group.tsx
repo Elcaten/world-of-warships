@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { useId } from "react";
 import type { ReactNode } from "react";
 
 type FilterGroupLayoutProps = {
@@ -18,14 +19,19 @@ function FilterGroupFrame({
   icon,
   children,
 }: FilterGroupLayoutProps & { children: ReactNode }) {
+  const labelId = useId();
+
   return (
-    <fieldset className="min-w-0">
-      <legend className="text-fleet-muted mb-2 flex items-center gap-2 font-mono text-xs uppercase">
+    <div role="group" aria-labelledby={labelId} className="min-w-0">
+      <div
+        id={labelId}
+        className="text-fleet-muted mb-2 flex items-center gap-2 font-mono text-xs uppercase"
+      >
         {icon}
         {label}
-      </legend>
+      </div>
       <div className="flex flex-wrap gap-2">{children}</div>
-    </fieldset>
+    </div>
   );
 }
 
