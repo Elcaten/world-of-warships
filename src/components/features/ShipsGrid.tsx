@@ -61,8 +61,12 @@ export function ShipsGrid({
       itemClassName="min-w-0"
       components={components}
       itemContent={itemContent}
+      increaseViewportBy={{
+        top: 400,
+        bottom: 400,
+      }}
       scrollSeekConfiguration={{
-        enter: (velocity) => Math.abs(velocity) > 1500,
+        enter: (velocity) => Math.abs(velocity) > 1200,
         exit: (velocity) => Math.abs(velocity) < 300,
       }}
     />
