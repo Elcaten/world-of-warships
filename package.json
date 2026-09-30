@@ -12,8 +12,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "test": "vitest",
-    "test:run": "vitest run",
-    "perf:scroll": "node scripts/scroll-benchmark.mjs"
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",
@@ -34,10 +33,8 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
-    "jpeg-js": "^0.4.4",
     "jsdom": "^30.1.1",
     "msw": "^2.15.0",
-    "playwright": "^1.63.0",
     "prettier": "^3.9.9",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4.3.3",

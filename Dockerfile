@@ -1,8 +1,6 @@
 FROM node:24-bookworm-slim AS build
 WORKDIR /app
 
-ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-
 COPY package.json package-lock.json ./
 RUN npm ci
 
