@@ -60,29 +60,35 @@ export function FilterGroup<T extends string | number>({
   selected,
   onChange,
 }: Props<T>) {
+  const isAllOptionSelected = !selected?.length;
+
   return (
     <FilterGroupFrame label={label} icon={icon}>
       <FilterButton
-        selected={!selected?.length}
+        selected={isAllOptionSelected}
         onClick={() => onChange(undefined)}
       >
         {allLabel}
       </FilterButton>
-      {options.map((option) => (
-        <FilterButton
-          key={option.value}
-          selected={selected?.includes(option.value) ?? false}
-          onClick={() => {
-            const next = selected?.includes(option.value)
-              ? selected.filter((value) => value !== option.value)
-              : [...(selected ?? []), option.value];
-            onChange(next.length ? next : undefined);
-          }}
-        >
-          {option.icon && <span aria-hidden="true">{option.icon}</span>}
-          {option.label}
-        </FilterButton>
-      ))}
+      {options.map((option) => {
+        const isOptionSelected =
+          !!selected?.includes(option.value) || isAllOptionSelected;
+        return (
+          <FilterButton
+            key={option.value}
+            selected={isOptionSelected}
+            onClick={() => {
+              const next = selected?.includes(option.value)
+                ? selected.filter((value) => value !== option.value)
+                : [...(selected ?? []), option.value];
+              onChange(next.length ? next : undefined);
+            }}
+          >
+            {option.icon && <span aria-hidden="true">{option.icon}</span>}
+            {option.label}
+          </FilterButton>
+        );
+      })}
     </FilterGroupFrame>
   );
 }
@@ -102,7 +108,7 @@ function FilterButton({
       aria-pressed={selected}
       onClick={onClick}
       className={
-        "bg-fleet-deep text-fleet-secondary hover:border-fleet-cyan aria-pressed:border-fleet-cyan aria-pressed:bg-fleet-line aria-pressed:text-fleet-highlight inline-flex min-w-10 items-center justify-center gap-2 border border-transparent p-2 text-xs uppercase"
+        "bg-fleet-deep text-fleet-secondary hover:border-fleet-cyan aria-pressed:border-fleet-cyan aria-pressed:bg-fleet-line aria-pressed:text-fleet-highlight inline-flex min-w-10 items-center justify-center gap-2 border border-transparent p-2 text-xs uppercase transition-[background-color] duration-700 ease-out aria-pressed:duration-0"
       }
     >
       {children}
