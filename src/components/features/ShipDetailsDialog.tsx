@@ -1,12 +1,4 @@
 import {
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-  DialogTitle,
-} from "@headlessui/react";
-import clsx from "clsx";
-import { useState, type ReactNode } from "react";
-import {
   resolveMediaUrl,
   useNationsQuery,
   useVehicleTypesQuery,
@@ -16,6 +8,14 @@ import { NationFlag } from "@/components/domain/NationFlag";
 import { CommandButton } from "@/components/ui/command-button";
 import { Icon } from "@/components/ui/icon";
 import { shipName, tierLabel } from "@/lib/ships";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
+import clsx from "clsx";
+import { useState, type ReactNode } from "react";
 
 type ShipDetailsDialogProps = {
   ship: Ship | null;
@@ -40,12 +40,9 @@ export function ShipDetailsDialog({
 
   return (
     <Dialog open={open} onClose={onClose} className="relative z-50">
-      <DialogBackdrop className="bg-fleet-deep/75 fixed inset-0 backdrop-blur-sm" />
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <DialogPanel
-          transition
-          className="border-fleet-line bg-fleet-panel data-closed:opacity- max-h-full w-full max-w-3xl overflow-y-auto border p-6 duration-150 ease-out data-closed:scale-97 data-closed:opacity-0 data-closed:duration-0"
-        >
+      <DialogBackdrop className="bg-fleet-deep/50 fixed inset-0 backdrop-blur-md" />
+      <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+        <DialogPanel className="border-fleet-line bg-fleet-panel max-h-full w-full max-w-3xl overflow-y-auto border p-6">
           {ship && (
             <>
               <div className="flex items-center justify-between gap-4">
