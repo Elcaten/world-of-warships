@@ -115,7 +115,9 @@ export default function App() {
             }}
           />
         ) : pending ? (
-          <FleetPending view={view} />
+          <div className="mx-auto max-w-4xl">
+            <FleetPending view={view} />
+          </div>
         ) : (
           <>
             <div
