@@ -19,6 +19,12 @@ The desktop confirmation used the installed Helium browser:
 npm run perf:scroll -- --variants=baseline,seek,sync-measure --runs=2 --headed --browser=/Applications/Helium.app/Contents/MacOS/Helium
 ```
 
+That command describes the September 29 comparison. The current application
+already enables synchronous measurement, so `baseline` and `sync-measure` now
+use identical code. To compare measurement modes on the current working tree,
+use `--variants=baseline,seek,raf-measure`; the historical timings below describe
+the earlier source, not the current baseline.
+
 The test uses a 1000×684 viewport, 1× device scale and CPU, and the cached real
 1,049-ship catalogue. It preloads all table image URLs, warms the rendered rows,
 and generates four 18,000 px gestures at 20,000 px/s: down, down, up, up. This

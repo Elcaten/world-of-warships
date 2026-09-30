@@ -7,6 +7,7 @@ export const variants = [
   "no-clip",
   "large-buffer",
   "sync-measure",
+  "raf-measure",
 ];
 
 function replaceOnce(source, pattern, replacement, label) {
@@ -80,15 +81,36 @@ function ShipTableCells({ ship, nation, vehicleType }: { ship: Ship; nation?: Na
             "buffer",
           );
         }
-        if (variant === "sync-measure") {
-          if (source.includes("skipAnimationFrameInResizeObserver"))
-            throw new Error("Baseline already skips RAF measurement");
-          source = replaceOnce(
-            source,
-            /<TableVirtuoso\b/,
-            "$& skipAnimationFrameInResizeObserver",
-            "measurement",
-          );
+        if (variant === "sync-measure" || variant === "raf-measure") {
+          const skipRaf = variant === "sync-measure";
+          const prop =
+            /\bskipAnimationFrameInResizeObserver\b(?:\s*=\s*\{\s*(true|false)\s*\})?(?!\s*=)/;
+          const existing = source.match(prop);
+          if (
+            !/<TableVirtuoso\b/.test(source) ||
+            (!existing && source.includes("skipAnimationFrameInResizeObserver"))
+          )
+            throw new Error(
+              "Benchmark transform no longer matches: measurement",
+            );
+          const baselineSkipsRaf = existing ? existing[1] !== "false" : false;
+          if (baselineSkipsRaf === skipRaf) {
+            const alternative = skipRaf ? "raf-measure" : "sync-measure";
+            // Vite's logLevel is "error", so this notice must bypass its logger.
+            console.warn(
+              `[scroll-benchmark] ${variant} matches baseline measurement; use ${alternative} to compare measurement modes.`,
+            );
+          } else {
+            const replacement = `skipAnimationFrameInResizeObserver={${skipRaf}}`;
+            source = existing
+              ? source.replace(prop, replacement)
+              : replaceOnce(
+                  source,
+                  /<TableVirtuoso\b/,
+                  `$& ${replacement}`,
+                  "measurement",
+                );
+          }
         }
         return source;
       }

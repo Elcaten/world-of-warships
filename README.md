@@ -60,7 +60,7 @@ Results are saved under `.scroll-benchmark/<timestamp>/` (ignored by Git):
 Useful comparisons:
 
 ```sh
-npm run perf:scroll -- --variants=baseline,seek,light,static-images,no-clip,large-buffer,sync-measure --runs=3
+npm run perf:scroll -- --variants=baseline,seek,raf-measure --runs=3
 npm run perf:scroll -- --speed=30000 --cpu=4 --runs=3
 npm run perf:scroll -- --headed --browser="/Applications/Helium.app/Contents/MacOS/Helium"
 npm run perf:scroll -- --variants=baseline,seek --probe --runs=1
@@ -69,9 +69,12 @@ npm run perf:scroll -- --variants=baseline,seek --probe --runs=1
 Variants are temporary build transforms in `scripts/scroll-benchmark/variants.mjs`:
 `light` substitutes simpler text rows; `static-images` removes image-load state;
 `no-clip` removes the outer overflow wrapper's clipping; `large-buffer` renders
-2,400 px ahead/behind; `sync-measure` skips RAF in the ResizeObserver. The `no-clip`
-variant is a diagnostic, not a proposed mobile layout change. A transform fails
-if the source no longer matches its expected structure.
+2,400 px ahead/behind; `sync-measure` skips RAF in the ResizeObserver, while
+`raf-measure` enables RAF scheduling. `baseline` always uses the current application
+unchanged. It currently already skips RAF, so `sync-measure` prints a notice and
+runs the same code as baseline; use `raf-measure` for a distinct comparison.
+The `no-clip` variant is a diagnostic, not a proposed mobile layout change.
+A transform fails if the source no longer matches its expected structure.
 
 Use `--cold` to skip browser image warmup while still replaying cached local
 assets. `--probe` saves `dom-probe.json` with RAF times and viewport row coverage;
