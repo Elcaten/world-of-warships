@@ -40,7 +40,7 @@ export function FleetToolbar({
           <Icon name="search" className="text-fleet-highlight shrink-0" />
           <input
             ref={searchInputRef}
-            className="placeholder:text-fleet-muted w-full min-w-0 bg-transparent py-3 text-sm focus-visible:outline-none"
+            className="placeholder:text-fleet-muted w-full min-w-0 bg-transparent py-3 text-base focus-visible:outline-none md:text-sm"
             type="search"
             enterKeyHint="done"
             aria-label="Search ships"
