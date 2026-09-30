@@ -1,5 +1,9 @@
+import {
+  resolveMediaUrl,
+  useMediaPathQuery,
+  useNationsQuery,
+} from "@/api/encyclopedia";
 import type { ImgHTMLAttributes } from "react";
-import { resolveMediaUrl, useMediaPath, useNations } from "@/api/encyclopedia";
 
 type NationFlagProps = Omit<
   ImgHTMLAttributes<HTMLImageElement>,
@@ -14,8 +18,8 @@ export function NationFlag({
   size = "small",
   ...imageProps
 }: NationFlagProps) {
-  const nations = useNations();
-  const mediaPath = useMediaPath();
+  const nations = useNationsQuery();
+  const mediaPath = useMediaPathQuery();
   const nation = nations.data?.find(({ name }) => name === nationName);
 
   if (!nation || !mediaPath.data) return null;

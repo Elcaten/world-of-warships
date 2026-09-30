@@ -586,7 +586,8 @@ it.each(["grid", "table"])(
       expect(screen.getByRole("status")).toHaveTextContent("1,000 ships found"),
     );
     expect(cards()).toHaveLength(mountedCount);
-    // App, the dialog, and filter icons subscribe; mounting ships adds none.
+    // App (catalogues and selectors), the dialog, and filter icons subscribe;
+    // mounting ships adds none.
     expect(
       [
         encyclopediaKeys.nations(),
@@ -596,8 +597,8 @@ it.each(["grid", "table"])(
         queryClient.getQueryCache().find({ queryKey })?.getObserversCount(),
       ),
     ).toEqual([
-      nations.data.length + 2,
-      Object.keys(types.data).length + 2,
+      nations.data.length + 3,
+      Object.keys(types.data).length + 3,
       nations.data.length + Object.keys(types.data).length + 1,
     ]);
     expect(

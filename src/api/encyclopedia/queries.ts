@@ -1,6 +1,9 @@
-import { useCallback } from "react";
+import { sortShips } from "@/lib/ships";
+import type { FleetSort } from "@/lib/useFleetQueryState";
 import { queryOptions, useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { encyclopediaBaseUrl, encyclopediaClient } from "./client";
+import type { Vehicles } from "./schemas";
 import {
   selectNationNames,
   selectShipCount,
@@ -9,7 +12,6 @@ import {
   selectVehicleTypeIds,
   type ShipFilters,
 } from "./selectors";
-import type { Vehicles } from "./schemas";
 
 export const encyclopediaKeys = {
   all: ["encyclopedia", encyclopediaBaseUrl] as const,
@@ -54,29 +56,31 @@ export const mediaPathQueryOptions = () =>
     queryFn: ({ signal }) => encyclopediaClient.getMediaPath(signal),
   });
 
-export const useVehicles = () => useQuery(vehiclesQueryOptions());
-export const useNations = () => useQuery(nationsQueryOptions());
-export const useVehicleTypes = () => useQuery(vehicleTypesQueryOptions());
-export const useMediaPath = () => useQuery(mediaPathQueryOptions());
+export const useVehiclesQuery = () => useQuery(vehiclesQueryOptions());
+export const useNationsQuery = () => useQuery(nationsQueryOptions());
+export const useVehicleTypesQuery = () => useQuery(vehicleTypesQueryOptions());
+export const useMediaPathQuery = () => useQuery(mediaPathQueryOptions());
 
-export const useShipCount = () =>
+export const useShipCountQuery = () =>
   useQuery({ ...vehiclesQueryOptions(), select: selectShipCount });
 
-export const useShipTiers = () =>
+export const useShipTiersQuery = () =>
   useQuery({ ...vehiclesQueryOptions(), select: selectShipTiers });
 
-export const useNationNames = () =>
+export const useNationNamesQuery = () =>
   useQuery({ ...nationsQueryOptions(), select: selectNationNames });
 
-export const useVehicleTypeIds = () =>
+export const useVehicleTypeIdsQuery = () =>
   useQuery({ ...vehicleTypesQueryOptions(), select: selectVehicleTypeIds });
 
-export function useShips(filters: ShipFilters = {}) {
+export function useShipsQuery(filters: ShipFilters = {}, sort?: FleetSort) {
   const { search, nations, types, levels } = filters;
   const select = useCallback(
-    (vehicles: Vehicles) =>
-      selectShips(vehicles, { search, nations, types, levels }),
-    [search, nations, types, levels],
+    (vehicles: Vehicles) => {
+      const ships = selectShips(vehicles, { search, nations, types, levels });
+      return sort ? sortShips(ships, sort) : ships;
+    },
+    [search, nations, types, levels, sort],
   );
 
   return useQuery({ ...vehiclesQueryOptions(), select });

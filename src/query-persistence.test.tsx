@@ -1,18 +1,18 @@
-import { StrictMode } from "react";
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import vehicles from "@/api/encyclopedia/__fixtures__/vehicles.json";
+import { encyclopediaKeys, useVehiclesQuery } from "@/api/encyclopedia/queries";
+import { createQueryClient } from "@/query-client";
+import { persister, persistOptions } from "@/query-persistence";
+import { server } from "@/test/mocks/server";
+import type { PersistedClient } from "@tanstack/react-query-persist-client";
 import {
   PersistQueryClientProvider,
   persistQueryClientSave,
 } from "@tanstack/react-query-persist-client";
-import type { PersistedClient } from "@tanstack/react-query-persist-client";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { del, get, set } from "idb-keyval";
 import { http, HttpResponse } from "msw";
+import { StrictMode } from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { encyclopediaKeys, useVehicles } from "@/api/encyclopedia/queries";
-import vehicles from "@/api/encyclopedia/__fixtures__/vehicles.json";
-import { createQueryClient } from "@/query-client";
-import { persister, persistOptions } from "@/query-persistence";
-import { server } from "@/test/mocks/server";
 
 vi.mock("idb-keyval", () => ({ get: vi.fn(), set: vi.fn(), del: vi.fn() }));
 
@@ -28,7 +28,7 @@ function newClient() {
 }
 
 function Catalogue() {
-  const query = useVehicles();
+  const query = useVehiclesQuery();
   return (
     <>
       <p>

@@ -1,8 +1,11 @@
 import {
-  useMediaPath,
-  useNations,
-  useShips,
-  useVehicleTypes,
+  useMediaPathQuery,
+  useNationNamesQuery,
+  useNationsQuery,
+  useShipsQuery,
+  useShipTiersQuery,
+  useVehicleTypeIdsQuery,
+  useVehicleTypesQuery,
   type Ship,
 } from "@/api/encyclopedia";
 import { AppHeader } from "@/components/features/AppHeader";
@@ -15,69 +18,50 @@ import {
 import { ShipsGrid } from "@/components/features/ShipsGrid";
 import { ShipsTable } from "@/components/features/ShipTable/ShipsTable";
 import { CommandButton } from "@/components/ui/command-button";
-import { shipName } from "@/lib/ships";
 import { useFleetQueryState } from "@/lib/useFleetQueryState";
-import { useCallback, useDeferredValue, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useState } from "react";
 import { FleetError } from "./FleetError";
 import { FleetMessage } from "./FleetMessage";
 import { FleetPending } from "./FleetPending";
 
 export default function App() {
-  const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
-  const [detailsOpen, setDetailsOpen] = useState(false);
-  const catalogue = useShips();
-  const media = useMediaPath();
-  const nationCatalogue = useNations();
-  const vehicleTypes = useVehicleTypes();
-  const tiers = useMemo(
-    () =>
-      [...new Set(catalogue.data?.map((ship) => ship.level))].sort(
-        (a, b) => a - b,
-      ),
-    [catalogue.data],
-  );
-  const validTypes = useMemo(
-    () => (vehicleTypes.data ? Object.keys(vehicleTypes.data) : undefined),
-    [vehicleTypes.data],
-  );
-  const validNations = useMemo(
-    () => nationCatalogue.data?.map((nation) => nation.name),
-    [nationCatalogue.data],
-  );
+  const mediaPathQuery = useMediaPathQuery();
+  const tiersQuery = useShipTiersQuery();
+  const nationsQuery = useNationsQuery();
+  const nationNamesQuery = useNationNamesQuery();
+  const vehicleTypesQuery = useVehicleTypesQuery();
+  const vehicleTypeIdsQuery = useVehicleTypeIdsQuery();
+
   const { state, update, reset } = useFleetQueryState({
-    types: validTypes,
-    nations: validNations,
-    levels: catalogue.data ? tiers : undefined,
+    types: vehicleTypeIdsQuery.data,
+    nations: nationNamesQuery.data,
+    levels: tiersQuery.data,
   });
   const { search, types, nations, levels, sort, view } = state;
   const deferredSearch = useDeferredValue(search);
-  const ships = useShips({ search: deferredSearch, types, nations, levels });
-  const queries = [ships, media, nationCatalogue, vehicleTypes];
+  const ships = useShipsQuery(
+    { search: deferredSearch, types, nations, levels },
+    sort,
+  );
+
+  const queries = [ships, mediaPathQuery, nationsQuery, vehicleTypesQuery];
   const failed = queries.some(
     (query) => query.isError && query.data === undefined,
   );
   const pending = queries.some((query) => query.isPending);
+
   const filtersPending =
-    catalogue.isPending || nationCatalogue.isPending || vehicleTypes.isPending;
-  const sorted = useMemo(
-    () =>
-      [...(ships.data ?? [])].sort((a, b) => {
-        const byName = shipName(a).localeCompare(shipName(b));
-        return sort === "name"
-          ? byName
-          : (sort === "tier-desc" ? b.level - a.level : a.level - b.level) ||
-              byName;
-      }),
-    [ships.data, sort],
-  );
+    tiersQuery.isPending ||
+    nationsQuery.isPending ||
+    vehicleTypesQuery.isPending;
+  const sorted = ships.data ?? [];
+
+  const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const showDetails = useCallback((ship: Ship) => {
     setSelectedShip(ship);
     setDetailsOpen(true);
   }, []);
-
-  function resetFilters() {
-    reset();
-  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -98,16 +82,16 @@ export default function App() {
             }}
             view={view}
             onViewChange={(value) => update({ view: value })}
-            onReset={resetFilters}
+            onReset={reset}
           />
-          {catalogue.data && nationCatalogue.data && vehicleTypes.data ? (
+          {tiersQuery.data && nationsQuery.data && vehicleTypesQuery.data ? (
             <ShipFilters
               types={types}
               nations={nations}
               levels={levels}
-              tiers={tiers}
-              nationCatalogue={nationCatalogue.data}
-              vehicleTypes={vehicleTypes.data}
+              tiers={tiersQuery.data}
+              nationCatalogue={nationsQuery.data}
+              vehicleTypes={vehicleTypesQuery.data}
               onTypesChange={(value) => {
                 update({ types: value });
               }}
@@ -151,27 +135,25 @@ export default function App() {
                 title="No ships found"
                 description="Try another name or adjust your class, nation, and tier filters."
               >
-                <CommandButton onClick={resetFilters}>
-                  Clear filters
-                </CommandButton>
+                <CommandButton onClick={reset}>Clear filters</CommandButton>
               </FleetMessage>
             ) : view === "grid" ? (
-              // <div className="mx-auto max-w-4xl">
-              <ShipsGrid
-                ships={sorted}
-                mediaPath={media.data!}
-                nations={nationCatalogue.data!}
-                vehicleTypes={vehicleTypes.data!}
-                onViewDetails={showDetails}
-              />
+              <div className="mx-auto max-w-4xl">
+                <ShipsGrid
+                  ships={sorted}
+                  mediaPath={mediaPathQuery.data!}
+                  nations={nationsQuery.data!}
+                  vehicleTypes={vehicleTypesQuery.data!}
+                  onViewDetails={showDetails}
+                />
+              </div>
             ) : (
-              // </div>
               <div className="border-fleet-line bg-fleet-panel -mx-4 max-w-4xl overflow-x-auto overflow-y-hidden sm:mx-auto sm:border">
                 <ShipsTable
                   ships={sorted}
-                  mediaPath={media.data!}
-                  nations={nationCatalogue.data!}
-                  vehicleTypes={vehicleTypes.data!}
+                  mediaPath={mediaPathQuery.data!}
+                  nations={nationsQuery.data!}
+                  vehicleTypes={vehicleTypesQuery.data!}
                   onViewDetails={showDetails}
                 />
               </div>
@@ -181,7 +163,7 @@ export default function App() {
         <ShipDetailsDialog
           ship={selectedShip}
           open={detailsOpen}
-          mediaPath={media.data ?? ""}
+          mediaPath={mediaPathQuery.data ?? ""}
           onClose={() => setDetailsOpen(false)}
         />
       </main>

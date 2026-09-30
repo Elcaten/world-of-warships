@@ -8,8 +8,8 @@ import clsx from "clsx";
 import { useState, type ReactNode } from "react";
 import {
   resolveMediaUrl,
-  useNations,
-  useVehicleTypes,
+  useNationsQuery,
+  useVehicleTypesQuery,
   type Ship,
 } from "@/api/encyclopedia";
 import { NationFlag } from "@/components/domain/NationFlag";
@@ -30,8 +30,8 @@ export function ShipDetailsDialog({
   mediaPath,
   onClose,
 }: ShipDetailsDialogProps) {
-  const nations = useNations();
-  const types = useVehicleTypes();
+  const nations = useNationsQuery();
+  const types = useVehicleTypesQuery();
   const nation = nations.data?.find((nation) => nation.name === ship?.nation);
 
   const largeImageUrl = ship && resolveMediaUrl(mediaPath, ship.icons.large);

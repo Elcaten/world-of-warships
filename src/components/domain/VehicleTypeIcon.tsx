@@ -1,9 +1,9 @@
-import type { ImgHTMLAttributes } from "react";
 import {
   resolveMediaUrl,
-  useMediaPath,
-  useVehicleTypes,
+  useMediaPathQuery,
+  useVehicleTypesQuery,
 } from "@/api/encyclopedia";
+import type { ImgHTMLAttributes } from "react";
 
 type VehicleTypeIconProps = Omit<
   ImgHTMLAttributes<HTMLImageElement>,
@@ -18,8 +18,8 @@ export function VehicleTypeIcon({
   variant = "default",
   ...imageProps
 }: VehicleTypeIconProps) {
-  const vehicleTypes = useVehicleTypes();
-  const mediaPath = useMediaPath();
+  const vehicleTypes = useVehicleTypesQuery();
+  const mediaPath = useMediaPathQuery();
   const vehicleType = vehicleTypes.data?.[vehicleTypeName];
 
   if (!vehicleType || !mediaPath.data) return null;
