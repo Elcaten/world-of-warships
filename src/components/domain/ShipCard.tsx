@@ -37,7 +37,7 @@ export const ShipCard = memo(function ShipCard({
       aria-haspopup="dialog"
       onClick={() => onViewDetails(ship)}
     >
-      <div className="absolute inset-2 -z-10 opacity-10 duration-1000 group-hover:opacity-30 group-hover:duration-400">
+      <div className="absolute inset-2 -z-10 opacity-10 duration-1000 group-hover:opacity-25 group-hover:duration-400">
         {nation && (
           <img
             src={resolveMediaUrl(mediaPath, nation.icons.large)}
@@ -65,10 +65,10 @@ export const ShipCard = memo(function ShipCard({
         )}
       </span>
 
-      <div className="-z-1 h-44 w-full origin-bottom transition-transform duration-500 ease-in group-hover:scale-102 group-hover:duration-150 group-hover:ease-out motion-reduce:transition-none">
+      <div className="-z-1 h-44 w-full origin-bottom transition-transform duration-500 ease-in group-hover:duration-150 group-hover:ease-out">
         <img
           className={clsx(
-            "h-full w-full object-contain transition-opacity ease-out motion-reduce:transition-none",
+            "h-full w-full object-contain transition-opacity ease-out",
             isImageLoaded ? "opacity-100" : "opacity-0",
           )}
           style={{ transitionDuration: `${fadeInDuration}ms` }}

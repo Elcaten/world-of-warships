@@ -69,13 +69,13 @@ export function ShipDetailsDialog({
                   className="absolute top-0 right-0 h-full opacity-20"
                 />
                 <img
-                  className="absolute inset-0 size-full object-contain"
+                  className="border-fleet-line absolute inset-0 size-full border object-contain"
                   src={resolveMediaUrl(mediaPath, ship.icons.medium)}
                   alt=""
                 />
                 <img
                   className={clsx(
-                    "linear absolute inset-0 size-full object-contain transition-opacity duration-2000",
+                    "linear border-fleet-line absolute inset-0 size-full border object-contain transition-opacity duration-2000",
                     fullImageLoaded ? "opacity-100" : "opacity-0",
                   )}
                   src={resolveMediaUrl(mediaPath, ship.icons.large)}
