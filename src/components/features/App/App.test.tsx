@@ -118,7 +118,7 @@ it("restores table filters from the query string", async () => {
   ).not.toBeInTheDocument();
 });
 
-it("syncs controls to the URL and reset removes only managed parameters", async () => {
+it("syncs controls to the URL and reset preserves the display mode", async () => {
   window.history.replaceState(null, "", "/catalogue?campaign=fall#fleet");
   const historyLength = window.history.length;
   renderWithProviders(<App />);
@@ -179,13 +179,16 @@ it("syncs controls to the URL and reset removes only managed parameters", async 
   fireEvent.click(screen.getByRole("button", { name: "Reset" }));
   await waitFor(() => {
     const params = new URLSearchParams(window.location.search);
-    expect([...params.entries()]).toEqual([["campaign", "fall"]]);
+    expect([...params.entries()]).toEqual([
+      ["campaign", "fall"],
+      ["view", "table"],
+    ]);
   });
   expect(screen.getByRole("searchbox")).toHaveValue("");
   expect(screen.getByRole("button", { name: "Sort ships" })).toHaveTextContent(
     "Tier: high to low",
   );
-  expect(screen.getByRole("button", { name: "Grid view" })).toHaveAttribute(
+  expect(screen.getByRole("button", { name: "Table view" })).toHaveAttribute(
     "aria-pressed",
     "true",
   );
@@ -506,26 +509,30 @@ it("renders the complete table beyond the old page size with semantic headings a
   expect(firstRowCells[1]).toHaveTextContent("Japan");
   expect(firstRowCells[1].querySelector("img")).toHaveAttribute(
     "src",
-    new URL(nations.data[0].icons.small, media.data).href,
+    new URL(nations.data[0].icons.tiny, media.data).href,
   );
-  expect(firstRowCells[2]).toHaveTextContent("Battleship");
+  expect(firstRowCells[2].querySelector("img")).toHaveAttribute(
+    "alt",
+    "Battleship",
+  );
   expect(firstRowCells[2].querySelector("img")).toHaveAttribute(
     "src",
     new URL(types.data.Battleship.icons.default, media.data).href,
   );
-  // App, the details dialog, and filter icons subscribe; table rows add none.
+  // App's catalogue and filter queries, the details dialog, and filter icons
+  // subscribe; table rows add none.
   expect(
     queryClient
       .getQueryCache()
       .find({ queryKey: encyclopediaKeys.nations() })
       ?.getObserversCount(),
-  ).toBe(nations.data.length + 2);
+  ).toBe(nations.data.length + 3);
   expect(
     queryClient
       .getQueryCache()
       .find({ queryKey: encyclopediaKeys.vehicleTypes() })
       ?.getObserversCount(),
-  ).toBe(Object.keys(types.data).length + 2);
+  ).toBe(Object.keys(types.data).length + 3);
   expect(
     queryClient
       .getQueryCache()
