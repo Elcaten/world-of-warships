@@ -1,5 +1,6 @@
 import {
   resolveMediaUrl,
+  useMediaPathQuery,
   useNationsQuery,
   useVehicleTypesQuery,
   type Ship,
@@ -23,16 +24,16 @@ const overshootEasing =
 type ShipDetailsDialogProps = {
   ship: Ship | null;
   open: boolean;
-  mediaPath: string;
   onClose: () => void;
 };
 
 export function ShipDetailsDialog({
   ship,
   open,
-  mediaPath,
   onClose,
 }: ShipDetailsDialogProps) {
+  const mediaPathQuery = useMediaPathQuery();
+  const mediaPath = mediaPathQuery.data ?? "";
   const nations = useNationsQuery();
   const types = useVehicleTypesQuery();
   const nation = nations.data?.find((nation) => nation.name === ship?.nation);

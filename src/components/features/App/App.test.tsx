@@ -46,6 +46,7 @@ it("keeps filters noninteractive until the ship catalogue supplies the tiers", a
   const { queryClient } = renderWithProviders(<App />);
 
   try {
+    expect(screen.getAllByRole("main")).toHaveLength(1);
     const filters = screen.getByRole("region", { name: "Ship filters" });
     expect(filters).toHaveAttribute("aria-busy", "true");
     expect(within(filters).queryByRole("button")).not.toBeInTheDocument();
@@ -72,6 +73,7 @@ it("keeps filters noninteractive until the ship catalogue supplies the tiers", a
   }
 
   await screen.findByRole("button", { name: "X" });
+  expect(screen.getAllByRole("main")).toHaveLength(1);
   expect(
     screen.getByRole("region", { name: "Ship filters" }),
   ).not.toHaveAttribute("aria-busy", "true");
@@ -312,6 +314,18 @@ it("sorts both views and opens a real ship profile with a working close control"
   fireEvent.click(screen.getByRole("button", { name: "Grid view" }));
   expect(screen.queryByRole("table")).not.toBeInTheDocument();
   expect(screen.getAllByText("Premium")).toHaveLength(1);
+
+  fireEvent.click(
+    screen.getByRole("button", { name: "View details for Hill" }),
+  );
+  const nextDialog = await screen.findByRole("dialog", { name: "Hill" });
+  expect(within(nextDialog).getByText("Premium")).toBeInTheDocument();
+  fireEvent.click(
+    within(nextDialog).getByRole("button", { name: "Close ship details" }),
+  );
+  await waitFor(() =>
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+  );
 });
 
 it("shows a ship's medium image behind its large profile image", async () => {
@@ -410,6 +424,44 @@ it.each([
     expect(attempts).toBe(2);
   },
 );
+
+it("shows a retryable error even while another catalogue is still loading", async () => {
+  let releaseMedia!: () => void;
+  const mediaReady = new Promise<void>((resolve) => {
+    releaseMedia = resolve;
+  });
+  let attempts = 0;
+  server.use(
+    http.get(`${base}/media_path/`, async () => {
+      await mediaReady;
+      return HttpResponse.json(media);
+    }),
+    http.get(`${base}/vehicles/`, () =>
+      ++attempts === 1
+        ? new HttpResponse(null, { status: 503 })
+        : HttpResponse.json(vehicles),
+    ),
+  );
+  renderWithProviders(<App />);
+
+  try {
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Unable to load the fleet",
+    );
+    expect(screen.getAllByRole("main")).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(
+      await screen.findByRole("region", { name: "Loading fleet" }),
+    ).toBeInTheDocument();
+  } finally {
+    releaseMedia();
+  }
+
+  expect(
+    await screen.findByRole("button", { name: "View details for Yamato" }),
+  ).toBeInTheDocument();
+  expect(attempts).toBe(2);
+});
 
 it.each(["grid", "table"])(
   "keeps the fleet visible when a background refresh fails in %s view",
@@ -519,26 +571,26 @@ it("renders the complete table beyond the old page size with semantic headings a
     "src",
     new URL(types.data.Battleship.icons.default, media.data).href,
   );
-  // App's catalogue and filter queries, the details dialog, and filter icons
-  // subscribe; table rows add none.
+  // URL validation, filters, results, the dialog, and filter icons subscribe;
+  // table rows add none.
   expect(
     queryClient
       .getQueryCache()
       .find({ queryKey: encyclopediaKeys.nations() })
       ?.getObserversCount(),
-  ).toBe(nations.data.length + 3);
+  ).toBe(nations.data.length + 4);
   expect(
     queryClient
       .getQueryCache()
       .find({ queryKey: encyclopediaKeys.vehicleTypes() })
       ?.getObserversCount(),
-  ).toBe(Object.keys(types.data).length + 3);
+  ).toBe(Object.keys(types.data).length + 4);
   expect(
     queryClient
       .getQueryCache()
       .find({ queryKey: encyclopediaKeys.mediaPath() })
       ?.getObserversCount(),
-  ).toBe(nations.data.length + Object.keys(types.data).length + 1);
+  ).toBe(nations.data.length + Object.keys(types.data).length + 2);
   expect(screen.getByRole("status")).toHaveTextContent(/^25 ships found$/);
   fireEvent.change(screen.getByRole("searchbox"), {
     target: { value: "Ship 00" },
@@ -614,7 +666,7 @@ it.each(["grid", "table"])(
       expect(screen.getByRole("status")).toHaveTextContent("1,000 ships found"),
     );
     expect(cards()).toHaveLength(mountedCount);
-    // App (catalogues and selectors), the dialog, and filter icons subscribe;
+    // URL validation, filters, results, the dialog, and filter icons subscribe;
     // mounting ships adds none.
     expect(
       [
@@ -625,9 +677,9 @@ it.each(["grid", "table"])(
         queryClient.getQueryCache().find({ queryKey })?.getObserversCount(),
       ),
     ).toEqual([
-      nations.data.length + 3,
-      Object.keys(types.data).length + 3,
-      nations.data.length + Object.keys(types.data).length + 1,
+      nations.data.length + 4,
+      Object.keys(types.data).length + 4,
+      nations.data.length + Object.keys(types.data).length + 2,
     ]);
     expect(
       screen.queryByRole("button", { name: "View details for Ship 999" }),

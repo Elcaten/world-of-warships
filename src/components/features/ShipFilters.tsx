@@ -1,4 +1,8 @@
-import type { Nations, VehicleTypes } from "@/api/encyclopedia";
+import {
+  useNationsQuery,
+  useShipTiersQuery,
+  useVehicleTypesQuery,
+} from "@/api/encyclopedia";
 import { NationFlag } from "@/components/domain/NationFlag";
 import { VehicleTypeIcon } from "@/components/domain/VehicleTypeIcon";
 import { FilterGroup, FilterGroupSkeleton } from "@/components/ui/filter-group";
@@ -9,15 +13,12 @@ type ShipFiltersProps = {
   types: string[] | undefined;
   nations: string[] | undefined;
   levels: number[] | undefined;
-  tiers: number[];
-  nationCatalogue: Nations;
-  vehicleTypes: VehicleTypes;
   onTypesChange: (types: string[] | undefined) => void;
   onNationsChange: (nations: string[] | undefined) => void;
   onLevelsChange: (levels: number[] | undefined) => void;
 };
 
-export function ShipFiltersSkeleton() {
+function ShipFiltersSkeleton() {
   return (
     <section
       aria-label="Ship filters"
@@ -48,13 +49,27 @@ export function ShipFilters({
   types,
   nations,
   levels,
-  tiers,
-  nationCatalogue,
-  vehicleTypes,
   onTypesChange,
   onNationsChange,
   onLevelsChange,
 }: ShipFiltersProps) {
+  const tiersQuery = useShipTiersQuery();
+  const nationsQuery = useNationsQuery();
+  const vehicleTypesQuery = useVehicleTypesQuery();
+  const queries = [tiersQuery, nationsQuery, vehicleTypesQuery];
+
+  if (queries.some((query) => query.isError && query.data === undefined)) {
+    return null;
+  }
+
+  if (!tiersQuery.data || !nationsQuery.data || !vehicleTypesQuery.data) {
+    return <ShipFiltersSkeleton />;
+  }
+
+  const tiers = tiersQuery.data;
+  const nationCatalogue = nationsQuery.data;
+  const vehicleTypes = vehicleTypesQuery.data;
+
   return (
     <section aria-label="Ship filters" className="flex flex-col gap-4">
       <FilterGroup
