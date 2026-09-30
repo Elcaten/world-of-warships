@@ -192,6 +192,27 @@ it("syncs controls to the URL and reset removes only managed parameters", async 
   expect(window.history.length).toBe(historyLength);
 });
 
+it("shows a clear search button for a query and restores focus after clearing", async () => {
+  renderWithProviders(<App />);
+  const search = screen.getByRole("searchbox", { name: "Search ships" });
+  expect(
+    screen.queryByRole("button", { name: "Clear search" }),
+  ).not.toBeInTheDocument();
+
+  fireEvent.change(search, { target: { value: "Yamato" } });
+  const clear = screen.getByRole("button", { name: "Clear search" });
+  expect(search).toHaveValue("Yamato");
+  expect(new URLSearchParams(window.location.search).get("q")).toBe("Yamato");
+
+  fireEvent.click(clear);
+  expect(search).toHaveValue("");
+  expect(search).toHaveFocus();
+  expect(
+    screen.queryByRole("button", { name: "Clear search" }),
+  ).not.toBeInTheDocument();
+  expect(new URLSearchParams(window.location.search).has("q")).toBe(false);
+});
+
 it("normalizes invalid query values on mount", async () => {
   window.history.replaceState(
     null,

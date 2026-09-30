@@ -36,11 +36,11 @@ export function FleetToolbar({
           searchInputRef.current?.blur();
         }}
       >
-        <label className="bg-fleet-deep focus-within:ring-fleet-cyan flex items-center gap-3 px-3 focus-within:ring-1">
+        <div className="bg-fleet-deep focus-within:ring-fleet-cyan flex items-center gap-3 px-3 focus-within:ring-1">
           <Icon name="search" className="text-fleet-highlight shrink-0" />
           <input
             ref={searchInputRef}
-            className="placeholder:text-fleet-muted w-full min-w-0 bg-transparent py-3 text-base focus-visible:outline-none md:text-sm"
+            className="placeholder:text-fleet-muted w-full min-w-0 bg-transparent py-3 text-base focus-visible:outline-none md:text-sm [&::-webkit-search-cancel-button]:hidden"
             type="search"
             enterKeyHint="done"
             aria-label="Search ships"
@@ -48,7 +48,20 @@ export function FleetToolbar({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
           />
-        </label>
+          {search && (
+            <button
+              type="button"
+              aria-label="Clear search"
+              className="text-fleet-muted hover:text-fleet-highlight shrink-0 p-1"
+              onClick={() => {
+                onSearchChange("");
+                searchInputRef.current?.focus();
+              }}
+            >
+              <Icon name="close" className="size-4" />
+            </button>
+          )}
+        </div>
       </form>
       <div className="bg-fleet-deep flex items-center gap-2 pl-3 font-mono text-xs">
         <span className="text-fleet-muted uppercase">Sort</span>
