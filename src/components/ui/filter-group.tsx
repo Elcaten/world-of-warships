@@ -1,6 +1,6 @@
 import clsx from "clsx";
-import { useId } from "react";
 import type { ReactNode } from "react";
+import { useId } from "react";
 
 type FilterGroupLayoutProps = {
   label: string;
@@ -77,8 +77,7 @@ export function FilterGroup<T extends string | number>({
         {allLabel}
       </FilterButton>
       {options.map((option) => {
-        const isOptionSelected =
-          !!selected?.includes(option.value) || isAllOptionSelected;
+        const isOptionSelected = !!selected?.includes(option.value);
         return (
           <FilterButton
             key={option.value}
