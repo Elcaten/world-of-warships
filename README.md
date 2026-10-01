@@ -57,6 +57,8 @@ I interpreted the brief as a single-page catalogue, prioritizing browsing,
 filtering, sorting, and reliable loading.
 
 - SSR and application routing are unnecessary for this scope.
+- Localization is out of scope; English names and descriptions are always used,
+  including for search.
 - Responsive layouts prioritize usable screen space and comfortable spacing.
 - Within the time budget, scroll restoration and a compact sticky filter panel
   that appears when the main controls scroll out of view were deferred beyond
