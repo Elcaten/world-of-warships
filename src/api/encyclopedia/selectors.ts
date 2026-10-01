@@ -6,7 +6,8 @@ import type {
   VehicleTypes,
 } from "./schemas";
 
-export const selectShipCount = (vehicles: Vehicles) => Object.keys(vehicles).length;
+export const selectShipCount = (vehicles: Vehicles) =>
+  Object.keys(vehicles).length;
 
 export function selectShipTiers(vehicles: Vehicles): number[] {
   return [...new Set(Object.values(vehicles).map((ship) => ship.level))].sort(
@@ -50,11 +51,10 @@ export function selectShips(
   const search = filters.search?.trim().toLowerCase() ?? "";
 
   return Object.entries(vehicles)
-    .filter(([id, ship]) => {
+    .filter(([_id, ship]) => {
       const matchesSearch =
         !search ||
         [
-          id,
           ship.name,
           ship.localization.mark.en,
           ship.localization.shortmark.en,

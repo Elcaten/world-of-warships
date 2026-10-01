@@ -175,10 +175,10 @@ describe("ship selectors", () => {
     expect(selectShips(vehicles, { types: [] })).toHaveLength(0);
   });
 
-  it("supports IDs and technical names without mutating the catalogue", () => {
+  it("searches technical names and excludes record IDs without mutating the catalogue", () => {
     const original = structuredClone(vehicles);
     const [id, vehicle] = Object.entries(vehicles)[0];
-    expect(selectShips(vehicles, { search: id })[0].id).toBe(id);
+    expect(selectShips(vehicles, { search: id })).toEqual([]);
     expect(selectShips(vehicles, { search: vehicle.name })[0].id).toBe(id);
     expect(vehicles).toEqual(original);
     expect(selectShips({})).toEqual([]);
