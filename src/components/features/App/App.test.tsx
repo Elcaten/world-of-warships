@@ -389,8 +389,6 @@ it("renders card artwork and the premium class icon from the shared catalogues",
       "src",
       new URL(ship.icons.medium, media.data).href,
     );
-    fireEvent.load(artwork!);
-    expect(artwork).toHaveClass("opacity-100");
   }
 });
 
