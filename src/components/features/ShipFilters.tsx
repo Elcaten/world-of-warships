@@ -8,14 +8,13 @@ import { VehicleTypeIcon } from "@/components/domain/VehicleTypeIcon";
 import { FilterGroup, FilterGroupSkeleton } from "@/components/ui/filter-group";
 import { Icon } from "@/components/ui/icon";
 import { tierLabel } from "@/lib/ships";
+import type { FleetQueryState } from "@/lib/useFleetQueryState";
+
+type FilterValue = Pick<FleetQueryState, "types" | "nations" | "levels">;
 
 type ShipFiltersProps = {
-  types: string[] | undefined;
-  nations: string[] | undefined;
-  levels: number[] | undefined;
-  onTypesChange: (types: string[] | undefined) => void;
-  onNationsChange: (nations: string[] | undefined) => void;
-  onLevelsChange: (levels: number[] | undefined) => void;
+  value: FilterValue;
+  onChange: (patch: Partial<FilterValue>) => void;
 };
 
 function ShipFiltersSkeleton() {
@@ -45,14 +44,7 @@ function ShipFiltersSkeleton() {
   );
 }
 
-export function ShipFilters({
-  types,
-  nations,
-  levels,
-  onTypesChange,
-  onNationsChange,
-  onLevelsChange,
-}: ShipFiltersProps) {
+export function ShipFilters({ value, onChange }: ShipFiltersProps) {
   const tiersQuery = useShipTiersQuery();
   const nationsQuery = useNationsQuery();
   const vehicleTypesQuery = useVehicleTypesQuery();
@@ -76,8 +68,8 @@ export function ShipFilters({
         label="Class"
         icon={<Icon name="anchor" className="text-fleet-cyan size-4" />}
         allLabel="All hulls"
-        selected={types}
-        onChange={onTypesChange}
+        selected={value.types}
+        onChange={(types) => onChange({ types })}
         options={Object.entries(vehicleTypes)
           .sort(([, a], [, b]) => a.sort_order - b.sort_order)
           .map(([value, type]) => ({
@@ -95,8 +87,8 @@ export function ShipFilters({
         label="Nation"
         icon={<Icon name="flag" className="text-fleet-gold size-4" />}
         allLabel="All nations"
-        selected={nations}
-        onChange={onNationsChange}
+        selected={value.nations}
+        onChange={(nations) => onChange({ nations })}
         options={nationCatalogue.map((nation) => ({
           value: nation.name,
           label: nation.localization.mark.en ?? nation.name,
@@ -112,8 +104,8 @@ export function ShipFilters({
       <FilterGroup
         label="Ship tier"
         icon={<Icon name="tier" className="text-fleet-cyan size-4" />}
-        selected={levels}
-        onChange={onLevelsChange}
+        selected={value.levels}
+        onChange={(levels) => onChange({ levels })}
         options={tiers.map((value) => ({ value, label: tierLabel(value) }))}
       />
     </section>

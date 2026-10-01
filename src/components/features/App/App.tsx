@@ -21,7 +21,7 @@ export default function App() {
     nations: nationNamesQuery.data,
     levels: tiersQuery.data,
   });
-  const { search, types, nations, levels, sort, view } = state;
+  const { search, sort, view } = state;
 
   const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -47,14 +47,7 @@ export default function App() {
             onViewChange={(view) => update({ view })}
             onReset={reset}
           />
-          <ShipFilters
-            types={types}
-            nations={nations}
-            levels={levels}
-            onTypesChange={(types) => update({ types })}
-            onNationsChange={(nations) => update({ nations })}
-            onLevelsChange={(levels) => update({ levels })}
-          />
+          <ShipFilters value={state} onChange={update} />
         </section>
         <FleetResults
           state={state}
