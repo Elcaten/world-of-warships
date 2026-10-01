@@ -59,7 +59,7 @@ export function ShipFilters({ value, onChange }: ShipFiltersProps) {
   }
 
   const tiers = tiersQuery.data;
-  const nationCatalogue = nationsQuery.data;
+  const nations = nationsQuery.data;
   const vehicleTypes = vehicleTypesQuery.data;
 
   return (
@@ -89,7 +89,7 @@ export function ShipFilters({ value, onChange }: ShipFiltersProps) {
         allLabel="All nations"
         selected={value.nations}
         onChange={(nations) => onChange({ nations })}
-        options={nationCatalogue.map((nation) => ({
+        options={nations.map((nation) => ({
           value: nation.name,
           label: nation.localization.mark.en ?? nation.name,
           icon: (
