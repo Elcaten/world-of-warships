@@ -11,7 +11,7 @@ it.each(["grid", "table"] as const)(
       "",
       `/?q=Yamato&type=Battleship&nation=japan&tier=10&sort=name&view=${initialView}`,
     );
-    const { result } = renderHook(() => useFleetQueryState());
+    const { result } = renderHook(() => useFleetQueryState({}));
 
     act(() => {
       result.current.update({ view });

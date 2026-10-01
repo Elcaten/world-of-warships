@@ -21,15 +21,7 @@ type ValidFleetFilters = {
   levels?: readonly number[];
 };
 
-const managedParams = [
-  "q",
-  "type",
-  "nation",
-  "tier",
-  "sort",
-  "view",
-  "page", // Strip pagination from legacy links.
-] as const;
+const managedParams = ["q", "type", "nation", "tier", "sort", "view"] as const;
 
 const defaultState: FleetQueryState = {
   search: "",
@@ -43,7 +35,7 @@ const defaultState: FleetQueryState = {
 const fleetSorts = new Set<FleetSort>(["tier-desc", "tier-asc", "name"]);
 const fleetViews = new Set<FleetView>(["grid", "table"]);
 
-export function useFleetQueryState(validFilters: ValidFleetFilters = {}) {
+export function useFleetQueryState(validFilters: ValidFleetFilters) {
   const [state, setState] = useState<FleetQueryState>(readQueryState);
   const normalizedState = useMemo(
     () => normalizeQueryState(state, validFilters),
@@ -51,7 +43,7 @@ export function useFleetQueryState(validFilters: ValidFleetFilters = {}) {
   );
 
   useEffect(() => {
-    if (!queryStatesEqual(state, normalizedState)) {
+    if (!filtersEqual(state, normalizedState)) {
       setState(normalizedState);
     }
   }, [normalizedState, state]);
@@ -60,19 +52,9 @@ export function useFleetQueryState(validFilters: ValidFleetFilters = {}) {
     replaceQueryState(normalizedState);
   }, [normalizedState]);
 
-  const update = useCallback(
-    (
-      patch:
-        | FleetQueryStatePatch
-        | ((current: FleetQueryState) => FleetQueryStatePatch),
-    ) => {
-      setState((current) => ({
-        ...current,
-        ...(typeof patch === "function" ? patch(current) : patch),
-      }));
-    },
-    [],
-  );
+  const update = useCallback((patch: FleetQueryStatePatch) => {
+    setState((current) => ({ ...current, ...patch }));
+  }, []);
 
   const reset = useCallback(() => {
     setState((current) => ({
@@ -107,7 +89,7 @@ function readStrings(
   params: URLSearchParams,
   name: "type" | "nation",
 ): string[] | undefined {
-  const values = [...new Set(params.getAll(name).filter(Boolean))].sort();
+  const values = [...new Set(params.getAll(name).filter(Boolean))];
   return values.length ? values : undefined;
 }
 
@@ -119,7 +101,7 @@ function readLevels(params: URLSearchParams): number[] | undefined {
         .map(Number)
         .filter((value) => Number.isInteger(value) && value > 0),
     ),
-  ].sort((a, b) => a - b);
+  ];
   return values.length ? values : undefined;
 }
 
@@ -160,20 +142,20 @@ function replaceQueryState(state: FleetQueryState) {
   if (state.view !== defaultState.view) params.set("view", state.view);
 
   const search = params.toString();
-  const nextUrl = `${window.location.pathname}${search ? `?${search}` : ""}${window.location.hash}`;
-  const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-  if (nextUrl !== currentUrl) {
-    window.history.replaceState(window.history.state, "", nextUrl);
+  const nextSearch = search ? `?${search}` : "";
+  if (nextSearch !== window.location.search) {
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${window.location.pathname}${nextSearch}${window.location.hash}`,
+    );
   }
 }
 
-function queryStatesEqual(a: FleetQueryState, b: FleetQueryState) {
+function filtersEqual(a: FleetQueryState, b: FleetQueryState) {
   return (
-    a.search === b.search &&
     arraysEqual(a.types, b.types) &&
     arraysEqual(a.nations, b.nations) &&
-    arraysEqual(a.levels, b.levels) &&
-    a.sort === b.sort &&
-    a.view === b.view
+    arraysEqual(a.levels, b.levels)
   );
 }

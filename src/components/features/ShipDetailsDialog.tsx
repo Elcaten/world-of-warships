@@ -18,9 +18,6 @@ import {
 import clsx from "clsx";
 import { useState, type ReactNode } from "react";
 
-const overshootEasing =
-  "ease-[linear(0,0.332_9.1%,0.594_18.5%,0.793_28.4%,0.87_33.6%,0.933_39%,0.976_44%,1.009_49.2%,1.031_54.7%,1.042_60.6%,1.041_70.9%,1.007_91.4%,1)]";
-
 type ShipDetailsDialogProps = {
   ship: Ship | null;
   open: boolean;
@@ -138,3 +135,6 @@ function ShipStat({
     </div>
   );
 }
+
+const overshootEasing =
+  "ease-[linear(0,0.332_9.1%,0.594_18.5%,0.793_28.4%,0.87_33.6%,0.933_39%,0.976_44%,1.009_49.2%,1.031_54.7%,1.042_60.6%,1.041_70.9%,1.007_91.4%,1)]";
