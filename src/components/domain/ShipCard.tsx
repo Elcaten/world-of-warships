@@ -7,7 +7,7 @@ import {
 import { Icon } from "@/components/ui/icon";
 import { shipName, tierLabel } from "@/lib/ships";
 import clsx from "clsx";
-import { memo, useState } from "react";
+import { memo } from "react";
 
 export const ShipCard = memo(function ShipCard({
   ship,
@@ -22,9 +22,6 @@ export const ShipCard = memo(function ShipCard({
   mediaPath: string;
   onViewDetails: (ship: Ship) => void;
 }) {
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
-  const [fadeInDuration] = useState(Math.round(Math.random() * 300) + 300);
-
   return (
     <button
       className={clsx(
@@ -37,7 +34,7 @@ export const ShipCard = memo(function ShipCard({
       aria-haspopup="dialog"
       onClick={() => onViewDetails(ship)}
     >
-      <div className="absolute inset-2 -z-10 opacity-10 duration-1000 group-hover:opacity-25 group-hover:duration-400">
+      <div className="absolute inset-2 -z-10 opacity-10 duration-1000 group-hover:opacity-25 group-hover:duration-200">
         {nation && (
           <img
             src={resolveMediaUrl(mediaPath, nation.icons.large)}
@@ -65,16 +62,11 @@ export const ShipCard = memo(function ShipCard({
         )}
       </span>
 
-      <div className="-z-1 h-44 w-full origin-bottom transition-transform duration-500 ease-in group-hover:duration-150 group-hover:ease-out">
+      <div className="-z-1 h-44 w-full">
         <img
-          className={clsx(
-            "h-full w-full object-contain transition-opacity ease-out",
-            isImageLoaded ? "opacity-100" : "opacity-0",
-          )}
-          style={{ transitionDuration: `${fadeInDuration}ms` }}
+          className={clsx("h-full w-full object-contain")}
           src={resolveMediaUrl(mediaPath, ship.icons.medium)}
           alt=""
-          onLoad={() => setIsImageLoaded(true)}
         />
       </div>
 
