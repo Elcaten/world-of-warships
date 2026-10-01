@@ -21,13 +21,13 @@ type FleetResultsProps = {
 };
 
 export function FleetResults({
-  state: { search, types, nations, levels, sort, view },
+  state: { search, types, premium, nations, levels, sort, view },
   onReset,
   onViewDetails,
 }: FleetResultsProps) {
   const deferredSearch = useDeferredValue(search);
   const shipsQuery = useShipsQuery(
-    { search: deferredSearch, types, nations, levels },
+    { search: deferredSearch, types, premium, nations, levels },
     sort,
   );
   const mediaPathQuery = useMediaPathQuery();
@@ -81,7 +81,7 @@ export function FleetResults({
         <FleetMessage
           icon="search"
           title="No ships found"
-          description="Try another name or adjust your class, nation, and tier filters."
+          description="Try another name or adjust your class, premium, nation, and tier filters."
         >
           <CommandButton onClick={onReset}>Clear filters</CommandButton>
         </FleetMessage>

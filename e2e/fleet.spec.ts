@@ -148,6 +148,69 @@ async function expectRestoredFilters(page: Page) {
   );
 }
 
+test("premium filtering persists and uses gold hover and selected states", async ({
+  page,
+}) => {
+  await page.goto("/?campaign=e2e#fleet");
+  await expect(page.getByRole("status")).toHaveText("2 ships found");
+  const group = page.getByRole("group", { name: "Premium", exact: true });
+  const premium = group.getByRole("button", { name: "Premium", exact: true });
+  const regular = group.getByRole("button", { name: "Regular", exact: true });
+  const all = group.getByRole("button", { name: "All", exact: true });
+  await expect(all).toHaveAttribute("aria-pressed", "true");
+  const idleBackground = await premium.evaluate(
+    (button) => getComputedStyle(button).backgroundColor,
+  );
+  const gold = await group
+    .locator("svg")
+    .evaluate((icon) => getComputedStyle(icon).color);
+
+  await premium.hover();
+  await expect(premium).toHaveCSS("border-color", gold);
+  await expect(premium).not.toHaveCSS("background-color", idleBackground);
+  await expect(premium).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByRole("status")).toHaveText("2 ships found");
+
+  await premium.click();
+  await page.mouse.move(0, 0);
+  await expect(premium).toHaveAttribute("aria-pressed", "true");
+  await expect(premium).toHaveCSS("border-color", gold);
+  await expect(premium).not.toHaveCSS("background-color", idleBackground);
+  await expect(shipButtons(page)).toHaveCount(1);
+  await expect(shipButtons(page)).toHaveAccessibleName("View details for Hill");
+  await expect(page).toHaveURL(
+    (url) => url.searchParams.get("premium") === "true",
+  );
+
+  await regular.click();
+  await expect(premium).toHaveAttribute("aria-pressed", "false");
+  await expect(shipButtons(page)).toHaveCount(1);
+  await expect(shipButtons(page)).toHaveAccessibleName(
+    "View details for Yamato",
+  );
+  await expect(page).toHaveURL(
+    (url) => url.searchParams.get("premium") === "false",
+  );
+  await page.reload();
+  await expect(regular).toHaveAttribute("aria-pressed", "true");
+  await expect(shipButtons(page)).toHaveCount(1);
+  await expect(shipButtons(page)).toHaveAccessibleName(
+    "View details for Yamato",
+  );
+
+  await regular.focus();
+  await regular.press("Enter");
+  await expect(all).toHaveAttribute("aria-pressed", "true");
+  await expect(shipButtons(page)).toHaveCount(2);
+  await expect(page).toHaveURL("/?campaign=e2e#fleet");
+
+  await premium.click();
+  await page.getByRole("button", { name: "Reset", exact: true }).click();
+  await expect(all).toHaveAttribute("aria-pressed", "true");
+  await expect(shipButtons(page)).toHaveCount(2);
+  await expect(page).toHaveURL("/?campaign=e2e#fleet");
+});
+
 test("sorting and table filters survive reload and a fresh-context deep link", async ({
   page,
   browser,

@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
+import { useState } from "react";
 import { expect, it, vi } from "vitest";
 import { FilterGroup } from "./filter-group";
 
@@ -88,5 +89,31 @@ it('restores "All" when the last selection is removed or "All" is clicked', () =
   expect(onChange).toHaveBeenCalledTimes(2);
 
   rerender(<FilterGroup {...props} selected={undefined} onChange={onChange} />);
+  expectPressed("All");
+});
+
+it("replaces a single selection and restores All when cleared", () => {
+  function SingleSelectGroup() {
+    const [selected, setSelected] = useState<string[]>();
+    return (
+      <FilterGroup
+        {...props}
+        selectionMode="single"
+        selected={selected}
+        onChange={setSelected}
+      />
+    );
+  }
+
+  render(<SingleSelectGroup />);
+  expectPressed("All");
+  fireEvent.click(screen.getByRole("button", { name: "Japan" }));
+  expectPressed("Japan");
+  fireEvent.click(screen.getByRole("button", { name: "USA" }));
+  expectPressed("USA");
+  fireEvent.click(screen.getByRole("button", { name: "USA" }));
+  expectPressed("All");
+  fireEvent.click(screen.getByRole("button", { name: "Japan" }));
+  fireEvent.click(screen.getByRole("button", { name: "All" }));
   expectPressed("All");
 });

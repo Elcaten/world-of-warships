@@ -94,11 +94,12 @@ export function ShipDetailsDialog({
                     ship.vehicleType}
                 </ShipStat>
                 <ShipStat label="Tier">{tierLabel(ship.level)}</ShipStat>
-                {ship.isPremium && (
-                  <ShipStat label="Category" className="text-fleet-gold">
-                    Premium
-                  </ShipStat>
-                )}
+                <ShipStat
+                  label="Category"
+                  className={clsx(ship.isPremium && "text-fleet-gold")}
+                >
+                  {ship.isPremium ? "Premium" : "Regular"}
+                </ShipStat>
               </dl>
               {ship.localization.description.en && (
                 <section className="mt-6">

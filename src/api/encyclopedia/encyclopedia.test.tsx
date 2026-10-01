@@ -175,6 +175,31 @@ describe("ship selectors", () => {
     expect(selectShips(vehicles, { types: [] })).toHaveLength(0);
   });
 
+  it("filters premium and regular ships in combination with other filters", () => {
+    expect(selectShips(vehicles, { premium: true })).toMatchObject([
+      { isPremium: true, localization: { mark: { en: "Hill" } } },
+    ]);
+    expect(selectShips(vehicles, { premium: false })).toMatchObject([
+      { isPremium: false, localization: { mark: { en: "Yamato" } } },
+    ]);
+    expect(selectShips(vehicles, { premium: undefined })).toHaveLength(2);
+    expect(
+      selectShips(vehicles, {
+        premium: true,
+        types: ["Destroyer"],
+        nations: ["usa"],
+        levels: [5],
+        search: "hill",
+      }),
+    ).toHaveLength(1);
+    expect(
+      selectShips(vehicles, { premium: false, types: ["Destroyer"] }),
+    ).toEqual([]);
+    expect(
+      selectShips(vehicles, { premium: true, types: ["Battleship"] }),
+    ).toEqual([]);
+  });
+
   it("searches technical names and excludes record IDs without mutating the catalogue", () => {
     const original = structuredClone(vehicles);
     const [id, vehicle] = Object.entries(vehicles)[0];
@@ -203,8 +228,16 @@ it("shares the vehicle cache across consumers, filters, and sorting without refe
     }),
   );
 
-  function ShipList({ search, sort }: { search: string; sort?: FleetSort }) {
-    const ships = useShipsQuery({ search }, sort);
+  function ShipList({
+    search,
+    sort,
+    premium,
+  }: {
+    search: string;
+    sort?: FleetSort;
+    premium?: boolean;
+  }) {
+    const ships = useShipsQuery({ search, premium }, sort);
     const vehicles = useVehiclesQuery();
     const shipCount = useShipCountQuery();
     return (
@@ -236,6 +269,18 @@ it("shares the vehicle cache across consumers, filters, and sorting without refe
     ["name", ["Hill", "Yamato"]],
   ] as const) {
     rerender(<ShipList search="" sort={sort} />);
+    await waitFor(() => {
+      expect(
+        screen.getAllByRole("listitem").map((ship) => ship.textContent),
+      ).toEqual(expected);
+    });
+  }
+  for (const [premium, expected] of [
+    [true, ["Hill"]],
+    [false, ["Yamato"]],
+    [undefined, ["Hill", "Yamato"]],
+  ] as const) {
+    rerender(<ShipList search="" sort="name" premium={premium} />);
     await waitFor(() => {
       expect(
         screen.getAllByRole("listitem").map((ship) => ship.textContent),

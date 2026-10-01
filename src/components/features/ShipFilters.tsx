@@ -10,7 +10,10 @@ import { Icon } from "@/components/ui/icon";
 import { tierLabel } from "@/lib/ships";
 import type { FleetQueryState } from "@/lib/useFleetQueryState";
 
-type FilterValue = Pick<FleetQueryState, "types" | "nations" | "levels">;
+type FilterValue = Pick<
+  FleetQueryState,
+  "types" | "premium" | "nations" | "levels"
+>;
 
 type ShipFiltersProps = {
   value: FilterValue;
@@ -29,6 +32,11 @@ function ShipFiltersSkeleton() {
         label="Class"
         icon={<Icon name="anchor" className="text-fleet-cyan size-4" />}
         count={4}
+      />
+      <FilterGroupSkeleton
+        label="Premium"
+        icon={<Icon name="tier" className="text-fleet-gold size-4" />}
+        count={3}
       />
       <FilterGroupSkeleton
         label="Nation"
@@ -82,6 +90,25 @@ export function ShipFilters({ value, onChange }: ShipFiltersProps) {
               />
             ),
           }))}
+      />
+      <FilterGroup
+        label="Premium"
+        icon={<Icon name="tier" className="text-fleet-gold size-4" />}
+        selectionMode="single"
+        selected={
+          value.premium === undefined
+            ? undefined
+            : [value.premium ? "premium" : "regular"]
+        }
+        onChange={(selected) =>
+          onChange({
+            premium: selected?.length ? selected[0] === "premium" : undefined,
+          })
+        }
+        options={[
+          { value: "premium", label: "Premium", tone: "gold" },
+          { value: "regular", label: "Regular" },
+        ]}
       />
       <FilterGroup
         label="Nation"

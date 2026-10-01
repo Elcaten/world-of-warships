@@ -36,6 +36,7 @@ const vehicleTypeTags = new Set([
 
 export interface ShipFilters {
   search?: string;
+  premium?: boolean;
   nations?: readonly string[];
   types?: readonly string[];
   levels?: readonly number[];
@@ -62,6 +63,8 @@ export function selectShips(
 
       return (
         matchesSearch &&
+        (filters.premium === undefined ||
+          ship.tags.includes("uiPremium") === filters.premium) &&
         (!filters.nations || filters.nations.includes(ship.nation)) &&
         (!filters.levels?.length || filters.levels.includes(ship.level)) &&
         (!filters.types ||

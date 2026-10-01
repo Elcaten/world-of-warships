@@ -19,6 +19,24 @@ test("mobile controls and ship details remain usable in both views", async ({
   await page.goto("/");
   await expect(page.getByRole("status")).toHaveText("2 ships found");
   await expectNoHorizontalOverflow(page);
+  const premiumGroup = page.getByRole("group", {
+    name: "Premium",
+    exact: true,
+  });
+  await premiumGroup
+    .getByRole("button", { name: "Premium", exact: true })
+    .tap();
+  await expect(page.getByRole("status")).toHaveText("1 ship found");
+  await expect(
+    page.getByRole("button", { name: "View details for Hill" }),
+  ).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+  await premiumGroup.getByRole("button", { name: "Regular" }).tap();
+  await expect(
+    page.getByRole("button", { name: "View details for Yamato" }),
+  ).toBeVisible();
+  await premiumGroup.getByRole("button", { name: "All", exact: true }).tap();
+  await expect(page.getByRole("status")).toHaveText("2 ships found");
   const search = page.getByRole("searchbox", { name: "Search ships" });
   await search.tap();
   await search.fill("Yamato");

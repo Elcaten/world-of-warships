@@ -9,7 +9,13 @@ type FilterGroupLayoutProps = {
 
 type Props<T extends string | number> = FilterGroupLayoutProps & {
   allLabel?: string;
-  options: { value: T; label: string; icon?: ReactNode }[];
+  selectionMode?: "multiple" | "single";
+  options: {
+    value: T;
+    label: string;
+    icon?: ReactNode;
+    tone?: "gold";
+  }[];
   selected: T[] | undefined;
   onChange: (value: T[] | undefined) => void;
 };
@@ -62,6 +68,7 @@ export function FilterGroup<T extends string | number>({
   label,
   icon,
   allLabel = "All",
+  selectionMode = "multiple",
   options,
   selected,
   onChange,
@@ -82,7 +89,12 @@ export function FilterGroup<T extends string | number>({
           <FilterButton
             key={option.value}
             selected={isOptionSelected}
+            tone={option.tone}
             onClick={() => {
+              if (selectionMode === "single") {
+                onChange(isOptionSelected ? undefined : [option.value]);
+                return;
+              }
               const next = selected?.includes(option.value)
                 ? selected.filter((value) => value !== option.value)
                 : [...(selected ?? []), option.value];
@@ -100,10 +112,12 @@ export function FilterGroup<T extends string | number>({
 
 function FilterButton({
   selected,
+  tone,
   onClick,
   children,
 }: {
   selected: boolean;
+  tone?: "gold";
   onClick: () => void;
   children: ReactNode;
 }) {
@@ -112,9 +126,12 @@ function FilterButton({
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={
-        "bg-fleet-deep text-fleet-secondary hover:border-fleet-cyan aria-pressed:border-fleet-cyan aria-pressed:bg-fleet-line aria-pressed:text-fleet-highlight inline-flex min-w-10 items-center justify-center gap-2 border border-transparent p-2 text-xs uppercase transition-[background-color] duration-700 ease-out aria-pressed:duration-0"
-      }
+      className={clsx(
+        "bg-fleet-deep text-fleet-secondary inline-flex min-w-10 items-center justify-center gap-2 border border-transparent p-2 text-xs uppercase transition-[background-color] duration-700 ease-out aria-pressed:duration-0",
+        tone === "gold"
+          ? "hover:border-fleet-gold hover:bg-fleet-gold/10 aria-pressed:border-fleet-gold aria-pressed:bg-fleet-gold/20 aria-pressed:text-fleet-gold hover:duration-0"
+          : "hover:border-fleet-cyan aria-pressed:border-fleet-cyan aria-pressed:bg-fleet-line aria-pressed:text-fleet-highlight",
+      )}
     >
       {children}
     </button>

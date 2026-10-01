@@ -50,6 +50,9 @@ it("keeps filters noninteractive until the ship catalogue supplies the tiers", a
     const filters = screen.getByRole("region", { name: "Ship filters" });
     expect(filters).toHaveAttribute("aria-busy", "true");
     expect(within(filters).queryByRole("button")).not.toBeInTheDocument();
+    expect(
+      within(filters).getByRole("group", { name: "Premium" }),
+    ).toBeInTheDocument();
 
     await waitFor(() => {
       expect(
@@ -287,6 +290,59 @@ it.each(["grid", "table"])(
   },
 );
 
+it.each(["grid", "table"])(
+  "combines premium with class filters and resets in %s view",
+  async (view) => {
+    window.history.replaceState(null, "", `/?view=${view}&premium=true`);
+    renderWithProviders(<App />);
+    await screen.findByRole("button", { name: "View details for Hill" });
+    const group = within(screen.getByRole("group", { name: "Premium" }));
+    const premium = group.getByRole("button", { name: "Premium" });
+    const regular = group.getByRole("button", { name: "Regular" });
+    expect(premium).toHaveAttribute("aria-pressed", "true");
+    expect(cards()).toHaveLength(1);
+
+    fireEvent.click(regular);
+    expect(premium).toHaveAttribute("aria-pressed", "false");
+    expect(regular).toHaveAttribute("aria-pressed", "true");
+    expect(cards()).toHaveLength(1);
+    expect(cards()[0]).toHaveAccessibleName("View details for Yamato");
+
+    fireEvent.click(
+      within(screen.getByRole("group", { name: "Class" })).getByRole("button", {
+        name: "Destroyer",
+      }),
+    );
+    expect(await screen.findByText("No ships found")).toBeInTheDocument();
+    fireEvent.click(premium);
+    expect(cards()).toHaveLength(1);
+    expect(cards()[0]).toHaveAccessibleName("View details for Hill");
+    fireEvent.click(premium);
+    expect(group.getByRole("button", { name: "All" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(cards()).toHaveLength(1);
+
+    fireEvent.click(regular);
+    expect(await screen.findByText("No ships found")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
+    expect(cards()).toHaveLength(2);
+    expect(group.getByRole("button", { name: "All" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(new URLSearchParams(window.location.search).has("premium")).toBe(
+      false,
+    );
+    expect(
+      screen.getByRole("button", {
+        name: view === "table" ? "Table view" : "Grid view",
+      }),
+    ).toHaveAttribute("aria-pressed", "true");
+  },
+);
+
 it("sorts both views and opens a real ship profile with a working close control", async () => {
   renderWithProviders(<App />);
   await screen.findByRole("button", { name: "View details for Yamato" });
@@ -313,7 +369,9 @@ it("sorts both views and opens a real ship profile with a working close control"
   );
   fireEvent.click(screen.getByRole("button", { name: "Grid view" }));
   expect(screen.queryByRole("table")).not.toBeInTheDocument();
-  expect(screen.getAllByText("Premium")).toHaveLength(1);
+  expect(
+    cards().filter((card) => within(card).queryByText("Premium")),
+  ).toHaveLength(1);
 
   fireEvent.click(
     screen.getByRole("button", { name: "View details for Hill" }),

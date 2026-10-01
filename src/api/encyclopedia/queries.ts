@@ -74,13 +74,19 @@ export const useVehicleTypeIdsQuery = () =>
   useQuery({ ...vehicleTypesQueryOptions(), select: selectVehicleTypeIds });
 
 export function useShipsQuery(filters: ShipFilters = {}, sort?: FleetSort) {
-  const { search, nations, types, levels } = filters;
+  const { search, premium, nations, types, levels } = filters;
   const select = useCallback(
     (vehicles: Vehicles) => {
-      const ships = selectShips(vehicles, { search, nations, types, levels });
+      const ships = selectShips(vehicles, {
+        search,
+        premium,
+        nations,
+        types,
+        levels,
+      });
       return sort ? sortShips(ships, sort) : ships;
     },
-    [search, nations, types, levels, sort],
+    [search, premium, nations, types, levels, sort],
   );
 
   return useQuery({ ...vehiclesQueryOptions(), select });

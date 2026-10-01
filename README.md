@@ -9,7 +9,7 @@ game and live data from the Vortex API.
 ## Implemented
 
 - Virtualized grid and table views, with ship artwork and detail dialogs.
-- Search, nation/class/tier filters, and sorting by name or tier.
+- Search, nation/class/tier/premium filters, and sorting by name or tier.
 - Search, filters, sort order, and view preserved in the URL.
 - Loading and empty states, API response validation, and retryable errors.
 - Tests covering API handling, filtering, UI interactions, and cache persistence.
