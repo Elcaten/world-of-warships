@@ -2,5 +2,7 @@ node_modules
 dist
 .git
 coverage
+playwright-report
+test-results
 *.local
 .DS_Store

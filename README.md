@@ -41,6 +41,16 @@ npm run test:run
 npm run build
 ```
 
+Browser tests (install Chromium once after `npm ci`):
+
+```sh
+npx playwright install chromium
+npm run test:e2e
+```
+
+Playwright covers desktop/mobile flows and scrolling with mocked data, locally
+and in CI. Use `npm run test:e2e:ui` for interactive debugging.
+
 ## Assumptions and tradeoffs
 
 I interpreted the brief as a single-page catalogue, prioritizing browsing,
