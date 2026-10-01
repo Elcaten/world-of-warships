@@ -24,12 +24,14 @@ const components: GridComponents = {
 
 export function ShipsGrid({
   ships,
+  detailsOpen,
   mediaPath,
   nations,
   vehicleTypes,
   onViewDetails,
 }: {
   ships: Ship[];
+  detailsOpen: boolean;
   mediaPath: string;
   nations: Nations;
   vehicleTypes: VehicleTypes;
@@ -65,10 +67,15 @@ export function ShipsGrid({
         top: 400,
         bottom: 400,
       }}
-      scrollSeekConfiguration={{
-        enter: (velocity) => Math.abs(velocity) > 1200,
-        exit: (velocity) => Math.abs(velocity) < 300,
-      }}
+      // Keep the dialog's focus return target mounted while scrolling settles.
+      scrollSeekConfiguration={
+        detailsOpen
+          ? false
+          : {
+              enter: (velocity) => Math.abs(velocity) > 1200,
+              exit: (velocity) => Math.abs(velocity) < 300,
+            }
+      }
     />
   );
 }

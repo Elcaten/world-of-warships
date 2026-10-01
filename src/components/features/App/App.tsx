@@ -51,6 +51,7 @@ export default function App() {
         </section>
         <FleetResults
           state={state}
+          detailsOpen={detailsOpen}
           onReset={reset}
           onViewDetails={showDetails}
         />

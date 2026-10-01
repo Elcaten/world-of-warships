@@ -16,12 +16,14 @@ import { FleetPending } from "./FleetPending";
 
 type FleetResultsProps = {
   state: FleetQueryState;
+  detailsOpen: boolean;
   onReset: () => void;
   onViewDetails: (ship: Ship) => void;
 };
 
 export function FleetResults({
   state: { search, types, premium, nations, levels, sort, view },
+  detailsOpen,
   onReset,
   onViewDetails,
 }: FleetResultsProps) {
@@ -89,6 +91,7 @@ export function FleetResults({
         <div className="mx-auto max-w-4xl">
           <ShipsGrid
             ships={ships}
+            detailsOpen={detailsOpen}
             mediaPath={mediaPathQuery.data}
             nations={nationsQuery.data}
             vehicleTypes={vehicleTypesQuery.data}
