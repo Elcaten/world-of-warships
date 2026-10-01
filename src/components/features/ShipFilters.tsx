@@ -94,20 +94,11 @@ export function ShipFilters({ value, onChange }: ShipFiltersProps) {
       <FilterGroup
         label="Premium"
         icon={<Icon name="tier" className="text-fleet-gold size-4" />}
-        selectionMode="single"
-        selected={
-          value.premium === undefined
-            ? undefined
-            : [value.premium ? "premium" : "regular"]
-        }
-        onChange={(selected) =>
-          onChange({
-            premium: selected?.length ? selected[0] === "premium" : undefined,
-          })
-        }
+        selected={value.premium}
+        onChange={(premium) => onChange({ premium })}
         options={[
-          { value: "premium", label: "Premium", tone: "gold" },
-          { value: "regular", label: "Regular" },
+          { value: true, label: "Premium", tone: "gold" },
+          { value: false, label: "Regular" },
         ]}
       />
       <FilterGroup

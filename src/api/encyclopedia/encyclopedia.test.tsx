@@ -176,16 +176,18 @@ describe("ship selectors", () => {
   });
 
   it("filters premium and regular ships in combination with other filters", () => {
-    expect(selectShips(vehicles, { premium: true })).toMatchObject([
+    expect(selectShips(vehicles, { premium: [true] })).toMatchObject([
       { isPremium: true, localization: { mark: { en: "Hill" } } },
     ]);
-    expect(selectShips(vehicles, { premium: false })).toMatchObject([
+    expect(selectShips(vehicles, { premium: [false] })).toMatchObject([
       { isPremium: false, localization: { mark: { en: "Yamato" } } },
     ]);
     expect(selectShips(vehicles, { premium: undefined })).toHaveLength(2);
+    expect(selectShips(vehicles, { premium: [true, false] })).toHaveLength(2);
+    expect(selectShips(vehicles, { premium: [] })).toHaveLength(0);
     expect(
       selectShips(vehicles, {
-        premium: true,
+        premium: [true],
         types: ["Destroyer"],
         nations: ["usa"],
         levels: [5],
@@ -193,11 +195,19 @@ describe("ship selectors", () => {
       }),
     ).toHaveLength(1);
     expect(
-      selectShips(vehicles, { premium: false, types: ["Destroyer"] }),
+      selectShips(vehicles, { premium: [false], types: ["Destroyer"] }),
     ).toEqual([]);
     expect(
-      selectShips(vehicles, { premium: true, types: ["Battleship"] }),
+      selectShips(vehicles, { premium: [true], types: ["Battleship"] }),
     ).toEqual([]);
+    expect(
+      selectShips(vehicles, {
+        premium: [true, false],
+        types: ["Battleship"],
+      }),
+    ).toMatchObject([
+      { isPremium: false, localization: { mark: { en: "Yamato" } } },
+    ]);
   });
 
   it("searches technical names and excludes record IDs without mutating the catalogue", () => {
@@ -235,7 +245,7 @@ it("shares the vehicle cache across consumers, filters, and sorting without refe
   }: {
     search: string;
     sort?: FleetSort;
-    premium?: boolean;
+    premium?: readonly boolean[];
   }) {
     const ships = useShipsQuery({ search, premium }, sort);
     const vehicles = useVehiclesQuery();
@@ -276,8 +286,12 @@ it("shares the vehicle cache across consumers, filters, and sorting without refe
     });
   }
   for (const [premium, expected] of [
-    [true, ["Hill"]],
-    [false, ["Yamato"]],
+    [[true], ["Hill"]],
+    [
+      [true, false],
+      ["Hill", "Yamato"],
+    ],
+    [[false], ["Yamato"]],
     [undefined, ["Hill", "Yamato"]],
   ] as const) {
     rerender(<ShipList search="" sort="name" premium={premium} />);

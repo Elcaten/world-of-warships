@@ -7,7 +7,7 @@ export type FleetView = "grid" | "table";
 export type FleetQueryState = {
   search: string;
   types: string[] | undefined;
-  premium: boolean | undefined;
+  premium: boolean[] | undefined;
   nations: string[] | undefined;
   levels: number[] | undefined;
   sort: FleetSort;
@@ -80,13 +80,13 @@ function readQueryState(): FleetQueryState {
   const params = new URLSearchParams(window.location.search);
   const sort = params.get("sort");
   const view = params.get("view");
-  const premium = params.get("premium");
 
   return {
     search: params.get("q") ?? defaultState.search,
     types: readStrings(params, "type"),
-    premium:
-      premium === "true" ? true : premium === "false" ? false : undefined,
+    premium: readStrings(params, "premium")
+      ?.filter((value) => value === "true" || value === "false")
+      .map((value) => value === "true"),
     nations: readStrings(params, "nation"),
     levels: readLevels(params),
     sort: fleetSorts.has(sort as FleetSort)
@@ -100,7 +100,7 @@ function readQueryState(): FleetQueryState {
 
 function readStrings(
   params: URLSearchParams,
-  name: "type" | "nation",
+  name: "type" | "premium" | "nation",
 ): string[] | undefined {
   const values = [...new Set(params.getAll(name).filter(Boolean))];
   return values.length ? values : undefined;
@@ -125,6 +125,7 @@ function normalizeQueryState(
   return {
     ...state,
     types: retainValidValues(state.types, validFilters.types)?.sort(),
+    premium: retainValidValues(state.premium, [false, true])?.sort(),
     nations: retainValidValues(state.nations, validFilters.nations)?.sort(),
     levels: retainValidValues(state.levels, validFilters.levels)?.sort(
       (a, b) => a - b,
@@ -132,7 +133,7 @@ function normalizeQueryState(
   };
 }
 
-function retainValidValues<T extends string | number>(
+function retainValidValues<T extends string | number | boolean>(
   selected: T[] | undefined,
   valid: readonly T[] | undefined,
 ): T[] | undefined {
@@ -149,7 +150,7 @@ function replaceQueryState(state: FleetQueryState) {
 
   if (state.search) params.set("q", state.search);
   state.types?.forEach((value) => params.append("type", value));
-  if (state.premium !== undefined) params.set("premium", String(state.premium));
+  state.premium?.forEach((value) => params.append("premium", String(value)));
   state.nations?.forEach((value) => params.append("nation", value));
   state.levels?.forEach((value) => params.append("tier", String(value)));
   if (state.sort !== defaultState.sort) params.set("sort", state.sort);
@@ -169,6 +170,7 @@ function replaceQueryState(state: FleetQueryState) {
 function filtersEqual(a: FleetQueryState, b: FleetQueryState) {
   return (
     arraysEqual(a.types, b.types) &&
+    arraysEqual(a.premium, b.premium) &&
     arraysEqual(a.nations, b.nations) &&
     arraysEqual(a.levels, b.levels)
   );

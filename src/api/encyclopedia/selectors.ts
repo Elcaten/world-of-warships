@@ -36,14 +36,14 @@ const vehicleTypeTags = new Set([
 
 export interface ShipFilters {
   search?: string;
-  premium?: boolean;
+  premium?: readonly boolean[];
   nations?: readonly string[];
   types?: readonly string[];
   levels?: readonly number[];
 }
 
 // Filters are local: these endpoints return full catalogues, not search pages.
-// Omitted filters mean all values; empty nations/types mean none.
+// Omitted filters mean all values; empty premium/nations/types mean none.
 // Different filter categories are ANDed; empty levels still mean all tiers.
 export function selectShips(
   vehicles: Vehicles,
@@ -63,8 +63,8 @@ export function selectShips(
 
       return (
         matchesSearch &&
-        (filters.premium === undefined ||
-          ship.tags.includes("uiPremium") === filters.premium) &&
+        (!filters.premium ||
+          filters.premium.includes(ship.tags.includes("uiPremium"))) &&
         (!filters.nations || filters.nations.includes(ship.nation)) &&
         (!filters.levels?.length || filters.levels.includes(ship.level)) &&
         (!filters.types ||

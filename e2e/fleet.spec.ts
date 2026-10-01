@@ -183,6 +183,19 @@ test("premium filtering persists and uses gold hover and selected states", async
   );
 
   await regular.click();
+  await expect(premium).toHaveAttribute("aria-pressed", "true");
+  await expect(regular).toHaveAttribute("aria-pressed", "true");
+  await expect(all).toHaveAttribute("aria-pressed", "false");
+  await expect(shipButtons(page)).toHaveCount(2);
+  await expect(page).toHaveURL(
+    (url) => url.searchParams.getAll("premium").join(",") === "false,true",
+  );
+  await page.reload();
+  await expect(premium).toHaveAttribute("aria-pressed", "true");
+  await expect(regular).toHaveAttribute("aria-pressed", "true");
+  await expect(shipButtons(page)).toHaveCount(2);
+
+  await premium.click();
   await expect(premium).toHaveAttribute("aria-pressed", "false");
   await expect(shipButtons(page)).toHaveCount(1);
   await expect(shipButtons(page)).toHaveAccessibleName(

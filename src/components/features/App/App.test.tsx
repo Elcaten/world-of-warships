@@ -291,7 +291,7 @@ it.each(["grid", "table"])(
 );
 
 it.each(["grid", "table"])(
-  "combines premium with class filters and resets in %s view",
+  "accumulates premium selections, combines with class filters, and resets in %s view",
   async (view) => {
     window.history.replaceState(null, "", `/?view=${view}&premium=true`);
     renderWithProviders(<App />);
@@ -303,6 +303,15 @@ it.each(["grid", "table"])(
     expect(cards()).toHaveLength(1);
 
     fireEvent.click(regular);
+    expect(premium).toHaveAttribute("aria-pressed", "true");
+    expect(regular).toHaveAttribute("aria-pressed", "true");
+    expect(group.getByRole("button", { name: "All" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    expect(cards()).toHaveLength(2);
+
+    fireEvent.click(premium);
     expect(premium).toHaveAttribute("aria-pressed", "false");
     expect(regular).toHaveAttribute("aria-pressed", "true");
     expect(cards()).toHaveLength(1);
@@ -315,8 +324,14 @@ it.each(["grid", "table"])(
     );
     expect(await screen.findByText("No ships found")).toBeInTheDocument();
     fireEvent.click(premium);
+    expect(premium).toHaveAttribute("aria-pressed", "true");
+    expect(regular).toHaveAttribute("aria-pressed", "true");
     expect(cards()).toHaveLength(1);
     expect(cards()[0]).toHaveAccessibleName("View details for Hill");
+    fireEvent.click(regular);
+    expect(premium).toHaveAttribute("aria-pressed", "true");
+    expect(regular).toHaveAttribute("aria-pressed", "false");
+    expect(cards()).toHaveLength(1);
     fireEvent.click(premium);
     expect(group.getByRole("button", { name: "All" })).toHaveAttribute(
       "aria-pressed",

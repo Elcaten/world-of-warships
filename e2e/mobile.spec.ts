@@ -32,6 +32,10 @@ test("mobile controls and ship details remain usable in both views", async ({
   ).toBeVisible();
   await expectNoHorizontalOverflow(page);
   await premiumGroup.getByRole("button", { name: "Regular" }).tap();
+  await expect(premiumGroup.getByRole("button", { pressed: true })).toHaveCount(
+    2,
+  );
+  await expect(page.getByRole("status")).toHaveText("2 ships found");
   await expect(
     page.getByRole("button", { name: "View details for Yamato" }),
   ).toBeVisible();

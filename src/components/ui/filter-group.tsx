@@ -7,9 +7,8 @@ type FilterGroupLayoutProps = {
   icon: ReactNode;
 };
 
-type Props<T extends string | number> = FilterGroupLayoutProps & {
+type Props<T extends string | number | boolean> = FilterGroupLayoutProps & {
   allLabel?: string;
-  selectionMode?: "multiple" | "single";
   options: {
     value: T;
     label: string;
@@ -64,11 +63,10 @@ export function FilterGroupSkeleton({
   );
 }
 
-export function FilterGroup<T extends string | number>({
+export function FilterGroup<T extends string | number | boolean>({
   label,
   icon,
   allLabel = "All",
-  selectionMode = "multiple",
   options,
   selected,
   onChange,
@@ -87,14 +85,10 @@ export function FilterGroup<T extends string | number>({
         const isOptionSelected = !!selected?.includes(option.value);
         return (
           <FilterButton
-            key={option.value}
+            key={String(option.value)}
             selected={isOptionSelected}
             tone={option.tone}
             onClick={() => {
-              if (selectionMode === "single") {
-                onChange(isOptionSelected ? undefined : [option.value]);
-                return;
-              }
               const next = selected?.includes(option.value)
                 ? selected.filter((value) => value !== option.value)
                 : [...(selected ?? []), option.value];
